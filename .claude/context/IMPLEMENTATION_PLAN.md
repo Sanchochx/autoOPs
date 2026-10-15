@@ -19,12 +19,12 @@
 ┌─────────────────────────────────────────────────────────────┐
 │  PROGRESO GLOBAL DEL PROYECTO                               │
 ├─────────────────────────────────────────────────────────────┤
-│  Total Historias de Usuario:     18                         │
+│  Total Historias de Usuario:     15                         │
 │  ✅ Completadas:                 2                          │
 │  ⏳ En Progreso:                 0                          │
-│  ⏸️  Pendientes:                 16                         │
+│  ⏸️  Pendientes:                 13                         │
 │                                                             │
-│  Progreso: [█░░░░░░░░░] 11% (2/18)                           │
+│  Progreso: [█░░░░░░░░░] 13% (2/15)                           │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -46,7 +46,7 @@
 |------|--------|---------|----------|-------------|-------------|------------|----------|
 | 01 | Monorepo & Base Setup | MONO | 3 | 1 | 0 | 2 | [███░░░░░░░] 33% |
 | 02 | API Gateway & Comunicaciones (FastAPI + WebSockets) | GATE | 1 | 1 | 0 | 0 | [██████████] 100% |
-| 03 | Servidores MCP (Aislamiento de BD y Logs) | MCP | 4 | 0 | 0 | 4 | [░░░░░░░░░░] 0% |
+| 03 | Servidores MCP (Logs y Métricas) | MCP | 1 | 0 | 0 | 1 | [░░░░░░░░░░] 0% |
 | 04 | Motor de IA (LangGraph: Triaje, Investigador, Ejecutor) | AI | 5 | 0 | 0 | 5 | [░░░░░░░░░░] 0% |
 | 05 | Frontend Administrator (React + Vite + TailwindCSS) | FE | 5 | 0 | 0 | 5 | [░░░░░░░░░░] 0% |
 
@@ -60,10 +60,10 @@
 
 **Objetivo:** Entregar el flujo end-to-end en desarrollo local (sin contenedores): ticket → triaje → investigación vía MCP → plan de remediación con aprobación HITL, visible en tiempo real en el dashboard.
 **Épicas:** 01 Monorepo & Base Setup, 02 API Gateway & Comunicaciones, 03 Servidores MCP, 04 Motor de IA, 05 Frontend Administrator
-**Total US:** 18
-**Progreso:** [█░░░░░░░░░] 11% (2/18)
+**Total US:** 15
+**Progreso:** [█░░░░░░░░░] 13% (2/15)
 
-> Orden recomendado de ejecución: 01 → 03 → 02 → 04 → 05 (el motor de IA necesita MCP y el Gateway; el Frontend consume el Gateway). Las dependencias de cada US son la fuente de verdad.
+> Orden recomendado de ejecución: 01 → 02 → 03 → 04 → 05 (MCP depende del Gateway; el motor de IA necesita MCP y el Gateway; el Frontend consume el Gateway). Las dependencias de cada US son la fuente de verdad.
 
 ---
 
@@ -113,40 +113,19 @@
 
 ---
 
-## Epic 03: Servidores MCP - Aislamiento de BD, Logs y Métricas
+## Epic 03: Servidores MCP - Inspección de Logs y Métricas
 
 **Prioridad:** ALTA
-**Carpeta:** `context/user_stories/epic_03_mcp_servers/`
+**Carpeta:** `context/user_stories/epic_03_mcp/`
 
 ### Historias de Usuario
 
-#### [ ] US-MCP-001: Base de Servidor MCP (SDK, transporte y configuración)
-- **Archivo:** `context/user_stories/epic_03_mcp_servers/US-MCP-001_mcp_base_server.md` *(por redactar)*
-- **Prioridad:** CRÍTICA
-- **Estimación:** 3 pts
-- **Dependencias:** US-MONO-002
-- **Criterios de Aceptación:** Por definir
-
-#### [ ] US-MCP-002: Servidor MCP de Base de Datos (solo lectura)
-- **Archivo:** `context/user_stories/epic_03_mcp_servers/US-MCP-002_mcp_db_server.md` *(por redactar)*
+#### [ ] US-MCP-003: Servidor MCP de Inspección de Logs y Métricas Simuladas
+- **Archivo:** `context/user_stories/epic_03_mcp/US-MCP-003_logs_mcp_server.md`
 - **Prioridad:** ALTA
 - **Estimación:** 5 pts
-- **Dependencias:** US-MCP-001
-- **Criterios de Aceptación:** Por definir
-
-#### [ ] US-MCP-003: Servidor MCP de Logs
-- **Archivo:** `context/user_stories/epic_03_mcp_servers/US-MCP-003_mcp_logs_server.md` *(por redactar)*
-- **Prioridad:** ALTA
-- **Estimación:** 5 pts
-- **Dependencias:** US-MCP-001
-- **Criterios de Aceptación:** Por definir
-
-#### [ ] US-MCP-004: Servidor MCP de Métricas
-- **Archivo:** `context/user_stories/epic_03_mcp_servers/US-MCP-004_mcp_metrics_server.md` *(por redactar)*
-- **Prioridad:** MEDIA
-- **Estimación:** 3 pts
-- **Dependencias:** US-MCP-001
-- **Criterios de Aceptación:** Por definir
+- **Dependencias:** US-GATE-002
+- **Criterios de Aceptación:** 4
 
 ---
 
@@ -175,7 +154,7 @@
 - **Archivo:** `context/user_stories/epic_04_ai_engine/US-AI-003_investigator_agent.md` *(por redactar)*
 - **Prioridad:** ALTA
 - **Estimación:** 8 pts
-- **Dependencias:** US-AI-002, US-MCP-002, US-MCP-003
+- **Dependencias:** US-AI-002, US-MCP-003
 - **Criterios de Aceptación:** Por definir
 
 #### [ ] US-AI-004: Agente Ejecutor y Aprobación HITL
