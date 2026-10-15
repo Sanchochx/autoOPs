@@ -120,3 +120,5 @@ El proyecto sigue Spec-Driven Development: una historia de usuario a la vez, cri
               \_/     \'-'/
                        `"`
 +============================================================================+
+
+> _

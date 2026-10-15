@@ -12,6 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from apps.api_gateway.database import get_db_session
 from apps.api_gateway.main import app
 from apps.api_gateway.models import Ticket
+from apps.api_gateway.routers import tickets as tickets_router
 from apps.api_gateway.schemas import TicketSeverity, TicketStatus
 
 
@@ -36,7 +37,15 @@ def make_ticket(**overrides: object) -> Ticket:
 
 
 @pytest.fixture
-def session() -> Iterator[AsyncMock]:
+def ai_task() -> AsyncMock:
+    """Sustituye la tarea de IA para que los tests REST no invoquen LangGraph."""
+    return AsyncMock()
+
+
+@pytest.fixture
+def session(
+    monkeypatch: pytest.MonkeyPatch, ai_task: AsyncMock
+) -> Iterator[AsyncMock]:
     """Sesión asíncrona simulada inyectada vía ``dependency_overrides``."""
     mock = AsyncMock(spec=AsyncSession)
 
@@ -49,6 +58,7 @@ def session() -> Iterator[AsyncMock]:
 
     mock.refresh.side_effect = fake_refresh
     app.dependency_overrides[get_db_session] = lambda: mock
+    monkeypatch.setattr(tickets_router, "process_ticket_with_ai", ai_task)
     yield mock
     app.dependency_overrides.clear()
 
@@ -72,10 +82,17 @@ def test_create_ticket_persists_and_returns_201(
     body = response.json()
     assert UUID(body["id"]).version == 4
     assert body["title"] == VALID_PAYLOAD["title"]
-    assert body["severity"] == "high"
+    assert body["severity"] == "medium"
     assert body["status"] == "open"
     session.add.assert_called_once()
     session.commit.assert_awaited_once()
+
+
+def test_create_ticket_enqueues_ai_task(
+    client: TestClient, ai_task: AsyncMock
+) -> None:
+    response = client.post("/api/v1/tickets", json=VALID_PAYLOAD)
+    ai_task.assert_awaited_once_with(UUID(response.json()["id"]))
 
 
 @pytest.mark.parametrize(

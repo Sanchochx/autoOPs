@@ -4,7 +4,7 @@
 **Prioridad:** ALTA
 **Estimación:** 5 pts
 **Dependencias:** US-DB-002, US-LANG-004
-**Estado:** Pendiente
+**Estado:** En progreso
 
 ---
 
@@ -20,17 +20,17 @@
 
 > Trabajar UNO A LA VEZ, en orden. Marcar `[x]` al terminar cada uno y hacer pausa en el checkpoint final antes de cerrar la US.
 
-- [ ] **CA-1: Background Tasks en FastAPI**
+- [x] **CA-1: Background Tasks en FastAPI**
   - Modificar `POST /api/v1/tickets` para inyectar `BackgroundTasks` de FastAPI.
   - El endpoint debe guardar el ticket en BD con severidad inicial `medium` y estado `open`, encolar la tarea de IA y responder inmediatamente `201`.
   - **Verificación:** la respuesta `201` llega sin esperar al grafo; el ticket queda en BD con `severity=medium` y `status=open`; la tarea de IA queda encolada con el `ticket_id` creado.
 
-- [ ] **CA-2: Servicio de Invocación de LangGraph**
+- [x] **CA-2: Servicio de Invocación de LangGraph**
   - Crear `apps/api_gateway/services/ai_service.py`.
   - Crear la función asíncrona `process_ticket_with_ai(ticket_id, db_session)` que busque el ticket en la base de datos y llame al grafo compilado (`compiled_graph.invoke()`).
   - **Verificación:** con un `ticket_id` existente, el servicio carga el ticket y invoca el grafo con su contenido; con un ID inexistente, termina sin invocar el grafo y sin propagar la excepción.
 
-- [ ] **CA-3: Actualización Post-Triaje**
+- [x] **CA-3: Actualización Post-Triaje**
   - Al terminar la ejecución de LangGraph, tomar el estado resultante (`AgentState`) y usarlo para actualizar la `severity` del ticket en la base de datos y cambiar su `status` a `investigating`.
   - **Verificación:** tras la tarea, el ticket persistido tiene la `severity` devuelta por el Agente de Triaje y `status=investigating`; si el grafo falla, el ticket conserva `severity=medium` y `status=open` y el error se registra en stdout/stderr.
 

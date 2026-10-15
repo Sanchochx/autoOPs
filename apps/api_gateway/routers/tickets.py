@@ -2,13 +2,19 @@
 
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from apps.api_gateway.database import get_db_session
 from apps.api_gateway.models import Ticket
-from apps.api_gateway.schemas import TicketCreate, TicketRead, TicketUpdate
+from apps.api_gateway.schemas import (
+    TicketCreate,
+    TicketRead,
+    TicketSeverity,
+    TicketUpdate,
+)
+from apps.api_gateway.services.ai_service import process_ticket_with_ai
 
 router = APIRouter(prefix="/api/v1/tickets", tags=["tickets"])
 
@@ -24,13 +30,21 @@ async def _get_ticket_or_404(session: AsyncSession, ticket_id: UUID) -> Ticket:
 
 @router.post("", response_model=TicketRead, status_code=status.HTTP_201_CREATED)
 async def create_ticket(
-    payload: TicketCreate, session: AsyncSession = Depends(get_db_session)
+    payload: TicketCreate,
+    background_tasks: BackgroundTasks,
+    session: AsyncSession = Depends(get_db_session),
 ) -> Ticket:
-    """Crea y persiste un ticket con estado ``open``."""
-    ticket = Ticket(**payload.model_dump())
+    """Crea el ticket con severidad ``medium`` y encola el triaje con IA.
+
+    La severidad real la asigna el Agente de Triaje en segundo plano; la
+    respuesta no espera al grafo.
+    """
+    data = payload.model_dump(exclude={"severity"})
+    ticket = Ticket(**data, severity=TicketSeverity.MEDIUM)
     session.add(ticket)
     await session.commit()
     await session.refresh(ticket)
+    background_tasks.add_task(process_ticket_with_ai, ticket.id)
     return ticket
 
 
