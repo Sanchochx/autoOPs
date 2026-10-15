@@ -20,11 +20,11 @@
 │  PROGRESO GLOBAL DEL PROYECTO                               │
 ├─────────────────────────────────────────────────────────────┤
 │  Total Historias de Usuario:     7                          │
-│  ✅ Completadas:                 4                          │
+│  ✅ Completadas:                 5                          │
 │  ⏳ En Progreso:                 0                          │
-│  ⏸️  Pendientes:                 3                          │
+│  ⏸️  Pendientes:                 2                          │
 │                                                             │
-│  Progreso: [██████░░░░] 57% (4/7)                          │
+│  Progreso: [███████░░░] 71% (5/7)                           │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -48,7 +48,7 @@
 | 02 | API Gateway & Comunicaciones (FastAPI + WebSockets) | GATE | 1 | 1 | 0 | 0 | [██████████] 100% |
 | 03 | Servidores MCP (Logs y Métricas) | MCP | 1 | 1 | 0 | 0 | [██████████] 100% |
 | 04 | Motor de IA (LangGraph: Triaje e Investigación) | LANG | 1 | 1 | 0 | 0 | [██████████] 100% |
-| 05 | Frontend Dashboard (React + Vite + TailwindCSS) | FRONT | 1 | 0 | 0 | 1 | [░░░░░░░░░░] 0% |
+| 05 | Frontend Dashboard (React + Vite + TailwindCSS) | FRONT | 1 | 1 | 0 | 0 | [██████████] 100% |
 
 ---
 
@@ -61,7 +61,7 @@
 **Objetivo:** Entregar el flujo end-to-end en desarrollo local (sin contenedores): ticket → triaje → investigación vía MCP → plan de remediación con aprobación HITL, visible en tiempo real en el dashboard.
 **Épicas:** 01 Monorepo & Base Setup, 02 API Gateway & Comunicaciones, 03 Servidores MCP, 04 Motor de IA, 05 Frontend Dashboard
 **Total US:** 7
-**Progreso:** [██████░░░░] 57% (4/7)
+**Progreso:** [███████░░░] 71% (5/7)
 
 > Orden recomendado de ejecución: 01 → 02 → 03 → 04 → 05 (MCP depende del Gateway; el motor de IA necesita MCP y el Gateway; el Frontend consume el Gateway). Las dependencias de cada US son la fuente de verdad.
 
@@ -152,7 +152,7 @@
 
 ### Historias de Usuario
 
-#### [ ] US-FRONT-005: Dashboard Admin e Integración de WebSockets
+#### [x] US-FRONT-005: Dashboard Admin e Integración de WebSockets
 - **Archivo:** `context/user_stories/epic_05_frontend/US-FRONT-005_react_dashboard.md`
 - **Prioridad:** MEDIA
 - **Estimación:** 5 pts
