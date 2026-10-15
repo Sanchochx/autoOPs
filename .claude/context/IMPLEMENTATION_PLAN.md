@@ -19,12 +19,12 @@
 ┌─────────────────────────────────────────────────────────────┐
 │  PROGRESO GLOBAL DEL PROYECTO                               │
 ├─────────────────────────────────────────────────────────────┤
-│  Total Historias de Usuario:     22                         │
-│  ✅ Completadas:                 1                          │
+│  Total Historias de Usuario:     18                         │
+│  ✅ Completadas:                 2                          │
 │  ⏳ En Progreso:                 0                          │
-│  ⏸️  Pendientes:                 21                         │
+│  ⏸️  Pendientes:                 16                         │
 │                                                             │
-│  Progreso: [█░░░░░░░░░] 5% (1/22)                           │
+│  Progreso: [█░░░░░░░░░] 11% (2/18)                           │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -45,7 +45,7 @@
 | Epic | Nombre | Prefijo | Total US | Completadas | En Progreso | Pendientes | Progreso |
 |------|--------|---------|----------|-------------|-------------|------------|----------|
 | 01 | Monorepo & Base Setup | MONO | 3 | 1 | 0 | 2 | [███░░░░░░░] 33% |
-| 02 | API Gateway & Comunicaciones (FastAPI + WebSockets) | GW | 5 | 0 | 0 | 5 | [░░░░░░░░░░] 0% |
+| 02 | API Gateway & Comunicaciones (FastAPI + WebSockets) | GATE | 1 | 1 | 0 | 0 | [██████████] 100% |
 | 03 | Servidores MCP (Aislamiento de BD y Logs) | MCP | 4 | 0 | 0 | 4 | [░░░░░░░░░░] 0% |
 | 04 | Motor de IA (LangGraph: Triaje, Investigador, Ejecutor) | AI | 5 | 0 | 0 | 5 | [░░░░░░░░░░] 0% |
 | 05 | Frontend Administrator (React + Vite + TailwindCSS) | FE | 5 | 0 | 0 | 5 | [░░░░░░░░░░] 0% |
@@ -60,8 +60,8 @@
 
 **Objetivo:** Entregar el flujo end-to-end en desarrollo local (sin contenedores): ticket → triaje → investigación vía MCP → plan de remediación con aprobación HITL, visible en tiempo real en el dashboard.
 **Épicas:** 01 Monorepo & Base Setup, 02 API Gateway & Comunicaciones, 03 Servidores MCP, 04 Motor de IA, 05 Frontend Administrator
-**Total US:** 22
-**Progreso:** [█░░░░░░░░░] 5% (1/22)
+**Total US:** 18
+**Progreso:** [█░░░░░░░░░] 11% (2/18)
 
 > Orden recomendado de ejecución: 01 → 03 → 02 → 04 → 05 (el motor de IA necesita MCP y el Gateway; el Frontend consume el Gateway). Las dependencias de cada US son la fuente de verdad.
 
@@ -97,47 +97,19 @@
 
 ---
 
-## Epic 02: API Gateway & Comunicaciones - FastAPI, REST, Auth y WebSockets
+## Epic 02: API Gateway & Comunicaciones - FastAPI, REST y WebSockets
 
 **Prioridad:** ALTA
-**Carpeta:** `context/user_stories/epic_02_api_gateway/`
+**Carpeta:** `context/user_stories/epic_02_gateway/`
 
 ### Historias de Usuario
 
-#### [ ] US-GW-001: Esqueleto FastAPI y Health Check
-- **Archivo:** `context/user_stories/epic_02_api_gateway/US-GW-001_fastapi_skeleton.md` *(por redactar)*
-- **Prioridad:** CRÍTICA
-- **Estimación:** 2 pts
-- **Dependencias:** US-MONO-002
-- **Criterios de Aceptación:** Por definir
-
-#### [ ] US-GW-002: Modelos de Datos y Migraciones (SQLAlchemy + Alembic)
-- **Archivo:** `context/user_stories/epic_02_api_gateway/US-GW-002_data_models_migrations.md` *(por redactar)*
+#### [x] US-GATE-002: Implementación Base del API Gateway en FastAPI
+- **Archivo:** `context/user_stories/epic_02_gateway/US-GATE-002_fastapi_gateway.md`
 - **Prioridad:** CRÍTICA
 - **Estimación:** 5 pts
-- **Dependencias:** US-GW-001
-- **Criterios de Aceptación:** Por definir
-
-#### [ ] US-GW-003: Autenticación JWT
-- **Archivo:** `context/user_stories/epic_02_api_gateway/US-GW-003_jwt_auth.md` *(por redactar)*
-- **Prioridad:** ALTA
-- **Estimación:** 5 pts
-- **Dependencias:** US-GW-002
-- **Criterios de Aceptación:** Por definir
-
-#### [ ] US-GW-004: API REST de Tickets
-- **Archivo:** `context/user_stories/epic_02_api_gateway/US-GW-004_tickets_rest_api.md` *(por redactar)*
-- **Prioridad:** ALTA
-- **Estimación:** 5 pts
-- **Dependencias:** US-GW-003
-- **Criterios de Aceptación:** Por definir
-
-#### [ ] US-GW-005: WebSocket de Streaming de Razonamiento
-- **Archivo:** `context/user_stories/epic_02_api_gateway/US-GW-005_websocket_streaming.md` *(por redactar)*
-- **Prioridad:** ALTA
-- **Estimación:** 5 pts
-- **Dependencias:** US-GW-003
-- **Criterios de Aceptación:** Por definir
+- **Dependencias:** US-MONO-001
+- **Criterios de Aceptación:** 4
 
 ---
 
@@ -217,7 +189,7 @@
 - **Archivo:** `context/user_stories/epic_04_ai_engine/US-AI-005_gateway_integration.md` *(por redactar)*
 - **Prioridad:** ALTA
 - **Estimación:** 5 pts
-- **Dependencias:** US-AI-004, US-GW-004, US-GW-005
+- **Dependencias:** US-AI-004, US-GATE-002
 - **Criterios de Aceptación:** Por definir
 
 ---
@@ -240,21 +212,21 @@
 - **Archivo:** `context/user_stories/epic_05_frontend/US-FE-002_login_layout.md` *(por redactar)*
 - **Prioridad:** ALTA
 - **Estimación:** 5 pts
-- **Dependencias:** US-FE-001, US-GW-003
+- **Dependencias:** US-FE-001, US-GATE-002
 - **Criterios de Aceptación:** Por definir
 
 #### [ ] US-FE-003: Tabla de Tickets (accesible, con carga diferida)
 - **Archivo:** `context/user_stories/epic_05_frontend/US-FE-003_tickets_table.md` *(por redactar)*
 - **Prioridad:** ALTA
 - **Estimación:** 5 pts
-- **Dependencias:** US-FE-002, US-GW-004
+- **Dependencias:** US-FE-002, US-GATE-002
 - **Criterios de Aceptación:** Por definir
 
 #### [ ] US-FE-004: Streaming en Tiempo Real del Razonamiento (WebSocket + Zustand)
 - **Archivo:** `context/user_stories/epic_05_frontend/US-FE-004_realtime_streaming.md` *(por redactar)*
 - **Prioridad:** ALTA
 - **Estimación:** 5 pts
-- **Dependencias:** US-FE-003, US-GW-005
+- **Dependencias:** US-FE-003, US-GATE-002
 - **Criterios de Aceptación:** Por definir
 
 #### [ ] US-FE-005: Modal de Aprobación HITL

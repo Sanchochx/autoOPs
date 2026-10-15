@@ -46,7 +46,7 @@ Los archivos de cada US deben crearse **solo** dentro del directorio que corresp
 [~] US-MONO-001: Monorepo Setup
 ```
 
-Prefijos de ID: `MONO` (Epic 01), `GW` (Epic 02), `MCP` (Epic 03), `AI` (Epic 04), `FE` (Epic 05).
+Prefijos de ID: `MONO` (Epic 01), `GATE` (Epic 02), `MCP` (Epic 03), `AI` (Epic 04), `FE` (Epic 05).
 Si la US está marcada *(por redactar)* en el plan, redáctala primero en su carpeta de épica y pide validación al usuario antes de implementarla.
 
 ---
