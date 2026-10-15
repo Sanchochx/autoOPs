@@ -1,5 +1,6 @@
 """Esquemas Pydantic del API Gateway."""
 
+from datetime import datetime
 from enum import Enum
 from uuid import UUID
 
@@ -15,6 +16,15 @@ class TicketSeverity(str, Enum):
     CRITICAL = "critical"
 
 
+class TicketStatus(str, Enum):
+    """Estados del ciclo de vida de un ticket."""
+
+    OPEN = "open"
+    INVESTIGATING = "investigating"
+    PENDING_APPROVAL = "pending_approval"
+    RESOLVED = "resolved"
+
+
 class TicketCreate(BaseModel):
     """Payload de entrada para crear un ticket."""
 
@@ -26,9 +36,14 @@ class TicketCreate(BaseModel):
 
 
 class TicketRead(TicketCreate):
-    """Ticket devuelto por la API, con el ``id`` generado por el servidor."""
+    """Ticket devuelto por la API, con los campos generados por el servidor."""
+
+    model_config = ConfigDict(from_attributes=True)
 
     id: UUID
+    status: TicketStatus
+    created_at: datetime
+    updated_at: datetime
 
 
 class HealthResponse(BaseModel):

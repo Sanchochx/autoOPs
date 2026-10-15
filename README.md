@@ -1,4 +1,4 @@
-# 🚀 AutoOps
+# AutoOps
 
 Plataforma SRE multi-agente autohospedada. Es un sistema de soporte técnico autónomo (Tier-1) que recibe y clasifica tickets de incidentes, investiga la causa raíz consultando logs, métricas y bases de datos a través de servidores aislados con Model Context Protocol (MCP), y propone planes de remediación automáticos o supervisados mediante confirmación humana (Human-in-the-Loop, HITL).
 
@@ -57,6 +57,16 @@ Los comandos de ejecución estarán disponibles tras las US correspondientes:
 - **Frontend:** disponible tras US-FE-001.
 - **Contenedores:** disponible en la Fase 2.
 
+### Migraciones de base de datos (Alembic, desde la raíz del monorepo)
+
+```bash
+alembic -c apps/api_gateway/alembic.ini upgrade head     # aplicar migraciones
+alembic -c apps/api_gateway/alembic.ini current          # revisión actual
+alembic -c apps/api_gateway/alembic.ini revision --autogenerate -m "descripcion"
+```
+
+Requiere `DATABASE_URL` (`postgresql+asyncpg://...`) en `.env`.
+
 Los comandos definitivos se documentan en [`.claude/CLAUDE.md`](.claude/CLAUDE.md#comandos-clave).
 
 ## Principios clave
@@ -81,3 +91,32 @@ El proyecto sigue Spec-Driven Development: una historia de usuario a la vez, cri
 | `develop` | Integración de características |
 | `feature/nombre-descriptivo` | Nuevas funcionalidades |
 | `fix/nombre-del-bug` | Corrección de errores |
+
++============================================================================+
+   _____                  __               ____           
+  / ___/____ _____  _____/ /_  ____       / __ \___ _   __
+  \__ \/ __ `/ __ \/ ___/ __ \/ __ \     / / / / _ \ | / /
+ ___/ / /_/ / / / / /__/ / / / /_/ /    / /_/ /  __/ |/ / 
+/____/\__,_/_/ /_/\___/_/ /_/\____/____/_____/\___/|___/  
+                                 /_____/                  
+
+               .-"""-.
+             _/-=-.   \
+            (_|a a/   |_
+             / "  \   ,_)
+        _    \`=' /__/
+       / \_  .;--'  `-.
+       \___)//      ,  \
+        \ \/;        \  \
+         \_.|         | |
+          .-\ '     _/_/
+        .'  _;.    (_  \
+       /  .'   `\   \\_/
+      |_ /       |  |\\
+     /  _)       /  / ||
+    /  /       _/  /  //
+    \_/       ( `-/  ||
+              /  /   \\ .-.
+              \_/     \'-'/
+                       `"`
++============================================================================+

@@ -19,12 +19,12 @@
 ┌─────────────────────────────────────────────────────────────┐
 │  PROGRESO GLOBAL DEL PROYECTO                               │
 ├─────────────────────────────────────────────────────────────┤
-│  Total Historias de Usuario:     5                          │
-│  ✅ Completadas:                 5                          │
+│  Total Historias de Usuario:     6                          │
+│  ✅ Completadas:                 6                          │
 │  ⏳ En Progreso:                 0                          │
 │  ⏸️  Pendientes:                 0                          │
 │                                                             │
-│  Progreso: [██████████] 100% (5/5)                           │
+│  Progreso: [██████████] 100% (6/6)                           │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -49,6 +49,7 @@
 | 03 | Servidores MCP (Logs y Métricas) | MCP | 1 | 1 | 0 | 0 | [██████████] 100% |
 | 04 | Motor de IA (LangGraph: Triaje e Investigación) | LANG | 1 | 1 | 0 | 0 | [██████████] 100% |
 | 05 | Frontend Dashboard (React + Vite + TailwindCSS) | FRONT | 1 | 1 | 0 | 0 | [██████████] 100% |
+| 06 | Database & Persistence (PostgreSQL + SQLAlchemy + Alembic) | DB | 1 | 1 | 0 | 0 | [██████████] 100% |
 
 ---
 
@@ -150,9 +151,25 @@
 # 🎯 FASE 2: INTEGRACIÓN LÓGICA Y PERSISTENCIA
 
 **Objetivo:** Integrar los servicios y persistir el estado: PostgreSQL, ORM, conexión LangGraph-Gateway y Agente Ejecutor HITL.
-**Épicas:** Por definir
-**Total US:** 0 (por redactar)
-**Progreso:** [░░░░░░░░░░] 0% (0/0)
+**Épicas:** 06 Database & Persistence (resto por definir)
+**Total US:** 1 (más por redactar)
+**Progreso:** [██████████] 100% (1/1)
+
+---
+
+## Epic 06: Database & Persistence - PostgreSQL, SQLAlchemy y Alembic
+
+**Prioridad:** ALTA
+**Carpeta:** `context/user_stories/epic_06_database/`
+
+### Historias de Usuario
+
+#### [x] US-DB-001: Configuración de ORM, Modelos y Migraciones
+- **Archivo:** `context/user_stories/epic_06_database/US-DB-001_postgresql_alembic.md`
+- **Prioridad:** ALTA
+- **Estimación:** 5 pts
+- **Dependencias:** Fase 1 (US-GATE-002)
+- **Criterios de Aceptación:** 4
 
 ---
 
