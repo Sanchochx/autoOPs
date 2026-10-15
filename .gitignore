@@ -1,0 +1,38 @@
+# ── Secretos ────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# ── Python ──────────────────────────────────────────────────
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.egg-info/
+
+# ── Node / Frontend ─────────────────────────────────────────
+node_modules/
+dist/
+.vite/
+*.tsbuildinfo
+npm-debug.log*
+
+# ── Docker / datos locales ──────────────────────────────────
+pgdata/
+docker-compose.override.yml
+
+# ── Logs (los servicios emiten a stdout/stderr) ─────────────
+*.log
+
+# ── IDE / SO ────────────────────────────────────────────────
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
