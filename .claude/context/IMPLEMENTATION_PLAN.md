@@ -19,12 +19,12 @@
 ┌─────────────────────────────────────────────────────────────┐
 │  PROGRESO GLOBAL DEL PROYECTO                               │
 ├─────────────────────────────────────────────────────────────┤
-│  Total Historias de Usuario:     15                         │
+│  Total Historias de Usuario:     11                         │
 │  ✅ Completadas:                 3                          │
 │  ⏳ En Progreso:                 0                          │
-│  ⏸️  Pendientes:                 12                         │
+│  ⏸️  Pendientes:                 8                          │
 │                                                             │
-│  Progreso: [█░░░░░░░░░] 20% (3/15)                           │
+│  Progreso: [███░░░░░░░] 27% (3/11)                          │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -47,7 +47,7 @@
 | 01 | Monorepo & Base Setup | MONO | 3 | 1 | 0 | 2 | [███░░░░░░░] 33% |
 | 02 | API Gateway & Comunicaciones (FastAPI + WebSockets) | GATE | 1 | 1 | 0 | 0 | [██████████] 100% |
 | 03 | Servidores MCP (Logs y Métricas) | MCP | 1 | 1 | 0 | 0 | [██████████] 100% |
-| 04 | Motor de IA (LangGraph: Triaje, Investigador, Ejecutor) | AI | 5 | 0 | 0 | 5 | [░░░░░░░░░░] 0% |
+| 04 | Motor de IA (LangGraph: Triaje e Investigación) | LANG | 1 | 0 | 0 | 1 | [░░░░░░░░░░] 0% |
 | 05 | Frontend Administrator (React + Vite + TailwindCSS) | FE | 5 | 0 | 0 | 5 | [░░░░░░░░░░] 0% |
 
 ---
@@ -60,7 +60,7 @@
 
 **Objetivo:** Entregar el flujo end-to-end en desarrollo local (sin contenedores): ticket → triaje → investigación vía MCP → plan de remediación con aprobación HITL, visible en tiempo real en el dashboard.
 **Épicas:** 01 Monorepo & Base Setup, 02 API Gateway & Comunicaciones, 03 Servidores MCP, 04 Motor de IA, 05 Frontend Administrator
-**Total US:** 15
+**Total US:** 11
 **Progreso:** [█░░░░░░░░░] 20% (3/15)
 
 > Orden recomendado de ejecución: 01 → 02 → 03 → 04 → 05 (MCP depende del Gateway; el motor de IA necesita MCP y el Gateway; el Frontend consume el Gateway). Las dependencias de cada US son la fuente de verdad.
@@ -129,47 +129,19 @@
 
 ---
 
-## Epic 04: Motor de IA - LangGraph (Triaje, Investigador, Ejecutor)
+## Epic 04: Motor de IA - LangGraph (Triaje e Investigación)
 
-**Prioridad:** ALTA
+**Prioridad:** CRÍTICA
 **Carpeta:** `context/user_stories/epic_04_ai_engine/`
 
 ### Historias de Usuario
 
-#### [ ] US-AI-001: Estado del Grafo y Configuración de Modelos
-- **Archivo:** `context/user_stories/epic_04_ai_engine/US-AI-001_graph_state_llm_config.md` *(por redactar)*
+#### [ ] US-LANG-004: Grafo Base de Agentes (Triaje e Investigación)
+- **Archivo:** `context/user_stories/epic_04_ai_engine/US-LANG-004_langgraph_workflow.md`
 - **Prioridad:** CRÍTICA
-- **Estimación:** 3 pts
-- **Dependencias:** US-MONO-002
-- **Criterios de Aceptación:** Por definir
-
-#### [ ] US-AI-002: Agente de Triaje
-- **Archivo:** `context/user_stories/epic_04_ai_engine/US-AI-002_triage_agent.md` *(por redactar)*
-- **Prioridad:** ALTA
-- **Estimación:** 5 pts
-- **Dependencias:** US-AI-001
-- **Criterios de Aceptación:** Por definir
-
-#### [ ] US-AI-003: Agente Investigador (herramientas MCP)
-- **Archivo:** `context/user_stories/epic_04_ai_engine/US-AI-003_investigator_agent.md` *(por redactar)*
-- **Prioridad:** ALTA
 - **Estimación:** 8 pts
-- **Dependencias:** US-AI-002, US-MCP-003
-- **Criterios de Aceptación:** Por definir
-
-#### [ ] US-AI-004: Agente Ejecutor y Aprobación HITL
-- **Archivo:** `context/user_stories/epic_04_ai_engine/US-AI-004_executor_hitl.md` *(por redactar)*
-- **Prioridad:** ALTA
-- **Estimación:** 8 pts
-- **Dependencias:** US-AI-003
-- **Criterios de Aceptación:** Por definir
-
-#### [ ] US-AI-005: Integración del Motor con el API Gateway
-- **Archivo:** `context/user_stories/epic_04_ai_engine/US-AI-005_gateway_integration.md` *(por redactar)*
-- **Prioridad:** ALTA
-- **Estimación:** 5 pts
-- **Dependencias:** US-AI-004, US-GATE-002
-- **Criterios de Aceptación:** Por definir
+- **Dependencias:** US-MCP-003
+- **Criterios de Aceptación:** 4
 
 ---
 
@@ -212,7 +184,7 @@
 - **Archivo:** `context/user_stories/epic_05_frontend/US-FE-005_hitl_approval_modal.md` *(por redactar)*
 - **Prioridad:** ALTA
 - **Estimación:** 5 pts
-- **Dependencias:** US-FE-004, US-AI-004
+- **Dependencias:** US-FE-004, US-LANG-004
 - **Criterios de Aceptación:** Por definir
 
 ---
