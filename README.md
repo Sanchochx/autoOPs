@@ -92,7 +92,7 @@ El proyecto sigue Spec-Driven Development: una historia de usuario a la vez, cri
 | `feature/nombre-descriptivo` | Nuevas funcionalidades |
 | `fix/nombre-del-bug` | Corrección de errores |
 
-
+```text
 +============================================================================+
    _____                  __               ____           
   / ___/____ _____  _____/ /_  ____       / __ \___ _   __
@@ -121,4 +121,5 @@ El proyecto sigue Spec-Driven Development: una historia de usuario a la vez, cri
               \_/     \'-'/
                        `"`
 +============================================================================+
+
 > _
