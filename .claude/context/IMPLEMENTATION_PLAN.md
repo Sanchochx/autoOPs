@@ -20,11 +20,11 @@
 │  PROGRESO GLOBAL DEL PROYECTO                               │
 ├─────────────────────────────────────────────────────────────┤
 │  Total Historias de Usuario:     15                         │
-│  ✅ Completadas:                 2                          │
+│  ✅ Completadas:                 3                          │
 │  ⏳ En Progreso:                 0                          │
-│  ⏸️  Pendientes:                 13                         │
+│  ⏸️  Pendientes:                 12                         │
 │                                                             │
-│  Progreso: [█░░░░░░░░░] 13% (2/15)                           │
+│  Progreso: [█░░░░░░░░░] 20% (3/15)                           │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -46,7 +46,7 @@
 |------|--------|---------|----------|-------------|-------------|------------|----------|
 | 01 | Monorepo & Base Setup | MONO | 3 | 1 | 0 | 2 | [███░░░░░░░] 33% |
 | 02 | API Gateway & Comunicaciones (FastAPI + WebSockets) | GATE | 1 | 1 | 0 | 0 | [██████████] 100% |
-| 03 | Servidores MCP (Logs y Métricas) | MCP | 1 | 0 | 0 | 1 | [░░░░░░░░░░] 0% |
+| 03 | Servidores MCP (Logs y Métricas) | MCP | 1 | 1 | 0 | 0 | [██████████] 100% |
 | 04 | Motor de IA (LangGraph: Triaje, Investigador, Ejecutor) | AI | 5 | 0 | 0 | 5 | [░░░░░░░░░░] 0% |
 | 05 | Frontend Administrator (React + Vite + TailwindCSS) | FE | 5 | 0 | 0 | 5 | [░░░░░░░░░░] 0% |
 
@@ -61,7 +61,7 @@
 **Objetivo:** Entregar el flujo end-to-end en desarrollo local (sin contenedores): ticket → triaje → investigación vía MCP → plan de remediación con aprobación HITL, visible en tiempo real en el dashboard.
 **Épicas:** 01 Monorepo & Base Setup, 02 API Gateway & Comunicaciones, 03 Servidores MCP, 04 Motor de IA, 05 Frontend Administrator
 **Total US:** 15
-**Progreso:** [█░░░░░░░░░] 13% (2/15)
+**Progreso:** [█░░░░░░░░░] 20% (3/15)
 
 > Orden recomendado de ejecución: 01 → 02 → 03 → 04 → 05 (MCP depende del Gateway; el motor de IA necesita MCP y el Gateway; el Frontend consume el Gateway). Las dependencias de cada US son la fuente de verdad.
 
@@ -120,7 +120,7 @@
 
 ### Historias de Usuario
 
-#### [ ] US-MCP-003: Servidor MCP de Inspección de Logs y Métricas Simuladas
+#### [x] US-MCP-003: Servidor MCP de Inspección de Logs y Métricas Simuladas
 - **Archivo:** `context/user_stories/epic_03_mcp/US-MCP-003_logs_mcp_server.md`
 - **Prioridad:** ALTA
 - **Estimación:** 5 pts
