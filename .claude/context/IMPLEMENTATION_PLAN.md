@@ -19,12 +19,12 @@
 ┌─────────────────────────────────────────────────────────────┐
 │  PROGRESO GLOBAL DEL PROYECTO                               │
 ├─────────────────────────────────────────────────────────────┤
-│  Total Historias de Usuario:     7                          │
+│  Total Historias de Usuario:     8                          │
 │  ✅ Completadas:                 7                          │
 │  ⏳ En Progreso:                 0                          │
-│  ⏸️  Pendientes:                 0                          │
+│  ⏸️  Pendientes:                 1                          │
 │                                                             │
-│  Progreso: [██████████] 100% (7/7)                           │
+│  Progreso: [█████████░] 88% (7/8)                            │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -50,6 +50,7 @@
 | 04 | Motor de IA (LangGraph: Triaje e Investigación) | LANG | 1 | 1 | 0 | 0 | [██████████] 100% |
 | 05 | Frontend Dashboard (React + Vite + TailwindCSS) | FRONT | 1 | 1 | 0 | 0 | [██████████] 100% |
 | 06 | Database & Persistence (PostgreSQL + SQLAlchemy + Alembic) | DB | 2 | 2 | 0 | 0 | [██████████] 100% |
+| 07 | AI Integration (Gateway ↔ LangGraph) | INT | 1 | 0 | 0 | 1 | [░░░░░░░░░░] 0% |
 
 ---
 
@@ -151,9 +152,9 @@
 # 🎯 FASE 2: INTEGRACIÓN LÓGICA Y PERSISTENCIA
 
 **Objetivo:** Integrar los servicios y persistir el estado: PostgreSQL, ORM, conexión LangGraph-Gateway y Agente Ejecutor HITL.
-**Épicas:** 06 Database & Persistence (resto por definir)
-**Total US:** 2 (más por redactar)
-**Progreso:** [██████████] 100% (2/2)
+**Épicas:** 06 Database & Persistence, 07 AI Integration (resto por definir)
+**Total US:** 3 (más por redactar)
+**Progreso:** [███████░░░] 67% (2/3)
 
 ---
 
@@ -177,6 +178,22 @@
 - **Estimación:** 5 pts
 - **Dependencias:** US-DB-001
 - **Criterios de Aceptación:** 4
+
+---
+
+## Epic 07: AI Integration - Integración del API Gateway con LangGraph
+
+**Prioridad:** ALTA
+**Carpeta:** `context/user_stories/epic_07_integration/`
+
+### Historias de Usuario
+
+#### [ ] US-INT-001: Disparador del Agente de Triaje en Segundo Plano
+- **Archivo:** `context/user_stories/epic_07_integration/US-INT-001_langgraph_trigger.md`
+- **Prioridad:** ALTA
+- **Estimación:** 5 pts
+- **Dependencias:** US-DB-002, US-LANG-004
+- **Criterios de Aceptación:** 3
 
 ---
 
