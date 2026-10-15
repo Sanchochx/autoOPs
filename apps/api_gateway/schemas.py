@@ -51,3 +51,14 @@ class HealthResponse(BaseModel):
 
     status: str
     service: str
+
+
+class TicketUpdate(BaseModel):
+    """Payload parcial para actualizar un ticket (todos los campos opcionales)."""
+
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    title: str | None = Field(default=None, min_length=1, strict=True)
+    description: str | None = Field(default=None, min_length=1, strict=True)
+    severity: TicketSeverity | None = None
+    status: TicketStatus | None = None

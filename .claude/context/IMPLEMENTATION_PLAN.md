@@ -19,12 +19,12 @@
 ┌─────────────────────────────────────────────────────────────┐
 │  PROGRESO GLOBAL DEL PROYECTO                               │
 ├─────────────────────────────────────────────────────────────┤
-│  Total Historias de Usuario:     6                          │
-│  ✅ Completadas:                 6                          │
+│  Total Historias de Usuario:     7                          │
+│  ✅ Completadas:                 7                          │
 │  ⏳ En Progreso:                 0                          │
 │  ⏸️  Pendientes:                 0                          │
 │                                                             │
-│  Progreso: [██████████] 100% (6/6)                           │
+│  Progreso: [██████████] 100% (7/7)                           │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -49,7 +49,7 @@
 | 03 | Servidores MCP (Logs y Métricas) | MCP | 1 | 1 | 0 | 0 | [██████████] 100% |
 | 04 | Motor de IA (LangGraph: Triaje e Investigación) | LANG | 1 | 1 | 0 | 0 | [██████████] 100% |
 | 05 | Frontend Dashboard (React + Vite + TailwindCSS) | FRONT | 1 | 1 | 0 | 0 | [██████████] 100% |
-| 06 | Database & Persistence (PostgreSQL + SQLAlchemy + Alembic) | DB | 1 | 1 | 0 | 0 | [██████████] 100% |
+| 06 | Database & Persistence (PostgreSQL + SQLAlchemy + Alembic) | DB | 2 | 2 | 0 | 0 | [██████████] 100% |
 
 ---
 
@@ -152,8 +152,8 @@
 
 **Objetivo:** Integrar los servicios y persistir el estado: PostgreSQL, ORM, conexión LangGraph-Gateway y Agente Ejecutor HITL.
 **Épicas:** 06 Database & Persistence (resto por definir)
-**Total US:** 1 (más por redactar)
-**Progreso:** [██████████] 100% (1/1)
+**Total US:** 2 (más por redactar)
+**Progreso:** [██████████] 100% (2/2)
 
 ---
 
@@ -169,6 +169,13 @@
 - **Prioridad:** ALTA
 - **Estimación:** 5 pts
 - **Dependencias:** Fase 1 (US-GATE-002)
+- **Criterios de Aceptación:** 4
+
+#### [x] US-DB-002: Persistencia Real y CRUD de Tickets
+- **Archivo:** `context/user_stories/epic_06_database/US-DB-002_tickets_crud.md`
+- **Prioridad:** ALTA
+- **Estimación:** 5 pts
+- **Dependencias:** US-DB-001
 - **Criterios de Aceptación:** 4
 
 ---

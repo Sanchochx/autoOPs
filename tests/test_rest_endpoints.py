@@ -1,30 +1,81 @@
-"""Pruebas de los endpoints REST del API Gateway (CA-2)."""
+"""Pruebas de los endpoints REST del API Gateway (sesión de BD simulada)."""
 
-from uuid import UUID
+from collections.abc import Iterator
+from datetime import datetime, timedelta, timezone
+from unittest.mock import AsyncMock, MagicMock
+from uuid import UUID, uuid4
 
 import pytest
 from fastapi.testclient import TestClient
+from sqlalchemy.ext.asyncio import AsyncSession
 
+from apps.api_gateway.database import get_db_session
 from apps.api_gateway.main import app
+from apps.api_gateway.models import Ticket
+from apps.api_gateway.schemas import TicketSeverity, TicketStatus
 
-client = TestClient(app)
 
 VALID_PAYLOAD = {"title": "Disco lleno", "description": "/var al 100%", "severity": "high"}
 
+NOW = datetime(2026, 1, 1, tzinfo=timezone.utc)
 
-def test_health_returns_ok() -> None:
+
+def make_ticket(**overrides: object) -> Ticket:
+    """Ticket ORM con los valores que la base de datos generaría."""
+    data: dict[str, object] = {
+        "id": uuid4(),
+        "title": "Disco lleno",
+        "description": "/var al 100%",
+        "severity": TicketSeverity.HIGH,
+        "status": TicketStatus.OPEN,
+        "created_at": NOW,
+        "updated_at": NOW,
+    }
+    data.update(overrides)
+    return Ticket(**data)
+
+
+@pytest.fixture
+def session() -> Iterator[AsyncMock]:
+    """Sesión asíncrona simulada inyectada vía ``dependency_overrides``."""
+    mock = AsyncMock(spec=AsyncSession)
+
+    async def fake_refresh(ticket: Ticket) -> None:
+        # Simula los valores generados por la base de datos tras el commit.
+        ticket.id = ticket.id or uuid4()
+        ticket.status = ticket.status or TicketStatus.OPEN
+        ticket.created_at = ticket.created_at or NOW
+        ticket.updated_at = NOW + timedelta(minutes=1)
+
+    mock.refresh.side_effect = fake_refresh
+    app.dependency_overrides[get_db_session] = lambda: mock
+    yield mock
+    app.dependency_overrides.clear()
+
+
+@pytest.fixture
+def client(session: AsyncMock) -> TestClient:
+    return TestClient(app)
+
+
+def test_health_returns_ok(client: TestClient) -> None:
     response = client.get("/health")
     assert response.status_code == 200
     assert response.json() == {"status": "ok", "service": "api_gateway"}
 
 
-def test_create_ticket_returns_201_with_uuid4() -> None:
+def test_create_ticket_persists_and_returns_201(
+    client: TestClient, session: AsyncMock
+) -> None:
     response = client.post("/api/v1/tickets", json=VALID_PAYLOAD)
     assert response.status_code == 201
     body = response.json()
     assert UUID(body["id"]).version == 4
     assert body["title"] == VALID_PAYLOAD["title"]
     assert body["severity"] == "high"
+    assert body["status"] == "open"
+    session.add.assert_called_once()
+    session.commit.assert_awaited_once()
 
 
 @pytest.mark.parametrize(
@@ -36,7 +87,85 @@ def test_create_ticket_returns_201_with_uuid4() -> None:
         {**VALID_PAYLOAD, "description": "   "},
     ],
 )
-def test_create_ticket_invalid_payload_returns_422(payload: dict[str, str]) -> None:
+def test_create_ticket_invalid_payload_returns_422(
+    client: TestClient, session: AsyncMock, payload: dict[str, str]
+) -> None:
     response = client.post("/api/v1/tickets", json=payload)
     assert response.status_code == 422
     assert "detail" in response.json()
+    session.commit.assert_not_awaited()
+
+
+def _mock_list_result(session: AsyncMock, tickets: list[Ticket]) -> None:
+    result = MagicMock()
+    result.scalars.return_value.all.return_value = tickets
+    session.execute.return_value = result
+
+
+def test_list_tickets_returns_items(client: TestClient, session: AsyncMock) -> None:
+    newer = make_ticket(title="Nuevo", created_at=NOW + timedelta(hours=1))
+    older = make_ticket(title="Viejo")
+    _mock_list_result(session, [newer, older])
+    response = client.get("/api/v1/tickets")
+    assert response.status_code == 200
+    assert [t["title"] for t in response.json()] == ["Nuevo", "Viejo"]
+
+
+def test_list_tickets_empty_returns_empty_list(
+    client: TestClient, session: AsyncMock
+) -> None:
+    _mock_list_result(session, [])
+    response = client.get("/api/v1/tickets")
+    assert response.status_code == 200
+    assert response.json() == []
+
+
+def test_get_ticket_found(client: TestClient, session: AsyncMock) -> None:
+    ticket = make_ticket()
+    session.get.return_value = ticket
+    response = client.get(f"/api/v1/tickets/{ticket.id}")
+    assert response.status_code == 200
+    assert response.json()["id"] == str(ticket.id)
+
+
+def test_get_ticket_not_found_returns_404(
+    client: TestClient, session: AsyncMock
+) -> None:
+    session.get.return_value = None
+    response = client.get(f"/api/v1/tickets/{uuid4()}")
+    assert response.status_code == 404
+
+
+def test_get_ticket_invalid_uuid_returns_422(client: TestClient) -> None:
+    assert client.get("/api/v1/tickets/no-es-uuid").status_code == 422
+
+
+def test_patch_ticket_updates_only_sent_fields(
+    client: TestClient, session: AsyncMock
+) -> None:
+    ticket = make_ticket()
+    session.get.return_value = ticket
+    response = client.patch(
+        f"/api/v1/tickets/{ticket.id}", json={"status": "investigating"}
+    )
+    assert response.status_code == 200
+    body = response.json()
+    assert body["status"] == "investigating"
+    assert body["severity"] == "high"
+    assert body["title"] == "Disco lleno"
+    assert body["updated_at"] > body["created_at"]
+    session.commit.assert_awaited_once()
+
+
+def test_patch_ticket_not_found_returns_404(
+    client: TestClient, session: AsyncMock
+) -> None:
+    session.get.return_value = None
+    response = client.patch(f"/api/v1/tickets/{uuid4()}", json={"status": "resolved"})
+    assert response.status_code == 404
+    session.commit.assert_not_awaited()
+
+
+def test_patch_ticket_invalid_status_returns_422(client: TestClient) -> None:
+    response = client.patch(f"/api/v1/tickets/{uuid4()}", json={"status": "bogus"})
+    assert response.status_code == 422
