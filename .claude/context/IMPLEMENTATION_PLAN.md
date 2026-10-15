@@ -19,12 +19,12 @@
 ┌─────────────────────────────────────────────────────────────┐
 │  PROGRESO GLOBAL DEL PROYECTO                               │
 ├─────────────────────────────────────────────────────────────┤
-│  Total Historias de Usuario:     11                         │
+│  Total Historias de Usuario:     7                          │
 │  ✅ Completadas:                 4                          │
 │  ⏳ En Progreso:                 0                          │
-│  ⏸️  Pendientes:                 7                          │
+│  ⏸️  Pendientes:                 3                          │
 │                                                             │
-│  Progreso: [████░░░░░░] 36% (4/11)                          │
+│  Progreso: [██████░░░░] 57% (4/7)                          │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -48,7 +48,7 @@
 | 02 | API Gateway & Comunicaciones (FastAPI + WebSockets) | GATE | 1 | 1 | 0 | 0 | [██████████] 100% |
 | 03 | Servidores MCP (Logs y Métricas) | MCP | 1 | 1 | 0 | 0 | [██████████] 100% |
 | 04 | Motor de IA (LangGraph: Triaje e Investigación) | LANG | 1 | 1 | 0 | 0 | [██████████] 100% |
-| 05 | Frontend Administrator (React + Vite + TailwindCSS) | FE | 5 | 0 | 0 | 5 | [░░░░░░░░░░] 0% |
+| 05 | Frontend Dashboard (React + Vite + TailwindCSS) | FRONT | 1 | 0 | 0 | 1 | [░░░░░░░░░░] 0% |
 
 ---
 
@@ -59,9 +59,9 @@
 # 🎯 FASE 1: FUNDACIÓN Y CORE MULTI-AGENTE (Sprint 1-2)
 
 **Objetivo:** Entregar el flujo end-to-end en desarrollo local (sin contenedores): ticket → triaje → investigación vía MCP → plan de remediación con aprobación HITL, visible en tiempo real en el dashboard.
-**Épicas:** 01 Monorepo & Base Setup, 02 API Gateway & Comunicaciones, 03 Servidores MCP, 04 Motor de IA, 05 Frontend Administrator
-**Total US:** 11
-**Progreso:** [████░░░░░░] 36% (4/11)
+**Épicas:** 01 Monorepo & Base Setup, 02 API Gateway & Comunicaciones, 03 Servidores MCP, 04 Motor de IA, 05 Frontend Dashboard
+**Total US:** 7
+**Progreso:** [██████░░░░] 57% (4/7)
 
 > Orden recomendado de ejecución: 01 → 02 → 03 → 04 → 05 (MCP depende del Gateway; el motor de IA necesita MCP y el Gateway; el Frontend consume el Gateway). Las dependencias de cada US son la fuente de verdad.
 
@@ -145,47 +145,19 @@
 
 ---
 
-## Epic 05: Frontend Administrator - React + Vite + TailwindCSS
+## Epic 05: Frontend Dashboard - React + Vite + TailwindCSS
 
 **Prioridad:** MEDIA
 **Carpeta:** `context/user_stories/epic_05_frontend/`
 
 ### Historias de Usuario
 
-#### [ ] US-FE-001: Scaffold Vite + TypeScript strict + TailwindCSS
-- **Archivo:** `context/user_stories/epic_05_frontend/US-FE-001_frontend_scaffold.md` *(por redactar)*
-- **Prioridad:** CRÍTICA
-- **Estimación:** 3 pts
-- **Dependencias:** US-MONO-001
-- **Criterios de Aceptación:** Por definir
-
-#### [ ] US-FE-002: Login y Layout Base del Dashboard
-- **Archivo:** `context/user_stories/epic_05_frontend/US-FE-002_login_layout.md` *(por redactar)*
-- **Prioridad:** ALTA
+#### [ ] US-FRONT-005: Dashboard Admin e Integración de WebSockets
+- **Archivo:** `context/user_stories/epic_05_frontend/US-FRONT-005_react_dashboard.md`
+- **Prioridad:** MEDIA
 - **Estimación:** 5 pts
-- **Dependencias:** US-FE-001, US-GATE-002
-- **Criterios de Aceptación:** Por definir
-
-#### [ ] US-FE-003: Tabla de Tickets (accesible, con carga diferida)
-- **Archivo:** `context/user_stories/epic_05_frontend/US-FE-003_tickets_table.md` *(por redactar)*
-- **Prioridad:** ALTA
-- **Estimación:** 5 pts
-- **Dependencias:** US-FE-002, US-GATE-002
-- **Criterios de Aceptación:** Por definir
-
-#### [ ] US-FE-004: Streaming en Tiempo Real del Razonamiento (WebSocket + Zustand)
-- **Archivo:** `context/user_stories/epic_05_frontend/US-FE-004_realtime_streaming.md` *(por redactar)*
-- **Prioridad:** ALTA
-- **Estimación:** 5 pts
-- **Dependencias:** US-FE-003, US-GATE-002
-- **Criterios de Aceptación:** Por definir
-
-#### [ ] US-FE-005: Modal de Aprobación HITL
-- **Archivo:** `context/user_stories/epic_05_frontend/US-FE-005_hitl_approval_modal.md` *(por redactar)*
-- **Prioridad:** ALTA
-- **Estimación:** 5 pts
-- **Dependencias:** US-FE-004, US-LANG-004
-- **Criterios de Aceptación:** Por definir
+- **Dependencias:** US-LANG-004
+- **Criterios de Aceptación:** 4
 
 ---
 
