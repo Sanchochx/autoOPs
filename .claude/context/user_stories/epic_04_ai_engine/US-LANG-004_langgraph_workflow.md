@@ -4,7 +4,7 @@
 **Prioridad:** CRÍTICA
 **Estimación:** 8 pts
 **Dependencias:** US-MCP-003
-**Estado:** Pendiente
+**Estado:** Completada
 
 ---
 
@@ -20,24 +20,24 @@
 
 > Trabajar UNO A LA VEZ, en orden. Marcar `[x]` al terminar cada uno y hacer pausa en el checkpoint final antes de cerrar la US.
 
-- [ ] **CA-1: Estructura base e instanciación**
+- [x] **CA-1: Estructura base e instanciación**
   - Se crea la carpeta `services/ai-engine/`.
   - Se crea `requirements.txt` con `langgraph`, `langchain-anthropic`, `langchain-core`, `pydantic` y `mcp<2` (cliente MCP).
   - El modelo y su clave se configuran por variables de entorno (`ANTHROPIC_API_KEY` ya existe; el nombre del modelo se añade a `.env.example`); sin valores hardcodeados.
   - **Verificación:** las dependencias se instalan y los módulos del paquete importan sin errores.
 
-- [ ] **CA-2: Definición del Estado del Grafo (`state.py`)**
+- [x] **CA-2: Definición del Estado del Grafo (`state.py`)**
   - Se crea `AgentState` (`TypedDict`) con los campos: `ticket_id`, `description`, `severity`, `agent_notes`, `status` y `messages` (historial de mensajes de LangChain, con el reducer `add_messages`).
   - `severity` se restringe a `low | medium | high | critical` (mismos valores que `TicketSeverity` del Gateway).
   - **Verificación:** el estado se importa y un diccionario de ejemplo cumple el tipado.
 
-- [ ] **CA-3: Nodos Iniciales (`nodes.py`)**
+- [x] **CA-3: Nodos Iniciales (`nodes.py`)**
   - `triage_node`: usa un prompt base para analizar `description` y asigna una severidad válida; si el modelo devuelve un valor fuera del conjunto, aplica un valor por defecto seguro y lo registra.
   - `investigator_node`: reacciona a la severidad y registra en `agent_notes` el contexto técnico recopilado; deja un punto de inyección explícito para el cliente MCP (sin conectarlo todavía).
   - Cada nodo recibe el modelo/cliente como dependencia inyectada, para poder probarlos con un modelo falso sin llamar a la API.
   - **Verificación:** pruebas con un modelo falso: el triaje devuelve una severidad válida y el investigador añade notas sin romper el estado.
 
-- [ ] **CA-4: Enrutamiento y Compilación (`graph.py`)**
+- [x] **CA-4: Enrutamiento y Compilación (`graph.py`)**
   - Se configura el flujo `START -> triage_node -> investigator_node -> END`.
   - Se expone el grafo compilado como `compiled_graph`, invocable externamente.
   - **Verificación:** `compiled_graph.invoke(...)` con un modelo falso recorre ambos nodos y devuelve el estado final con `severity` y `agent_notes` poblados.
