@@ -19,12 +19,12 @@
 ┌─────────────────────────────────────────────────────────────┐
 │  PROGRESO GLOBAL DEL PROYECTO                               │
 ├─────────────────────────────────────────────────────────────┤
-│  Total Historias de Usuario:     7                          │
+│  Total Historias de Usuario:     5                          │
 │  ✅ Completadas:                 5                          │
 │  ⏳ En Progreso:                 0                          │
-│  ⏸️  Pendientes:                 2                          │
+│  ⏸️  Pendientes:                 0                          │
 │                                                             │
-│  Progreso: [███████░░░] 71% (5/7)                           │
+│  Progreso: [██████████] 100% (5/5)                           │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -44,7 +44,7 @@
 
 | Epic | Nombre | Prefijo | Total US | Completadas | En Progreso | Pendientes | Progreso |
 |------|--------|---------|----------|-------------|-------------|------------|----------|
-| 01 | Monorepo & Base Setup | MONO | 3 | 1 | 0 | 2 | [███░░░░░░░] 33% |
+| 01 | Monorepo & Base Setup | MONO | 1 | 1 | 0 | 0 | [██████████] 100% |
 | 02 | API Gateway & Comunicaciones (FastAPI + WebSockets) | GATE | 1 | 1 | 0 | 0 | [██████████] 100% |
 | 03 | Servidores MCP (Logs y Métricas) | MCP | 1 | 1 | 0 | 0 | [██████████] 100% |
 | 04 | Motor de IA (LangGraph: Triaje e Investigación) | LANG | 1 | 1 | 0 | 0 | [██████████] 100% |
@@ -58,10 +58,10 @@
 
 # 🎯 FASE 1: FUNDACIÓN Y CORE MULTI-AGENTE (Sprint 1-2)
 
-**Objetivo:** Entregar el flujo end-to-end en desarrollo local (sin contenedores): ticket → triaje → investigación vía MCP → plan de remediación con aprobación HITL, visible en tiempo real en el dashboard.
+**Objetivo:** Construcción de los cimientos aislados de los microservicios (Gateway, IA, MCP, Frontend) y definición de contratos de comunicación, sin integración profunda ni persistencia.
 **Épicas:** 01 Monorepo & Base Setup, 02 API Gateway & Comunicaciones, 03 Servidores MCP, 04 Motor de IA, 05 Frontend Dashboard
-**Total US:** 7
-**Progreso:** [███████░░░] 71% (5/7)
+**Total US:** 5
+**Progreso:** [██████████] 100% (5/5)
 
 > Orden recomendado de ejecución: 01 → 02 → 03 → 04 → 05 (MCP depende del Gateway; el motor de IA necesita MCP y el Gateway; el Frontend consume el Gateway). Las dependencias de cada US son la fuente de verdad.
 
@@ -80,20 +80,6 @@
 - **Estimación:** 3 pts
 - **Dependencias:** Ninguna
 - **Criterios de Aceptación:** 5
-
-#### [ ] US-MONO-002: Configuración 12-Factor y Logging Cloud-Native compartidos
-- **Archivo:** `context/user_stories/epic_01_monorepo/US-MONO-002_config_logging_base.md` *(por redactar)*
-- **Prioridad:** CRÍTICA
-- **Estimación:** 3 pts
-- **Dependencias:** US-MONO-001
-- **Criterios de Aceptación:** Por definir
-
-#### [ ] US-MONO-003: Pipeline CI Base (lint + tests)
-- **Archivo:** `context/user_stories/epic_01_monorepo/US-MONO-003_ci_base.md` *(por redactar)*
-- **Prioridad:** MEDIA
-- **Estimación:** 3 pts
-- **Dependencias:** US-MONO-001
-- **Criterios de Aceptación:** Por definir
 
 ---
 
@@ -161,11 +147,38 @@
 
 ---
 
-# 🎯 FASE 2: CONTENEDORIZACIÓN AVANZADA (Sprint 3-4)
+# 🎯 FASE 2: INTEGRACIÓN LÓGICA Y PERSISTENCIA
 
-**Objetivo:** Contenerizar el ecosistema y automatizar el despliegue en Ubuntu Server (AWS EC2 / VirtualBox).
-**Épicas:** Por definir (Docker Compose, Reverse Proxy Traefik/Nginx + SSL Let's Encrypt, CI/CD GitHub Actions por SSH)
-**Total US:** 0 (sin historias por ahora; el foco es 100% la Fase 1)
+**Objetivo:** Integrar los servicios y persistir el estado: PostgreSQL, ORM, conexión LangGraph-Gateway y Agente Ejecutor HITL.
+**Épicas:** Por definir
+**Total US:** 0 (por redactar)
+**Progreso:** [░░░░░░░░░░] 0% (0/0)
+
+---
+
+# 🎯 FASE 3: CONTENEDORIZACIÓN AVANZADA
+
+**Objetivo:** Dockerfiles, Docker Compose y redes aisladas.
+**Épicas:** Por definir
+**Total US:** 0 (por redactar)
+**Progreso:** [░░░░░░░░░░] 0% (0/0)
+
+---
+
+# 🎯 FASE 4: INFRAESTRUCTURA LINUX Y SEGURIDAD
+
+**Objetivo:** Ubuntu VM/EC2, SysAdmin y Hardening.
+**Épicas:** Por definir
+**Total US:** 0 (por redactar)
+**Progreso:** [░░░░░░░░░░] 0% (0/0)
+
+---
+
+# 🎯 FASE 5: EXPOSICIÓN SEGURA Y CI/CD
+
+**Objetivo:** Traefik/Nginx, Let's Encrypt y GitHub Actions.
+**Épicas:** Por definir
+**Total US:** 0 (por redactar)
 **Progreso:** [░░░░░░░░░░] 0% (0/0)
 
 ---
