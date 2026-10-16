@@ -19,12 +19,12 @@
 ┌─────────────────────────────────────────────────────────────┐
 │  PROGRESO GLOBAL DEL PROYECTO                               │
 ├─────────────────────────────────────────────────────────────┤
-│  Total Historias de Usuario:     9                          │
+│  Total Historias de Usuario:     10                         │
 │  ✅ Completadas:                 9                          │
 │  ⏳ En Progreso:                 0                          │
-│  ⏸️  Pendientes:                 0                          │
+│  ⏸️  Pendientes:                 1                          │
 │                                                             │
-│  Progreso: [██████████] 100% (9/9)                           │
+│  Progreso: [█████████░] 90% (9/10)                           │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -51,6 +51,7 @@
 | 05 | Frontend Dashboard (React + Vite + TailwindCSS) | FRONT | 1 | 1 | 0 | 0 | [██████████] 100% |
 | 06 | Database & Persistence (PostgreSQL + SQLAlchemy + Alembic) | DB | 2 | 2 | 0 | 0 | [██████████] 100% |
 | 07 | AI Integration (Gateway ↔ LangGraph) | INT | 2 | 2 | 0 | 0 | [██████████] 100% |
+| 08 | Containerization & Orchestration | DOCK | 1 | 0 | 0 | 1 | [░░░░░░░░░░] 0% |
 
 ---
 
@@ -207,9 +208,25 @@
 # 🎯 FASE 3: CONTENEDORIZACIÓN AVANZADA
 
 **Objetivo:** Dockerfiles, Docker Compose y redes aisladas.
-**Épicas:** Por definir
-**Total US:** 0 (por redactar)
-**Progreso:** [░░░░░░░░░░] 0% (0/0)
+**Épicas:** 08 Containerization & Orchestration (resto por definir)
+**Total US:** 1 (más por redactar)
+**Progreso:** [░░░░░░░░░░] 0% (0/1)
+
+---
+
+## Epic 08: Containerization & Orchestration - Dockerfiles, Docker Compose y redes aisladas
+
+**Prioridad:** ALTA
+**Carpeta:** `context/user_stories/epic_08_containerization/`
+
+### Historias de Usuario
+
+#### [ ] US-DOCK-001: Builds Multi-Stage para API Gateway y AI Engine
+- **Archivo:** `context/user_stories/epic_08_containerization/US-DOCK-001_multi_stage_builds.md`
+- **Prioridad:** ALTA
+- **Estimación:** 5 pts
+- **Dependencias:** US-INT-002
+- **Criterios de Aceptación:** 3
 
 ---
 
