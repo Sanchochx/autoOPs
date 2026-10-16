@@ -4,7 +4,7 @@
 **Prioridad:** ALTA
 **Estimación:** 5 pts
 **Dependencias:** US-DB-002, US-LANG-004
-**Estado:** En progreso
+**Estado:** Completada
 
 ---
 

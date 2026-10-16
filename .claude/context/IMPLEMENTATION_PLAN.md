@@ -20,11 +20,11 @@
 │  PROGRESO GLOBAL DEL PROYECTO                               │
 ├─────────────────────────────────────────────────────────────┤
 │  Total Historias de Usuario:     8                          │
-│  ✅ Completadas:                 7                          │
-│  ⏳ En Progreso:                 1                          │
+│  ✅ Completadas:                 8                          │
+│  ⏳ En Progreso:                 0                          │
 │  ⏸️  Pendientes:                 0                          │
 │                                                             │
-│  Progreso: [█████████░] 88% (7/8)                            │
+│  Progreso: [██████████] 100% (8/8)                           │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -50,7 +50,7 @@
 | 04 | Motor de IA (LangGraph: Triaje e Investigación) | LANG | 1 | 1 | 0 | 0 | [██████████] 100% |
 | 05 | Frontend Dashboard (React + Vite + TailwindCSS) | FRONT | 1 | 1 | 0 | 0 | [██████████] 100% |
 | 06 | Database & Persistence (PostgreSQL + SQLAlchemy + Alembic) | DB | 2 | 2 | 0 | 0 | [██████████] 100% |
-| 07 | AI Integration (Gateway ↔ LangGraph) | INT | 1 | 0 | 1 | 0 | [░░░░░░░░░░] 0% |
+| 07 | AI Integration (Gateway ↔ LangGraph) | INT | 1 | 1 | 0 | 0 | [██████████] 100% |
 
 ---
 
@@ -154,7 +154,7 @@
 **Objetivo:** Integrar los servicios y persistir el estado: PostgreSQL, ORM, conexión LangGraph-Gateway y Agente Ejecutor HITL.
 **Épicas:** 06 Database & Persistence, 07 AI Integration (resto por definir)
 **Total US:** 3 (más por redactar)
-**Progreso:** [███████░░░] 67% (2/3)
+**Progreso:** [██████████] 100% (3/3)
 
 ---
 
@@ -188,7 +188,7 @@
 
 ### Historias de Usuario
 
-#### [~] US-INT-001: Disparador del Agente de Triaje en Segundo Plano
+#### [x] US-INT-001: Disparador del Agente de Triaje en Segundo Plano
 - **Archivo:** `context/user_stories/epic_07_integration/US-INT-001_langgraph_trigger.md`
 - **Prioridad:** ALTA
 - **Estimación:** 5 pts
