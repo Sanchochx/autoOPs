@@ -4,7 +4,7 @@
 **Prioridad:** ALTA
 **Estimación:** 5 pts
 **Dependencias:** US-INT-001, US-GATE-002 (WebSocket y `ConnectionManager`)
-**Estado:** Pendiente
+**Estado:** Completada
 
 ---
 
@@ -20,17 +20,17 @@
 
 > Trabajar UNO A LA VEZ, en orden. Marcar `[x]` al terminar cada uno y hacer pausa en el checkpoint final antes de cerrar la US.
 
-- [ ] **CA-1: Captura de Eventos de LangGraph**
+- [x] **CA-1: Captura de Eventos de LangGraph**
   - Modificar `process_ticket_with_ai` en `apps/api_gateway/services/ai_service.py` para usar el modo de streaming de LangGraph (`.astream_events()` o `.astream()`) en lugar de la invocación bloqueante única (`invoke()`).
   - Conservar el comportamiento de US-INT-001: el estado final alimenta la actualización de `severity` y `status`, y los fallos dejan el ticket en `medium`/`open`.
   - **Verificación:** con un grafo simulado que emite varios eventos, el servicio los consume todos en orden y obtiene el mismo estado final que con `invoke()`.
 
-- [ ] **CA-2: Emisión al WebSocket**
+- [x] **CA-2: Emisión al WebSocket**
   - Conectar el generador de eventos asíncronos de la IA con el `ConnectionManager` de WebSockets creado en la Fase 1.
   - Enviar mensajes JSON al frontend por cada paso significativo del agente (p. ej. "Iniciando triaje", "Evaluando severidad...", "Actualizando base de datos").
   - **Verificación:** con clientes WebSocket conectados, cada paso significativo produce un mensaje JSON válido con el `ticket_id` y la descripción del paso; sin clientes conectados no se produce error.
 
-- [ ] **CA-3: No Bloqueo del Gateway**
+- [x] **CA-3: No Bloqueo del Gateway**
   - Garantizar que la emisión de eventos por WebSocket se mantenga dentro de la `BackgroundTask` sin interrumpir la experiencia asíncrona.
   - **Verificación:** la respuesta `201` de `POST /api/v1/tickets` sigue sin esperar al grafo; un cliente WebSocket lento o desconectado no detiene ni hace fallar el procesamiento del ticket.
 
