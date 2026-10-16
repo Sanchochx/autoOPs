@@ -1,0 +1,47 @@
+# Contexto de build = raíz del monorepo. Excluye secretos, artefactos locales y
+# todo lo que no necesita ninguna imagen.
+
+# Secretos
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Control de versiones y contexto de trabajo
+.git/
+.gitignore
+.claude/
+
+# Python
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.egg-info/
+
+# Tests
+tests/
+pytest.ini
+
+# Node / Frontend
+node_modules/
+**/node_modules/
+dist/
+**/dist/
+.vite/
+*.tsbuildinfo
+
+# Docker, logs y IDE
+Dockerfile*
+**/Dockerfile*
+docker-compose*.yml
+*.log
+.idea/
+.vscode/
+.DS_Store

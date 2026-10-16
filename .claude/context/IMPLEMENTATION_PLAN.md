@@ -8,8 +8,8 @@
   El workflow (TASK_EXECUTION.md) actualiza este archivo al cerrar cada US.
 -->
 
-**Última actualización:** 2026-10-15
-**Versión:** 2.0
+**Última actualización:** 2026-10-16
+**Versión:** 2.1
 
 ---
 
@@ -19,12 +19,12 @@
 ┌─────────────────────────────────────────────────────────────┐
 │  PROGRESO GLOBAL DEL PROYECTO                               │
 ├─────────────────────────────────────────────────────────────┤
-│  Total Historias de Usuario:     10                         │
-│  ✅ Completadas:                 9                          │
+│  Total Historias de Usuario:     13                         │
+│  ✅ Completadas:                 10                         │
 │  ⏳ En Progreso:                 0                          │
-│  ⏸️  Pendientes:                 1                          │
+│  ⏸️  Pendientes:                 3                          │
 │                                                             │
-│  Progreso: [█████████░] 90% (9/10)                           │
+│  Progreso: [████████░░] 77% (10/13)                          │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -51,7 +51,7 @@
 | 05 | Frontend Dashboard (React + Vite + TailwindCSS) | FRONT | 1 | 1 | 0 | 0 | [██████████] 100% |
 | 06 | Database & Persistence (PostgreSQL + SQLAlchemy + Alembic) | DB | 2 | 2 | 0 | 0 | [██████████] 100% |
 | 07 | AI Integration (Gateway ↔ LangGraph) | INT | 2 | 2 | 0 | 0 | [██████████] 100% |
-| 08 | Containerization & Orchestration | DOCK | 1 | 0 | 0 | 1 | [░░░░░░░░░░] 0% |
+| 08 | Containerization & Orchestration | DOCK | 4 | 1 | 0 | 3 | [██░░░░░░░░] 25% |
 
 ---
 
@@ -208,9 +208,11 @@
 # 🎯 FASE 3: CONTENEDORIZACIÓN AVANZADA
 
 **Objetivo:** Dockerfiles, Docker Compose y redes aisladas.
-**Épicas:** 08 Containerization & Orchestration (resto por definir)
-**Total US:** 1 (más por redactar)
-**Progreso:** [░░░░░░░░░░] 0% (0/1)
+**Épicas:** 08 Containerization & Orchestration
+**Total US:** 4
+**Progreso:** [██░░░░░░░░] 25% (1/4)
+
+> Orden recomendado: DOCK-001 → DOCK-002 → DOCK-003 → DOCK-004 (la orquestación integra las tres imágenes anteriores).
 
 ---
 
@@ -221,12 +223,33 @@
 
 ### Historias de Usuario
 
-#### [ ] US-DOCK-001: Builds Multi-Stage para API Gateway y AI Engine
+#### [x] US-DOCK-001: Builds Multi-Stage para API Gateway y AI Engine
 - **Archivo:** `context/user_stories/epic_08_containerization/US-DOCK-001_multi_stage_builds.md`
 - **Prioridad:** ALTA
 - **Estimación:** 5 pts
 - **Dependencias:** US-INT-002
 - **Criterios de Aceptación:** 3
+
+#### [ ] US-DOCK-002: Dockerfile Multi-Stage para el Frontend (Vite + Nginx)
+- **Archivo:** `context/user_stories/epic_08_containerization/US-DOCK-002_frontend_dockerfile.md`
+- **Prioridad:** ALTA
+- **Estimación:** 3 pts
+- **Dependencias:** US-DOCK-001
+- **Criterios de Aceptación:** 3
+
+#### [ ] US-DOCK-003: Dockerfiles para los Servidores MCP
+- **Archivo:** `context/user_stories/epic_08_containerization/US-DOCK-003_mcp_servers_dockerfiles.md`
+- **Prioridad:** ALTA
+- **Estimación:** 5 pts
+- **Dependencias:** US-DOCK-001, US-MCP-003
+- **Criterios de Aceptación:** 3
+
+#### [ ] US-DOCK-004: Orquestación Global con Docker Compose
+- **Archivo:** `context/user_stories/epic_08_containerization/US-DOCK-004_docker_compose_orchestration.md`
+- **Prioridad:** ALTA
+- **Estimación:** 8 pts
+- **Dependencias:** US-DOCK-001, US-DOCK-002, US-DOCK-003
+- **Criterios de Aceptación:** 4
 
 ---
 

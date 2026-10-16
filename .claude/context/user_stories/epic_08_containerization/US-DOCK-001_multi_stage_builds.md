@@ -4,7 +4,7 @@
 **Prioridad:** ALTA
 **Estimación:** 5 pts
 **Dependencias:** US-INT-002
-**Estado:** Pendiente
+**Estado:** Completada
 
 ---
 
@@ -20,17 +20,17 @@
 
 > Trabajar UNO A LA VEZ, en orden. Marcar `[x]` al terminar cada uno y hacer pausa en el checkpoint final antes de cerrar la US.
 
-- [ ] **CA-1: Imagen del API Gateway**
+- [x] **CA-1: Imagen del API Gateway**
   - Crear `apps/api_gateway/Dockerfile` multi-stage: una etapa `builder` que instala dependencias (`requirements.txt`) y una etapa `runtime` mínima (`python:3.11-slim`) que solo copia lo necesario.
   - El contenedor escucha en `0.0.0.0` (`HOST`), toma `PORT` y el resto de la configuración exclusivamente del entorno, y emite logs a stdout/stderr.
   - **Verificación:** `docker build` termina sin errores; `docker run` con variables de entorno inyectadas levanta el Gateway y `GET /health` (o el endpoint de salud existente) responde `200`.
 
-- [ ] **CA-2: Imagen del AI Engine**
+- [x] **CA-2: Imagen del AI Engine**
   - Crear `services/ai-engine/Dockerfile` multi-stage con las dependencias de `services/ai-engine/requirements.txt` únicamente, sin dependencias del Gateway.
   - Definir y documentar cómo se ejecuta el motor en contenedor (ver decisión abierta en Notas Técnicas).
   - **Verificación:** `docker build` termina sin errores; dentro del contenedor `ai_engine.graph` se importa y `build_graph` compila con un modelo simulado, sin red ni claves reales.
 
-- [ ] **CA-3: Eficiencia y Seguridad de las Imágenes**
+- [x] **CA-3: Eficiencia y Seguridad de las Imágenes**
   - Añadir `.dockerignore` (excluye `venv/`, `.env`, `.git/`, `tests/`, `__pycache__/`, `node_modules/`).
   - Ejecutar ambos procesos con un usuario no-root y sin secretos incrustados en capas.
   - **Verificación:** `docker history`/`docker run env` no muestran credenciales; `docker run --rm <imagen> id -u` devuelve un UID distinto de `0`; el tamaño final de cada imagen queda registrado en el resumen de la US.
