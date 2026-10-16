@@ -19,12 +19,12 @@
 ┌─────────────────────────────────────────────────────────────┐
 │  PROGRESO GLOBAL DEL PROYECTO                               │
 ├─────────────────────────────────────────────────────────────┤
-│  Total Historias de Usuario:     8                          │
+│  Total Historias de Usuario:     9                          │
 │  ✅ Completadas:                 8                          │
 │  ⏳ En Progreso:                 0                          │
-│  ⏸️  Pendientes:                 0                          │
+│  ⏸️  Pendientes:                 1                          │
 │                                                             │
-│  Progreso: [██████████] 100% (8/8)                           │
+│  Progreso: [█████████░] 89% (8/9)                            │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -50,7 +50,7 @@
 | 04 | Motor de IA (LangGraph: Triaje e Investigación) | LANG | 1 | 1 | 0 | 0 | [██████████] 100% |
 | 05 | Frontend Dashboard (React + Vite + TailwindCSS) | FRONT | 1 | 1 | 0 | 0 | [██████████] 100% |
 | 06 | Database & Persistence (PostgreSQL + SQLAlchemy + Alembic) | DB | 2 | 2 | 0 | 0 | [██████████] 100% |
-| 07 | AI Integration (Gateway ↔ LangGraph) | INT | 1 | 1 | 0 | 0 | [██████████] 100% |
+| 07 | AI Integration (Gateway ↔ LangGraph) | INT | 2 | 1 | 0 | 1 | [█████░░░░░] 50% |
 
 ---
 
@@ -153,8 +153,8 @@
 
 **Objetivo:** Integrar los servicios y persistir el estado: PostgreSQL, ORM, conexión LangGraph-Gateway y Agente Ejecutor HITL.
 **Épicas:** 06 Database & Persistence, 07 AI Integration (resto por definir)
-**Total US:** 3 (más por redactar)
-**Progreso:** [██████████] 100% (3/3)
+**Total US:** 4 (más por redactar)
+**Progreso:** [███████░░░] 75% (3/4)
 
 ---
 
@@ -193,6 +193,13 @@
 - **Prioridad:** ALTA
 - **Estimación:** 5 pts
 - **Dependencias:** US-DB-002, US-LANG-004
+- **Criterios de Aceptación:** 3
+
+#### [ ] US-INT-002: Streaming de Razonamiento IA vía WebSockets
+- **Archivo:** `context/user_stories/epic_07_integration/US-INT-002_websocket_streaming.md`
+- **Prioridad:** ALTA
+- **Estimación:** 5 pts
+- **Dependencias:** US-INT-001, US-GATE-002
 - **Criterios de Aceptación:** 3
 
 ---
