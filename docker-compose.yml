@@ -1,16 +1,156 @@
+# Orquestación de AutoOps. Toda la configuración sale de .env (ver .env.example);
+# las variables obligatorias fallan con un mensaje claro si no están definidas.
+#
+#   docker compose up -d --build        # levanta el stack completo
+#   docker compose --profile tools run --rm migrate   # migraciones Alembic (paso explícito)
+#
+# Redes (todas bridge):
+#   frontend_net  publicación al host + salida a Internet (frontend, api-gateway)
+#   backend_net   api-gateway <-> postgres            (internal: sin Internet ni host)
+#   mcp_net       api-gateway <-> servidores MCP      (internal: sin Internet ni host)
+
+x-hardening: &hardening
+  cap_drop: [ALL]
+  security_opt: ["no-new-privileges:true"]
+
 services:
   postgres:
     image: postgres:15-alpine
-    container_name: autoops-db
-    restart: always
+    restart: unless-stopped
+    # postgres arranca como root y baja a `postgres`: necesita estas capacidades.
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: [ALL]
+    cap_add: [CHOWN, DAC_OVERRIDE, FOWNER, SETGID, SETUID]
     environment:
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
-    ports:
-      - "127.0.0.1:${DB_PORT}:5432"
+      POSTGRES_USER: ${DB_USER:?define DB_USER en .env}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?define DB_PASSWORD en .env}
+      POSTGRES_DB: ${DB_NAME:?define DB_NAME en .env}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks: [backend_net]
+
+  mcp-logs:
+    build:
+      context: ./services/mcp-servers/logs_server
+    restart: unless-stopped
+    <<: *hardening
+    read_only: true
+    environment:
+      MCP_LOGS_HOST: 0.0.0.0
+      MCP_LOGS_PORT: ${MCP_LOGS_PORT:?define MCP_LOGS_PORT en .env}
+    expose: ["${MCP_LOGS_PORT}"]   # solo visible en mcp_net; sin `ports:`
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import os, socket; socket.create_connection(('127.0.0.1', int(os.environ['MCP_LOGS_PORT'])), 3).close()"
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    networks: [mcp_net]
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: apps/api_gateway/Dockerfile
+    restart: unless-stopped
+    <<: *hardening
+    read_only: true
+    tmpfs: [/tmp]
+    environment: &gateway_env
+      HOST: 0.0.0.0
+      PORT: ${PORT:?define PORT en .env}
+      DEBUG: ${DEBUG:-False}
+      ENVIRONMENT: ${ENVIRONMENT:-production}
+      SECRET_KEY: ${SECRET_KEY:?define SECRET_KEY en .env}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:?define CORS_ALLOWED_ORIGINS en .env}
+      WS_BROADCAST_TIMEOUT_SECONDS: ${WS_BROADCAST_TIMEOUT_SECONDS:-2}
+      # El host `postgres` es el nombre del servicio en backend_net.
+      DATABASE_URL: postgresql+asyncpg://${DB_USER}:${DB_PASSWORD}@postgres:5432/${DB_NAME}
+      MCP_LOGS_SERVER_URL: http://mcp-logs:${MCP_LOGS_PORT}/sse
+      AI_MODEL_NAME: ${AI_MODEL_NAME:?define AI_MODEL_NAME en .env}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
+      LANGCHAIN_TRACING_V2: ${LANGCHAIN_TRACING_V2:-false}
+      LANGCHAIN_API_KEY: ${LANGCHAIN_API_KEY:-}
+    ports:
+      - "${PORT}:${PORT}"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mcp-logs:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import os, urllib.request; urllib.request.urlopen('http://127.0.0.1:' + os.environ['PORT'] + '/health', timeout=4)"
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    networks: [frontend_net, backend_net, mcp_net]
+
+  frontend:
+    build:
+      context: ./apps/frontend
+      # Vite incrusta las VITE_* al compilar: deben ser URLs alcanzables desde el navegador.
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:?define VITE_API_BASE_URL en .env}
+        VITE_WS_BASE_URL: ${VITE_WS_BASE_URL:?define VITE_WS_BASE_URL en .env}
+    restart: unless-stopped
+    <<: *hardening
+    read_only: true
+    tmpfs: [/tmp]
+    ports:
+      - "${FRONTEND_PORT:?define FRONTEND_PORT en .env}:8080"
+    depends_on:
+      api-gateway:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    networks: [frontend_net]
+
+  # Migraciones Alembic: paso explícito, no se ejecuta con `up`.
+  #   docker compose --profile tools run --rm migrate
+  migrate:
+    build:
+      context: .
+      dockerfile: apps/api_gateway/Dockerfile
+    profiles: [tools]
+    <<: *hardening
+    read_only: true
+    tmpfs: [/tmp]
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${DB_USER}:${DB_PASSWORD}@postgres:5432/${DB_NAME}
+    command: ["alembic", "-c", "apps/api_gateway/alembic.ini", "upgrade", "head"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [backend_net]
+
+networks:
+  frontend_net:
+    driver: bridge
+  backend_net:
+    driver: bridge
+    internal: true
+  mcp_net:
+    driver: bridge
+    internal: true
 
 volumes:
   postgres_data:

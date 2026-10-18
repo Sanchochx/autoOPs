@@ -1,0 +1,14 @@
+# Override OPCIONAL de desarrollo: expone Postgres solo en loopback del host
+# (p. ej. para psql/DBeaver o correr Alembic desde el host). No usar en producción.
+#   docker compose -f docker-compose.yml -f docker-compose.dev-db.yml up -d
+# Las redes `internal` no admiten puertos publicados, por eso Postgres se une
+# además a una red bridge dedicada, usada solo para este fin.
+services:
+  postgres:
+    ports:
+      - "127.0.0.1:${DB_PORT:?define DB_PORT en .env}:5432"
+    networks: [backend_net, db_host_net]
+
+networks:
+  db_host_net:
+    driver: bridge

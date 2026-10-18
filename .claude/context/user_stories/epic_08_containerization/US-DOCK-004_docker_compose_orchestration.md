@@ -4,7 +4,7 @@
 **Prioridad:** ALTA
 **Estimación:** 8 pts
 **Dependencias:** US-DOCK-001, US-DOCK-002, US-DOCK-003
-**Estado:** Pendiente
+**Estado:** Completada
 
 ---
 
@@ -20,22 +20,22 @@
 
 > Trabajar UNO A LA VEZ, en orden. Marcar `[x]` al terminar cada uno y hacer pausa en el checkpoint final antes de cerrar la US.
 
-- [ ] **CA-1: Servicios y Configuración por Entorno**
+- [x] **CA-1: Servicios y Configuración por Entorno**
   - Ampliar `docker-compose.yml` (hoy solo PostgreSQL) con los servicios `api-gateway`, `mcp-logs`, `frontend` y el existente `postgres`, usando los `build:` de las US-DOCK-001/002/003 (contexto en la raíz del monorepo).
   - Toda la configuración se inyecta vía `env_file`/`environment:` desde `.env`; sin credenciales ni puertos hardcodeados. Documentar en `.env.example` las variables nuevas (p. ej. puertos publicados, `DATABASE_URL` apuntando al servicio `postgres`).
   - **Verificación:** `docker compose config` valida sin errores ni variables sin definir.
 
-- [ ] **CA-2: Redes Puente Aisladas**
+- [x] **CA-2: Redes Puente Aisladas**
   - Definir redes `bridge` separadas por responsabilidad: red de frontend (publica solo lo necesario al host), red de backend (`api-gateway` ↔ `postgres`, `internal: true`) y red MCP (`api-gateway` ↔ servidores MCP, `internal: true`).
   - Solo `frontend` y `api-gateway` publican puertos al host; `postgres` conserva el binding a `127.0.0.1` y los servidores MCP no publican nada. Aplicar el endurecimiento definido en US-DOCK-003 (`read_only`, `cap_drop`, `no-new-privileges`).
   - **Verificación:** desde el contenedor del Gateway se alcanza `postgres` y `mcp-logs`; `mcp-logs` no alcanza `postgres` ni Internet; el host no accede a los servidores MCP.
 
-- [ ] **CA-3: Volúmenes Persistentes y Migraciones**
+- [x] **CA-3: Volúmenes Persistentes y Migraciones**
   - Mantener el volumen nombrado `postgres_data` y garantizar que los datos sobreviven a `docker compose down` (sin `-v`).
   - Añadir un paso explícito y reproducible para ejecutar las migraciones Alembic (servicio efímero `migrate` con `profiles` o `docker compose run --rm`), no ejecutado automáticamente al arrancar el Gateway.
   - **Verificación:** tras `down` y `up`, los tickets creados antes siguen existiendo; el comando de migración deja el esquema en `head`.
 
-- [ ] **CA-4: Orden de Arranque y Salud (`depends_on`)**
+- [x] **CA-4: Orden de Arranque y Salud (`depends_on`)**
   - Definir `healthcheck` en `postgres`, `api-gateway` (`/health`) y servidores MCP, y usar `depends_on` con `condition: service_healthy` (Gateway espera a Postgres y MCP; Frontend espera al Gateway).
   - Configurar `restart: unless-stopped` y logs a stdout/stderr (driver por defecto, sin volúmenes de logs).
   - **Verificación:** `docker compose up -d --build` levanta todo en orden con todos los servicios `healthy`; el flujo completo (crear ticket → streaming de la IA por WebSocket en el dashboard) funciona de extremo a extremo.
