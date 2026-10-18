@@ -9,7 +9,7 @@
 -->
 
 **Última actualización:** 2026-10-18
-**Versión:** 2.2
+**Versión:** 2.3
 
 ---
 
@@ -19,12 +19,12 @@
 ┌─────────────────────────────────────────────────────────────┐
 │  PROGRESO GLOBAL DEL PROYECTO                               │
 ├─────────────────────────────────────────────────────────────┤
-│  Total Historias de Usuario:     13                         │
+│  Total Historias de Usuario:     23                         │
 │  ✅ Completadas:                 13                         │
 │  ⏳ En Progreso:                 0                          │
-│  ⏸️  Pendientes:                 0                          │
+│  ⏸️  Pendientes:                 10                         │
 │                                                             │
-│  Progreso: [██████████] 100% (13/13)                         │
+│  Progreso: [██████░░░░] 56% (13/23)                          │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -52,6 +52,10 @@
 | 06 | Database & Persistence (PostgreSQL + SQLAlchemy + Alembic) | DB | 2 | 2 | 0 | 0 | [██████████] 100% |
 | 07 | AI Integration (Gateway ↔ LangGraph) | INT | 2 | 2 | 0 | 0 | [██████████] 100% |
 | 08 | Containerization & Orchestration | DOCK | 4 | 4 | 0 | 0 | [██████████] 100% |
+| 09 | Host Access & Identity | HOST | 3 | 0 | 0 | 3 | [░░░░░░░░░░] 0% |
+| 10 | Network Security | NET | 2 | 0 | 0 | 2 | [░░░░░░░░░░] 0% |
+| 11 | OS Hardening & Runtime | SYS | 4 | 0 | 0 | 4 | [░░░░░░░░░░] 0% |
+| 12 | Provisioning | PROV | 1 | 0 | 0 | 1 | [░░░░░░░░░░] 0% |
 
 ---
 
@@ -255,10 +259,120 @@
 
 # 🎯 FASE 4: INFRAESTRUCTURA LINUX Y SEGURIDAD
 
-**Objetivo:** Ubuntu VM/EC2, SysAdmin y Hardening.
-**Épicas:** Por definir
-**Total US:** 0 (por redactar)
-**Progreso:** [░░░░░░░░░░] 0% (0/0)
+**Objetivo:** Dejar un Ubuntu Server 24.04 LTS dedicado (validado en VM limpia de VirtualBox; EC2 como destino final) endurecido y reproducible, que ejecute el stack de Compose como servicio systemd, listo para la Fase 5.
+**Épicas:** 09 Host Access & Identity, 10 Network Security, 11 OS Hardening & Runtime, 12 Provisioning
+**Total US:** 10 (54 pts)
+**Progreso:** [░░░░░░░░░░] 0% (0/10)
+
+> Decisiones: provisioning con **scripts Bash idempotentes + `verify.sh`** (sin Ansible); **Docker estándar** con `daemon.json` endurecido (sin rootless); `auditd`/Lynis **excluidos**.
+> Orden recomendado: HOST-001 → HOST-002 → HOST-003 → NET-001 → SYS-001 → SYS-002 → NET-002 → SYS-003 → SYS-004 → PROV-001. NET-002 va tras SYS-002 porque necesita Docker instalado; PROV-001 integra todo.
+> Convención: cada US aporta su script en `scripts/provision/NN_nombre.sh` y su check en `scripts/provision/checks/`; las plantillas de configuración viven en `infra/`.
+
+---
+
+## Epic 09: Host Access & Identity - Usuarios, SSH y protección de acceso
+
+**Prioridad:** CRÍTICA
+**Carpeta:** `context/user_stories/epic_09_host_access/`
+
+### Historias de Usuario
+
+#### [ ] US-HOST-001: Usuarios Nativos y Modelo de Privilegios
+- **Archivo:** `context/user_stories/epic_09_host_access/US-HOST-001_native_users_privileges.md`
+- **Prioridad:** CRÍTICA
+- **Estimación:** 5 pts
+- **Dependencias:** US-DOCK-004
+- **Criterios de Aceptación:** 4
+
+#### [ ] US-HOST-002: Hardening de SSH y Gestión de Llaves
+- **Archivo:** `context/user_stories/epic_09_host_access/US-HOST-002_ssh_hardening_keys.md`
+- **Prioridad:** CRÍTICA
+- **Estimación:** 5 pts
+- **Dependencias:** US-HOST-001
+- **Criterios de Aceptación:** 4
+
+#### [ ] US-HOST-003: Protección contra Fuerza Bruta (fail2ban)
+- **Archivo:** `context/user_stories/epic_09_host_access/US-HOST-003_fail2ban.md`
+- **Prioridad:** ALTA
+- **Estimación:** 3 pts
+- **Dependencias:** US-HOST-002
+- **Criterios de Aceptación:** 3
+
+---
+
+## Epic 10: Network Security - Firewall y coherencia Docker ↔ UFW
+
+**Prioridad:** CRÍTICA
+**Carpeta:** `context/user_stories/epic_10_network_security/`
+
+### Historias de Usuario
+
+#### [ ] US-NET-001: Firewall UFW con Política Deny-by-Default
+- **Archivo:** `context/user_stories/epic_10_network_security/US-NET-001_ufw_firewall.md`
+- **Prioridad:** CRÍTICA
+- **Estimación:** 5 pts
+- **Dependencias:** US-HOST-002
+- **Criterios de Aceptación:** 3
+
+#### [ ] US-NET-002: Coherencia Docker ↔ UFW
+- **Archivo:** `context/user_stories/epic_10_network_security/US-NET-002_docker_ufw_coherence.md`
+- **Prioridad:** CRÍTICA
+- **Estimación:** 5 pts
+- **Dependencias:** US-NET-001, US-SYS-002
+- **Criterios de Aceptación:** 4
+
+---
+
+## Epic 11: OS Hardening & Runtime - Baseline del SO, Docker Engine y systemd
+
+**Prioridad:** ALTA
+**Carpeta:** `context/user_stories/epic_11_os_runtime/`
+
+### Historias de Usuario
+
+#### [ ] US-SYS-001: Baseline del SO y Parches Automáticos
+- **Archivo:** `context/user_stories/epic_11_os_runtime/US-SYS-001_os_baseline.md`
+- **Prioridad:** ALTA
+- **Estimación:** 5 pts
+- **Dependencias:** US-HOST-001
+- **Criterios de Aceptación:** 4
+
+#### [ ] US-SYS-002: Docker Engine en el Host y `daemon.json` Endurecido
+- **Archivo:** `context/user_stories/epic_11_os_runtime/US-SYS-002_docker_engine_daemon.md`
+- **Prioridad:** ALTA
+- **Estimación:** 5 pts
+- **Dependencias:** US-SYS-001
+- **Criterios de Aceptación:** 4
+
+#### [ ] US-SYS-003: Servicio systemd para el Stack AutoOps
+- **Archivo:** `context/user_stories/epic_11_os_runtime/US-SYS-003_systemd_service.md`
+- **Prioridad:** ALTA
+- **Estimación:** 8 pts
+- **Dependencias:** US-HOST-001, US-SYS-002, US-NET-002
+- **Criterios de Aceptación:** 4
+
+#### [ ] US-SYS-004: Backups de PostgreSQL con systemd Timer
+- **Archivo:** `context/user_stories/epic_11_os_runtime/US-SYS-004_postgres_backups_timer.md`
+- **Prioridad:** ALTA
+- **Estimación:** 5 pts
+- **Dependencias:** US-SYS-003
+- **Criterios de Aceptación:** 4
+
+---
+
+## Epic 12: Provisioning - Bootstrap idempotente y verificación
+
+**Prioridad:** ALTA
+**Carpeta:** `context/user_stories/epic_12_provisioning/`
+
+### Historias de Usuario
+
+#### [ ] US-PROV-001: Bootstrap Idempotente y Verificación del Host
+- **Archivo:** `context/user_stories/epic_12_provisioning/US-PROV-001_bootstrap_verify.md`
+- **Prioridad:** ALTA
+- **Estimación:** 8 pts
+- **Dependencias:** Todas las US de las épicas 09, 10 y 11
+- **Criterios de Aceptación:** 4
 
 ---
 
