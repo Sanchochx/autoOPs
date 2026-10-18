@@ -20,11 +20,11 @@
 │  PROGRESO GLOBAL DEL PROYECTO                               │
 ├─────────────────────────────────────────────────────────────┤
 │  Total Historias de Usuario:     13                         │
-│  ✅ Completadas:                 11                         │
-│  ⏳ En Progreso:                 1                          │
+│  ✅ Completadas:                 12                         │
+│  ⏳ En Progreso:                 0                          │
 │  ⏸️  Pendientes:                 1                          │
 │                                                             │
-│  Progreso: [████████░░] 85% (11/13)                          │
+│  Progreso: [█████████░] 92% (12/13)                          │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -51,7 +51,7 @@
 | 05 | Frontend Dashboard (React + Vite + TailwindCSS) | FRONT | 1 | 1 | 0 | 0 | [██████████] 100% |
 | 06 | Database & Persistence (PostgreSQL + SQLAlchemy + Alembic) | DB | 2 | 2 | 0 | 0 | [██████████] 100% |
 | 07 | AI Integration (Gateway ↔ LangGraph) | INT | 2 | 2 | 0 | 0 | [██████████] 100% |
-| 08 | Containerization & Orchestration | DOCK | 4 | 2 | 1 | 1 | [█████░░░░░] 50% |
+| 08 | Containerization & Orchestration | DOCK | 4 | 3 | 0 | 1 | [███████░░░] 75% |
 
 ---
 
@@ -237,7 +237,7 @@
 - **Dependencias:** US-DOCK-001
 - **Criterios de Aceptación:** 3
 
-#### [~] US-DOCK-003: Dockerfiles para los Servidores MCP
+#### [x] US-DOCK-003: Dockerfiles para los Servidores MCP
 - **Archivo:** `context/user_stories/epic_08_containerization/US-DOCK-003_mcp_servers_dockerfiles.md`
 - **Prioridad:** ALTA
 - **Estimación:** 5 pts

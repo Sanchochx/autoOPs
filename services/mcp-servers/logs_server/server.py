@@ -3,11 +3,14 @@
 Expone herramientas de solo lectura para el Agente Investigador. No accede a
 la infraestructura real: todos los datos son simulados en esta versión.
 
-En transporte stdio, stdout es el canal JSON-RPC del protocolo; cualquier log
-de diagnóstico debe emitirse a stderr.
+Transporte: HTTP con SSE (Server-Sent Events), alcanzable por red desde otros
+contenedores. El endpoint SSE queda en `/sse` y los mensajes del cliente se
+publican en `/messages/`. Host y puerto se leen del entorno (MCP_LOGS_HOST,
+MCP_LOGS_PORT); los logs se emiten a stderr.
 """
 
 import logging
+import os
 import sys
 
 from mcp.server.fastmcp import FastMCP
@@ -16,6 +19,16 @@ logging.basicConfig(stream=sys.stderr, level=logging.INFO)
 logger = logging.getLogger("logs_server")
 
 mcp = FastMCP("autoops-logs-server")
+
+
+def _configure_network() -> None:
+    """Aplica host y puerto de escucha desde el entorno (sin valores embebidos)."""
+    port = os.environ.get("MCP_LOGS_PORT")
+    if not port:
+        raise RuntimeError("Falta la variable de entorno MCP_LOGS_PORT")
+    # Por defecto solo loopback; en contenedor se define MCP_LOGS_HOST=0.0.0.0.
+    mcp.settings.host = os.environ.get("MCP_LOGS_HOST", "127.0.0.1")
+    mcp.settings.port = int(port)
 
 # Plantillas simuladas (nivel, mensaje) por servicio conocido.
 SIMULATED_LOGS: dict[str, list[tuple[str, str]]] = {
@@ -64,4 +77,6 @@ def get_db_metrics() -> dict[str, int | float]:
 
 
 if __name__ == "__main__":
-    mcp.run(transport="stdio")
+    _configure_network()
+    logger.info("Escuchando SSE en %s:%s", mcp.settings.host, mcp.settings.port)
+    mcp.run(transport="sse")
