@@ -4,7 +4,7 @@
 **Prioridad:** ALTA
 **Estimación:** 3 pts
 **Dependencias:** US-DOCK-001 (convenciones de build, `.dockerignore` y usuario no-root)
-**Estado:** Pendiente
+**Estado:** Completada
 
 ---
 
@@ -20,17 +20,17 @@
 
 > Trabajar UNO A LA VEZ, en orden. Marcar `[x]` al terminar cada uno y hacer pausa en el checkpoint final antes de cerrar la US.
 
-- [ ] **CA-1: Etapa de Build (Node)**
+- [x] **CA-1: Etapa de Build (Node)**
   - Crear `apps/frontend/Dockerfile` con una etapa `builder` basada en `node:<versión LTS fijada>-alpine` que copia primero `package.json` y `package-lock.json`, ejecuta `npm ci` y después copia el código y ejecuta `npm run build` (`tsc -b && vite build`).
   - Las URLs del backend (`VITE_API_BASE_URL`, `VITE_WS_BASE_URL`) se inyectan como `ARG` de build (Vite las incrusta en tiempo de compilación), sin valores por defecto con credenciales ni `COPY .env`.
   - **Verificación:** `docker build` termina sin errores y el bundle de `dist/` contiene las URLs pasadas por `--build-arg`.
 
-- [ ] **CA-2: Etapa Runtime (Nginx alpino, no-root)**
+- [x] **CA-2: Etapa Runtime (Nginx alpino, no-root)**
   - Etapa `runtime` basada en una imagen Nginx alpina sin privilegios (p. ej. `nginxinc/nginx-unprivileged:<versión>-alpine`) que solo copia `dist/` y una configuración `nginx.conf` versionada en `apps/frontend/`.
   - La configuración sirve la SPA con fallback a `index.html`, cabeceras de caché (assets con hash inmutables, `index.html` sin caché), compresión gzip y cabeceras de seguridad básicas; los logs de acceso y error van a stdout/stderr.
   - **Verificación:** `docker run -p 8080:8080` sirve el dashboard; una ruta profunda devuelve `index.html` con `200`; `docker run --rm <imagen> id -u` devuelve un UID distinto de `0`.
 
-- [ ] **CA-3: Eficiencia y Documentación**
+- [x] **CA-3: Eficiencia y Documentación**
   - Reutilizar/ampliar el `.dockerignore` (excluye `node_modules/`, `dist/`, `.env`, `.git/`).
   - Documentar en `.env.example` y en el README del frontend el uso de los `ARG` de build y el puerto de escucha del contenedor.
   - **Verificación:** la imagen final no contiene Node.js ni `node_modules` y su tamaño queda registrado en el resumen de la US.

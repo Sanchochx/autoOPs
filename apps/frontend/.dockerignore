@@ -1,0 +1,17 @@
+# Contexto de build = apps/frontend
+node_modules/
+dist/
+.vite/
+*.tsbuildinfo
+npm-debug.log*
+
+# Secretos y control de versiones
+.env
+.env.*
+.git/
+.gitignore
+
+Dockerfile
+.dockerignore
+README.md
+.DS_Store

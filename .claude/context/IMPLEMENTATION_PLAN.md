@@ -20,11 +20,11 @@
 │  PROGRESO GLOBAL DEL PROYECTO                               │
 ├─────────────────────────────────────────────────────────────┤
 │  Total Historias de Usuario:     13                         │
-│  ✅ Completadas:                 10                         │
-│  ⏳ En Progreso:                 0                          │
-│  ⏸️  Pendientes:                 3                          │
+│  ✅ Completadas:                 11                         │
+│  ⏳ En Progreso:                 1                          │
+│  ⏸️  Pendientes:                 1                          │
 │                                                             │
-│  Progreso: [████████░░] 77% (10/13)                          │
+│  Progreso: [████████░░] 85% (11/13)                          │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -51,7 +51,7 @@
 | 05 | Frontend Dashboard (React + Vite + TailwindCSS) | FRONT | 1 | 1 | 0 | 0 | [██████████] 100% |
 | 06 | Database & Persistence (PostgreSQL + SQLAlchemy + Alembic) | DB | 2 | 2 | 0 | 0 | [██████████] 100% |
 | 07 | AI Integration (Gateway ↔ LangGraph) | INT | 2 | 2 | 0 | 0 | [██████████] 100% |
-| 08 | Containerization & Orchestration | DOCK | 4 | 1 | 0 | 3 | [██░░░░░░░░] 25% |
+| 08 | Containerization & Orchestration | DOCK | 4 | 2 | 1 | 1 | [█████░░░░░] 50% |
 
 ---
 
@@ -230,14 +230,14 @@
 - **Dependencias:** US-INT-002
 - **Criterios de Aceptación:** 3
 
-#### [ ] US-DOCK-002: Dockerfile Multi-Stage para el Frontend (Vite + Nginx)
+#### [x] US-DOCK-002: Dockerfile Multi-Stage para el Frontend (Vite + Nginx)
 - **Archivo:** `context/user_stories/epic_08_containerization/US-DOCK-002_frontend_dockerfile.md`
 - **Prioridad:** ALTA
 - **Estimación:** 3 pts
 - **Dependencias:** US-DOCK-001
 - **Criterios de Aceptación:** 3
 
-#### [ ] US-DOCK-003: Dockerfiles para los Servidores MCP
+#### [~] US-DOCK-003: Dockerfiles para los Servidores MCP
 - **Archivo:** `context/user_stories/epic_08_containerization/US-DOCK-003_mcp_servers_dockerfiles.md`
 - **Prioridad:** ALTA
 - **Estimación:** 5 pts
