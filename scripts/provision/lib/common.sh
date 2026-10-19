@@ -33,6 +33,29 @@ passwd_status() {
   passwd -S "$1" | awk '{print $2}'
 }
 
+# ensure_perms <ruta> <propietario:grupo> <modo>: corrige solo si hay diferencia.
+ensure_perms() {
+  local path=$1 owner=$2 mode=$3
+  if [[ "$(stat -c '%U:%G %a' "$path")" != "${owner} ${mode}" ]]; then
+    chown "$owner" "$path"
+    chmod "$mode" "$path"
+    log_change "${path} -> ${owner} ${mode}"
+  fi
+}
+
+# ensure_file <ruta> <contenido>: escribe el archivo solo si cambia y deja
+# FILE_CHANGED=1 (o 0) para que el llamador decida si hay que recargar algo.
+FILE_CHANGED=0
+ensure_file() {
+  local path=$1 content=$2
+  FILE_CHANGED=0
+  if [[ ! -f $path ]] || [[ "$(cat "$path")" != "$content" ]]; then
+    printf '%s\n' "$content" >"$path"
+    FILE_CHANGED=1
+    log_change "escrito ${path}"
+  fi
+}
+
 # --- Checks: cada `check` imprime OK/FAIL y acumula fallos ---------------------
 CHECK_FAILS=0
 

@@ -20,11 +20,11 @@
 │  PROGRESO GLOBAL DEL PROYECTO                               │
 ├─────────────────────────────────────────────────────────────┤
 │  Total Historias de Usuario:     23                         │
-│  ✅ Completadas:                 14                         │
+│  ✅ Completadas:                 15                         │
 │  ⏳ En Progreso:                 0                          │
-│  ⏸️  Pendientes:                 9                          │
+│  ⏸️  Pendientes:                 8                          │
 │                                                             │
-│  Progreso: [██████░░░░] 60% (14/23)                          │
+│  Progreso: [██████░░░░] 65% (15/23)                          │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -52,7 +52,7 @@
 | 06 | Database & Persistence (PostgreSQL + SQLAlchemy + Alembic) | DB | 2 | 2 | 0 | 0 | [██████████] 100% |
 | 07 | AI Integration (Gateway ↔ LangGraph) | INT | 2 | 2 | 0 | 0 | [██████████] 100% |
 | 08 | Containerization & Orchestration | DOCK | 4 | 4 | 0 | 0 | [██████████] 100% |
-| 09 | Host Access & Identity | HOST | 3 | 1 | 0 | 2 | [███░░░░░░░] 33% |
+| 09 | Host Access & Identity | HOST | 3 | 2 | 0 | 1 | [██████░░░░] 67% |
 | 10 | Network Security | NET | 2 | 0 | 0 | 2 | [░░░░░░░░░░] 0% |
 | 11 | OS Hardening & Runtime | SYS | 4 | 0 | 0 | 4 | [░░░░░░░░░░] 0% |
 | 12 | Provisioning | PROV | 1 | 0 | 0 | 1 | [░░░░░░░░░░] 0% |
@@ -262,7 +262,7 @@
 **Objetivo:** Dejar un Ubuntu Server 24.04 LTS dedicado (validado en VM limpia de VirtualBox; EC2 como destino final) endurecido y reproducible, que ejecute el stack de Compose como servicio systemd, listo para la Fase 5.
 **Épicas:** 09 Host Access & Identity, 10 Network Security, 11 OS Hardening & Runtime, 12 Provisioning
 **Total US:** 10 (54 pts)
-**Progreso:** [█░░░░░░░░░] 10% (1/10)
+**Progreso:** [██░░░░░░░░] 20% (2/10)
 
 > Decisiones: provisioning con **scripts Bash idempotentes + `verify.sh`** (sin Ansible); **Docker estándar** con `daemon.json` endurecido (sin rootless); `auditd`/Lynis **excluidos**.
 > Orden recomendado: HOST-001 → HOST-002 → HOST-003 → NET-001 → SYS-001 → SYS-002 → NET-002 → SYS-003 → SYS-004 → PROV-001. NET-002 va tras SYS-002 porque necesita Docker instalado; PROV-001 integra todo.
@@ -284,7 +284,7 @@
 - **Dependencias:** US-DOCK-004
 - **Criterios de Aceptación:** 4
 
-#### [ ] US-HOST-002: Hardening de SSH y Gestión de Llaves
+#### [x] US-HOST-002: Hardening de SSH y Gestión de Llaves
 - **Archivo:** `context/user_stories/epic_09_host_access/US-HOST-002_ssh_hardening_keys.md`
 - **Prioridad:** CRÍTICA
 - **Estimación:** 5 pts

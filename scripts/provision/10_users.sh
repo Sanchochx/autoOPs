@@ -21,25 +21,6 @@ NOLOGIN_SHELL=/usr/sbin/nologin
 [[ $ADMIN_USER != root && $ADMIN_USER != "$SERVICE_USER" ]] \
   || die "ADMIN_USER no puede ser root ni ${SERVICE_USER}."
 
-# ensure_perms <ruta> <propietario:grupo> <modo>: corrige solo si hay diferencia.
-ensure_perms() {
-  local path=$1 owner=$2 mode=$3
-  if [[ "$(stat -c '%U:%G %a' "$path")" != "${owner} ${mode}" ]]; then
-    chown "$owner" "$path"
-    chmod "$mode" "$path"
-    log_change "${path} -> ${owner} ${mode}"
-  fi
-}
-
-# ensure_file <ruta> <contenido>: escribe el archivo solo si cambia.
-ensure_file() {
-  local path=$1 content=$2
-  if [[ ! -f $path ]] || [[ "$(cat "$path")" != "$content" ]]; then
-    printf '%s\n' "$content" >"$path"
-    log_change "escrito ${path}"
-  fi
-}
-
 # --- CA-1: usuario administrador y root bloqueado ---------------------------
 if ! id "$ADMIN_USER" >/dev/null 2>&1; then
   useradd --create-home --shell /bin/bash --groups sudo "$ADMIN_USER"
