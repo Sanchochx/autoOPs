@@ -1,0 +1,4 @@
+# Gestionado por scripts/provision/30_fail2ban.sh (US-HOST-003).
+# Logging cloud-native: fail2ban escribe a syslog (journald) en lugar de /var/log/fail2ban.log.
+[Definition]
+logtarget = SYSLOG
