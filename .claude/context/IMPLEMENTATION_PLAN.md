@@ -20,11 +20,11 @@
 │  PROGRESO GLOBAL DEL PROYECTO                               │
 ├─────────────────────────────────────────────────────────────┤
 │  Total Historias de Usuario:     23                         │
-│  ✅ Completadas:                 17                         │
+│  ✅ Completadas:                 18                         │
 │  ⏳ En Progreso:                 0                          │
-│  ⏸️  Pendientes:                 6                          │
+│  ⏸️  Pendientes:                 5                          │
 │                                                             │
-│  Progreso: [███████░░░] 74% (17/23)                          │
+│  Progreso: [████████░░] 78% (18/23)                          │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -54,7 +54,7 @@
 | 08 | Containerization & Orchestration | DOCK | 4 | 4 | 0 | 0 | [██████████] 100% |
 | 09 | Host Access & Identity | HOST | 3 | 3 | 0 | 0 | [██████████] 100% |
 | 10 | Network Security | NET | 2 | 1 | 0 | 1 | [█████░░░░░] 50% |
-| 11 | OS Hardening & Runtime | SYS | 4 | 0 | 0 | 4 | [░░░░░░░░░░] 0% |
+| 11 | OS Hardening & Runtime | SYS | 4 | 1 | 0 | 3 | [██░░░░░░░░] 25% |
 | 12 | Provisioning | PROV | 1 | 0 | 0 | 1 | [░░░░░░░░░░] 0% |
 
 ---
@@ -262,7 +262,7 @@
 **Objetivo:** Dejar un Ubuntu Server 24.04 LTS dedicado (validado en VM limpia de VirtualBox; EC2 como destino final) endurecido y reproducible, que ejecute el stack de Compose como servicio systemd, listo para la Fase 5.
 **Épicas:** 09 Host Access & Identity, 10 Network Security, 11 OS Hardening & Runtime, 12 Provisioning
 **Total US:** 10 (54 pts)
-**Progreso:** [████░░░░░░] 40% (4/10)
+**Progreso:** [█████░░░░░] 50% (5/10)
 
 > Decisiones: provisioning con **scripts Bash idempotentes + `verify.sh`** (sin Ansible); **Docker estándar** con `daemon.json` endurecido (sin rootless); `auditd`/Lynis **excluidos**.
 > Orden recomendado: HOST-001 → HOST-002 → HOST-003 → NET-001 → SYS-001 → SYS-002 → NET-002 → SYS-003 → SYS-004 → PROV-001. NET-002 va tras SYS-002 porque necesita Docker instalado; PROV-001 integra todo.
@@ -321,6 +321,8 @@
 - **Estimación:** 5 pts
 - **Dependencias:** US-NET-001, US-SYS-002
 - **Criterios de Aceptación:** 4
+- **Decisión (CA-3):** Gateway (`PORT`) y frontend (`FRONTEND_PORT`) quedan públicos de forma provisional vía la lista de puertos permitidos de `DOCKER-USER`; el Gateway se cierra en la Fase 5 con el reverse proxy. Se mantiene `iptables` gestionado por Docker (sin `"iptables": false`).
+- **Orden:** se ejecuta tras US-SYS-002 (necesita Docker instalado).
 
 ---
 
@@ -331,7 +333,7 @@
 
 ### Historias de Usuario
 
-#### [ ] US-SYS-001: Baseline del SO y Parches Automáticos
+#### [x] US-SYS-001: Baseline del SO y Parches Automáticos
 - **Archivo:** `context/user_stories/epic_11_os_runtime/US-SYS-001_os_baseline.md`
 - **Prioridad:** ALTA
 - **Estimación:** 5 pts
