@@ -77,3 +77,14 @@ check_finish() {
   fi
   printf '\nTodos los controles pasaron.\n'
 }
+
+# resolve_ssh_port: imprime el puerto SSH (SSH_PORT o, si falta, el efectivo de sshd -T).
+resolve_ssh_port() {
+  local port="${SSH_PORT:-}"
+  if [[ -z $port ]]; then
+    [[ -x /usr/sbin/sshd ]] || die "openssh-server no está instalado y SSH_PORT no se definió."
+    port="$(/usr/sbin/sshd -T | awk '$1 == "port" { print $2; exit }')"
+  fi
+  [[ $port =~ ^[0-9]+$ ]] && ((port >= 1 && port <= 65535)) || die "SSH_PORT inválido: '${port}'."
+  printf '%s' "$port"
+}
