@@ -20,11 +20,11 @@
 │  PROGRESO GLOBAL DEL PROYECTO                               │
 ├─────────────────────────────────────────────────────────────┤
 │  Total Historias de Usuario:     23                         │
-│  ✅ Completadas:                 18                         │
-│  ⏳ En Progreso:                 0                          │
-│  ⏸️  Pendientes:                 5                          │
+│  ✅ Completadas:                 19                         │
+│  ⏳ En Progreso:                 1                          │
+│  ⏸️  Pendientes:                 3                          │
 │                                                             │
-│  Progreso: [████████░░] 78% (18/23)                          │
+│  Progreso: [████████░░] 83% (19/23)                          │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -53,8 +53,8 @@
 | 07 | AI Integration (Gateway ↔ LangGraph) | INT | 2 | 2 | 0 | 0 | [██████████] 100% |
 | 08 | Containerization & Orchestration | DOCK | 4 | 4 | 0 | 0 | [██████████] 100% |
 | 09 | Host Access & Identity | HOST | 3 | 3 | 0 | 0 | [██████████] 100% |
-| 10 | Network Security | NET | 2 | 1 | 0 | 1 | [█████░░░░░] 50% |
-| 11 | OS Hardening & Runtime | SYS | 4 | 1 | 0 | 3 | [██░░░░░░░░] 25% |
+| 10 | Network Security | NET | 2 | 1 | 1 | 0 | [█████░░░░░] 50% |
+| 11 | OS Hardening & Runtime | SYS | 4 | 2 | 0 | 2 | [█████░░░░░] 50% |
 | 12 | Provisioning | PROV | 1 | 0 | 0 | 1 | [░░░░░░░░░░] 0% |
 
 ---
@@ -262,7 +262,7 @@
 **Objetivo:** Dejar un Ubuntu Server 24.04 LTS dedicado (validado en VM limpia de VirtualBox; EC2 como destino final) endurecido y reproducible, que ejecute el stack de Compose como servicio systemd, listo para la Fase 5.
 **Épicas:** 09 Host Access & Identity, 10 Network Security, 11 OS Hardening & Runtime, 12 Provisioning
 **Total US:** 10 (54 pts)
-**Progreso:** [█████░░░░░] 50% (5/10)
+**Progreso:** [██████░░░░] 60% (6/10)
 
 > Decisiones: provisioning con **scripts Bash idempotentes + `verify.sh`** (sin Ansible); **Docker estándar** con `daemon.json` endurecido (sin rootless); `auditd`/Lynis **excluidos**.
 > Orden recomendado: HOST-001 → HOST-002 → HOST-003 → NET-001 → SYS-001 → SYS-002 → NET-002 → SYS-003 → SYS-004 → PROV-001. NET-002 va tras SYS-002 porque necesita Docker instalado; PROV-001 integra todo.
@@ -315,7 +315,7 @@
 - **Criterios de Aceptación:** 3
 - **Nota:** la apertura de 80/443 (CA-2) queda diferida a la Fase 5; hoy es opt-in con `UFW_WEB_PORTS` (por defecto, ningún puerto web).
 
-#### [ ] US-NET-002: Coherencia Docker ↔ UFW
+#### [~] US-NET-002: Coherencia Docker ↔ UFW
 - **Archivo:** `context/user_stories/epic_10_network_security/US-NET-002_docker_ufw_coherence.md`
 - **Prioridad:** CRÍTICA
 - **Estimación:** 5 pts
@@ -340,7 +340,7 @@
 - **Dependencias:** US-HOST-001
 - **Criterios de Aceptación:** 4
 
-#### [ ] US-SYS-002: Docker Engine en el Host y `daemon.json` Endurecido
+#### [x] US-SYS-002: Docker Engine en el Host y `daemon.json` Endurecido
 - **Archivo:** `context/user_stories/epic_11_os_runtime/US-SYS-002_docker_engine_daemon.md`
 - **Prioridad:** ALTA
 - **Estimación:** 5 pts
