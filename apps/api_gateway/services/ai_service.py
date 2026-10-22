@@ -1,4 +1,4 @@
-"""Servicio que invoca el grafo de LangGraph para un ticket recién creado."""
+"""Service that invokes the LangGraph graph for a newly created ticket."""
 
 import asyncio
 import json
@@ -17,24 +17,24 @@ logger = logging.getLogger(__name__)
 
 
 def _load_compiled_graph() -> Any:
-    """Importa de forma diferida el grafo compilado con el modelo del entorno."""
+    """Lazily import the compiled graph built with the environment model."""
     from ai_engine.graph import compiled_graph
 
     return compiled_graph
 
 
 def _build_event(ticket_id: UUID, node: str, message: str) -> str:
-    """Serializa un evento del agente según el contrato del WebSocket."""
+    """Serialize an agent event according to the WebSocket contract."""
     return json.dumps(
         {"type": "ai_event", "ticket_id": str(ticket_id), "node": node, "message": message}
     )
 
 
 async def _emit(manager: ConnectionManager, ticket_id: UUID, node: str, message: str) -> None:
-    """Difunde un evento a los clientes sin que un fallo afecte al triaje.
+    """Broadcast an event to clients without a failure affecting triage.
 
-    El envío tiene un tiempo máximo (``WS_BROADCAST_TIMEOUT_SECONDS``) para que
-    un cliente lento no retenga la tarea en segundo plano.
+    The send has a maximum time (``WS_BROADCAST_TIMEOUT_SECONDS``) so a slow
+    client does not hold up the background task.
     """
     timeout = float(os.environ.get("WS_BROADCAST_TIMEOUT_SECONDS", "2"))
     try:
@@ -46,7 +46,7 @@ async def _emit(manager: ConnectionManager, ticket_id: UUID, node: str, message:
 
 
 def _describe_update(node: str, update: dict[str, Any]) -> str:
-    """Resume la actualización de un nodo (última nota del agente, si existe)."""
+    """Summarize a node update (the agent's last note, if any)."""
     notes = update.get("agent_notes") or []
     if notes:
         return str(notes[-1])
@@ -59,17 +59,17 @@ async def process_ticket_with_ai(
     session_factory: Any | None = None,
     ws_manager: ConnectionManager | None = None,
 ) -> None:
-    """Ejecuta el triaje del ticket, emite su razonamiento y persiste el resultado.
+    """Run the ticket triage, emit its reasoning and persist the result.
 
-    Corre como tarea en segundo plano, por lo que abre su propia sesión (la de
-    la petición ya está cerrada). Nunca propaga excepciones: ante un fallo
-    registra el error y el ticket conserva su estado previo.
+    Runs as a background task, so it opens its own session (the request's one
+    is already closed). Never propagates exceptions: on failure it logs the
+    error and the ticket keeps its previous state.
 
     Args:
-        ticket_id: ticket a procesar.
-        graph: grafo compilado inyectable (por defecto, ``compiled_graph``).
-        session_factory: fábrica de sesiones inyectable (por defecto, la del entorno).
-        ws_manager: gestor de WebSockets inyectable (por defecto, el global).
+        ticket_id: ticket to process.
+        graph: injectable compiled graph (defaults to ``compiled_graph``).
+        session_factory: injectable session factory (defaults to the environment's).
+        ws_manager: injectable WebSocket manager (defaults to the global one).
     """
     factory = session_factory or get_session_factory()
     manager = ws_manager or default_manager

@@ -1,14 +1,14 @@
-# Contexto de build = raíz del monorepo. Excluye secretos, artefactos locales y
-# todo lo que no necesita ninguna imagen.
+# Build context = monorepo root. Excludes secrets, local artifacts and
+# everything no image needs.
 
-# Secretos
+# Secrets
 .env
 .env.*
 !.env.example
 *.pem
 *.key
 
-# Control de versiones y contexto de trabajo
+# Version control and working context
 .git/
 .gitignore
 .claude/
@@ -37,7 +37,7 @@ dist/
 .vite/
 *.tsbuildinfo
 
-# Docker, logs y IDE
+# Docker, logs and IDE
 Dockerfile*
 **/Dockerfile*
 docker-compose*.yml

@@ -1,11 +1,11 @@
 # syntax=docker/dockerfile:1
-# Servidor MCP de logs y métricas (transporte HTTP + SSE). Sin credenciales: los
-# datos son simulados y no se necesitan claves de BD ni de IA.
-# Contexto de build: services/mcp-servers/logs_server
+# MCP logs and metrics server (HTTP + SSE transport). No credentials: the
+# data is simulated and no DB or AI keys are needed.
+# Build context: services/mcp-servers/logs_server
 #   docker build -t autoops-mcp-logs services/mcp-servers/logs_server
 #   docker run --rm -p 5001:5001 -e MCP_LOGS_PORT=5001 autoops-mcp-logs
 
-# ── Etapa 1: dependencias ───────────────────────────────────────
+# ── Stage 1: dependencies ───────────────────────────────────────
 FROM python:3.11-slim AS builder
 
 ENV PIP_NO_CACHE_DIR=1 \
@@ -14,11 +14,11 @@ ENV PIP_NO_CACHE_DIR=1 \
 RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
-# Dependencias antes que el código: la capa se cachea mientras no cambien.
+# Dependencies before the code: the layer stays cached while they do not change.
 COPY requirements.txt /tmp/requirements.txt
 RUN pip install -r /tmp/requirements.txt
 
-# ── Etapa 2: runtime mínimo ─────────────────────────────────────
+# ── Stage 2: minimal runtime ─────────────────────────────────────
 FROM python:3.11-slim AS runtime
 
 RUN groupadd --system --gid 10001 autoops \
@@ -30,9 +30,9 @@ COPY --from=builder /opt/venv /opt/venv
 WORKDIR /app
 COPY --chown=autoops:autoops server.py ./server.py
 
-# 0.0.0.0 para ser alcanzable desde otros contenedores; el aislamiento lo da la
-# red (sin publicar al host). El puerto (MCP_LOGS_PORT) es obligatorio y se
-# inyecta en runtime. Sin bytecode ni escritura en disco: apto para --read-only.
+# 0.0.0.0 to be reachable from other containers; isolation comes from the
+# network (not published to the host). The port (MCP_LOGS_PORT) is mandatory and
+# injected at runtime. No bytecode or disk writes: suitable for --read-only.
 ENV PATH="/opt/venv/bin:$PATH" \
     MCP_LOGS_HOST=0.0.0.0 \
     PYTHONUNBUFFERED=1 \

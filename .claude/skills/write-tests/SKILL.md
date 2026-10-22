@@ -1,70 +1,70 @@
-# Skill: Escribir Tests
+# Skill: Write Tests
 
-## Objetivo
-Generar tests completos y útiles para el código existente.
-Aplica para pytest (Python/Flask) y Jest (Node.js/Express).
+## Purpose
+Generate complete and useful tests for existing code.
+Applies to pytest (Python/Flask) and Jest (Node.js/Express).
 
-## Cómo activar
+## How to trigger
 ```
-Usa el skill write-tests para [archivo o función]
+Use the write-tests skill for [file or function]
 ```
-Ejemplo:
+Example:
 ```
-Usa el skill write-tests para src/services/invoice_service.py
+Use the write-tests skill for src/services/invoice_service.py
 ```
 
-## Qué cubrir siempre
+## What to always cover
 
-Para cada función o endpoint, generar tests para:
-1. **Caso feliz** — funciona con datos válidos
-2. **Datos inválidos** — qué pasa con inputs incorrectos
-3. **Caso vacío / null** — qué pasa sin datos
-4. **Caso límite** — valores extremos (0, negativos, strings vacíos)
-5. **Error de servidor** — simular fallo de DB u otro servicio
+For each function or endpoint, generate tests for:
+1. **Happy path** — works with valid data
+2. **Invalid data** — what happens with incorrect inputs
+3. **Empty / null case** — what happens without data
+4. **Edge case** — extreme values (0, negatives, empty strings)
+5. **Server error** — simulate a DB or other service failure
 
 ---
 
-## Patrón pytest (Flask)
+## pytest pattern (Flask)
 
 ```python
-# tests/test_nombre_service.py
+# tests/test_item_service.py
 import pytest
 from unittest.mock import patch, MagicMock
-from src.services.nombre_service import crear_nombre, obtener_nombre
+from src.services.item_service import create_item, get_item
 
-class TestCrearNombre:
-    def test_crea_correctamente_con_datos_validos(self, app):
-        """Caso feliz: crea el recurso y retorna diccionario"""
-        data = {'campo': 'valor'}
-        resultado = crear_nombre(data)
-        assert resultado['campo'] == 'valor'
-        assert 'id' in resultado
+class TestCrearItem:
+    def test_creates_successfully_with_valid_data(self, app):
+        """Happy path: creates the resource and returns a dictionary"""
+        data = {'field': 'value'}
+        result = create_item(data)
+        assert result['field'] == 'value'
+        assert 'id' in result
 
-    def test_falla_con_datos_faltantes(self, app):
-        """Valida que lanza excepción si faltan campos requeridos"""
+    def test_fails_with_missing_data(self, app):
+        """Checks that it raises an exception if required fields are missing"""
         with pytest.raises(Exception):
-            crear_nombre({})
+            create_item({})
 
     def test_falla_si_db_no_disponible(self, app):
-        """Simula fallo de base de datos"""
-        with patch('src.services.nombre_service.db.session.commit') as mock:
+        """Simulates a database failure"""
+        with patch('src.services.item_service.db.session.commit') as mock:
             mock.side_effect = Exception('DB error')
             with pytest.raises(Exception, match='DB error'):
-                crear_nombre({'campo': 'valor'})
+                create_item({'field': 'value'})
 
 
-class TestObtenerNombre:
-    def test_retorna_item_existente(self, app):
-        resultado = obtener_nombre(1)
-        assert resultado is not None
-        assert resultado['id'] == 1
+class TestObtenerItem:
+    def test_returns_existing_item(self, app):
+        result = get_item(1)
+        assert result is not None
+        assert result['id'] == 1
 
-    def test_retorna_none_si_no_existe(self, app):
-        resultado = obtener_nombre(99999)
-        assert resultado is None
+    def test_returns_none_if_not_found(self, app):
+        result = get_item(99999)
+        assert result is None
 
 
-# Fixture base (en conftest.py si no existe)
+# Base fixture (in conftest.py if it does not exist)
 # @pytest.fixture
 # def app():
 #     from app import create_app
@@ -75,79 +75,79 @@ class TestObtenerNombre:
 #         db.drop_all()
 ```
 
-### Para endpoints (con test client)
+### For endpoints (with test client)
 ```python
-# tests/test_nombre_routes.py
+# tests/test_item_routes.py
 def test_post_crea_recurso(client):
-    response = client.post('/api/nombre/', json={'campo': 'valor'})
+    response = client.post('/api/item/', json={'field': 'value'})
     assert response.status_code == 201
-    assert response.json['campo'] == 'valor'
+    assert response.json['field'] == 'value'
 
-def test_post_falla_sin_datos(client):
-    response = client.post('/api/nombre/', json={})
+def test_post_fails_without_data(client):
+    response = client.post('/api/item/', json={})
     assert response.status_code == 400
 
-def test_get_retorna_404_si_no_existe(client):
-    response = client.get('/api/nombre/99999')
+def test_get_returns_404_if_not_found(client):
+    response = client.get('/api/item/99999')
     assert response.status_code == 404
 ```
 
 ---
 
-## Patrón Jest (Express)
+## Jest pattern (Express)
 
 ```javascript
-// tests/nombre.service.test.js
-const nombreService = require('../src/services/nombre.service');
-const Nombre = require('../src/models/nombre.model');
+// tests/item.service.test.js
+const itemService = require('../src/services/item.service');
+const Item = require('../src/models/item.model');
 
-jest.mock('../src/models/nombre.model');
+jest.mock('../src/models/item.model');
 
-describe('NombreService', () => {
+describe('ItemService', () => {
   afterEach(() => jest.clearAllMocks());
 
-  describe('crear', () => {
-    test('crea correctamente con datos válidos', async () => {
-      const mockData = { campo: 'valor' };
-      Nombre.create.mockResolvedValue({ id: 1, ...mockData });
+  describe('create', () => {
+    test('creates correctly with valid data', async () => {
+      const mockData = { field: 'value' };
+      Item.create.mockResolvedValue({ id: 1, ...mockData });
 
-      const resultado = await nombreService.crear(mockData);
+      const result = await itemService.create(mockData);
 
-      expect(resultado.id).toBe(1);
-      expect(resultado.campo).toBe('valor');
+      expect(result.id).toBe(1);
+      expect(result.field).toBe('value');
     });
 
-    test('lanza error si falla la DB', async () => {
-      Nombre.create.mockRejectedValue(new Error('DB error'));
-      await expect(nombreService.crear({})).rejects.toThrow('DB error');
+    test('throws an error if the DB fails', async () => {
+      Item.create.mockRejectedValue(new Error('DB error'));
+      await expect(itemService.create({})).rejects.toThrow('DB error');
     });
   });
 
-  describe('obtenerPorId', () => {
-    test('retorna null si no existe', async () => {
-      Nombre.findByPk.mockResolvedValue(null);
-      const resultado = await nombreService.obtenerPorId(99999);
-      expect(resultado).toBeNull();
+  describe('getById', () => {
+    test('returns null if it does not exist', async () => {
+      Item.findByPk.mockResolvedValue(null);
+      const result = await itemService.getById(99999);
+      expect(result).toBeNull();
     });
   });
 });
 ```
 
-### Para endpoints con supertest
+### For endpoints with supertest
 ```javascript
-// tests/nombre.routes.test.js
+// tests/item.routes.test.js
 const request = require('supertest');
 const app = require('../src/app');
 
-describe('POST /api/nombre', () => {
-  test('201 con datos válidos', async () => {
-    const res = await request(app).post('/api/nombre').send({ campo: 'valor' });
+describe('POST /api/item', () => {
+  test('201 with valid data', async () => {
+    const res = await request(app).post('/api/item').send({ field: 'value' });
     expect(res.status).toBe(201);
-    expect(res.body.campo).toBe('valor');
+    expect(res.body.field).toBe('value');
   });
 
-  test('400 sin datos', async () => {
-    const res = await request(app).post('/api/nombre').send({});
+  test('400 without data', async () => {
+    const res = await request(app).post('/api/item').send({});
     expect(res.status).toBe(400);
   });
 });
@@ -155,9 +155,9 @@ describe('POST /api/nombre', () => {
 
 ---
 
-## Reglas al generar tests
-- Cada test tiene una sola assertion principal
-- Los nombres describen qué se está probando: `test_retorna_404_si_no_existe`
-- Usar mocks para aislar servicios externos (DB, APIs)
-- No depender del orden de ejecución de los tests
-- Limpiar el estado después de cada test (`afterEach`, fixtures)
+## Rules when generating tests
+- Each test has a single main assertion
+- Names describe what is being tested: `test_retorna_404_si_no_existe`
+- Use mocks to isolate external services (DB, APIs)
+- Do not depend on test execution order
+- Clean up state after each test (`afterEach`, fixtures)

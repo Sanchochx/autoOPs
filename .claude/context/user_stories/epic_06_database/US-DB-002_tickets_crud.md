@@ -1,52 +1,52 @@
-# US-DB-002: Persistencia Real y CRUD de Tickets
+# US-DB-002: Real Persistence and Ticket CRUD
 
-**Épica:** 06 — Database & Persistence
-**Prioridad:** ALTA
-**Estimación:** 5 pts
-**Dependencias:** US-DB-001
-**Estado:** Completada
-
----
-
-## Historia de Usuario
-
-**Como** Gateway orquestador,
-**necesito** que los endpoints de tickets interactúen directamente con PostgreSQL para crear, listar, leer y actualizar el estado de los tickets utilizando la sesión asíncrona de SQLAlchemy,
-**para** que el estado de resolución de cada incidente sea persistente y consultable.
+**Epic:** 06 — Database & Persistence
+**Priority:** HIGH
+**Estimate:** 5 pts
+**Dependencies:** US-DB-001
+**Status:** Completed
 
 ---
 
-## Criterios de Aceptación
+## User Story
 
-> Trabajar UNO A LA VEZ, en orden. Marcar `[x]` al terminar cada uno y hacer pausa en el checkpoint final antes de cerrar la US.
-
-- [x] **CA-1: Creación de Ticket (POST)**
-  - Refactorizar `POST /api/v1/tickets` en `apps/api_gateway/routers/tickets.py` para que reciba la `AsyncSession` vía Dependency Injection (`Depends(get_db_session)`).
-  - Guardar el ticket real en la base de datos usando el modelo SQLAlchemy `Ticket` y retornar el esquema serializado (`TicketRead`) con `201`.
-  - **Verificación:** tras el `POST`, el registro existe en la tabla `tickets` con `status=open` y timestamps generados por la base de datos.
-
-- [x] **CA-2: Listado de Tickets (GET)**
-  - Crear la ruta `GET /api/v1/tickets` que devuelva una lista de todos los tickets ordenados por fecha de creación descendente (los más nuevos primero).
-  - **Verificación:** con varios tickets creados, la respuesta viene ordenada por `created_at` descendente; sin tickets, retorna `200` con lista vacía.
-
-- [x] **CA-3: Lectura por ID (GET)**
-  - Crear la ruta `GET /api/v1/tickets/{ticket_id}`.
-  - Si el UUID no existe, retornar un `HTTPException` `404`.
-  - **Verificación:** un ID existente retorna `200` con el ticket; un UUID inexistente retorna `404`; un ID que no es UUID retorna `422`.
-
-- [x] **CA-4: Actualización de Estado (PATCH)**
-  - Crear la ruta `PATCH /api/v1/tickets/{ticket_id}`.
-  - Debe aceptar un nuevo modelo Pydantic `TicketUpdate` donde todos los campos son opcionales, principalmente `status` y `severity`.
-  - Actualizar el registro en base de datos y la fecha `updated_at`.
-  - **Verificación:** tras el `PATCH`, el campo enviado cambia, los no enviados se conservan y `updated_at` es posterior a `created_at`; un UUID inexistente retorna `404`.
+**As** the orchestrating Gateway,
+**I need** the ticket endpoints to interact directly with PostgreSQL to create, list, read and update ticket state using the SQLAlchemy async session,
+**so that** the resolution state of each incident is persistent and queryable.
 
 ---
 
-## Notas Técnicas
+## Acceptance Criteria
 
-- **Fuera de alcance:** autenticación JWT, borrado de tickets, paginación y filtros, y conexión con el motor de IA (US posteriores de la Fase 2).
-- **Asincronía estricta:** todos los handlers son `async def` y usan `AsyncSession`; sin llamadas bloqueantes a la base de datos.
-- **Capa de esquemas:** `TicketRead` ya incluye `status`, `created_at` y `updated_at` (US-DB-001); `TicketUpdate` se añade a `schemas.py`, fuera de `routers/`.
-- **Pruebas:** definir la estrategia para aislar la base de datos en `pytest` (p. ej. override de `get_db_session`) antes de implementar; los tests actuales del `POST` asumen que no hay persistencia.
-- **Doce factores:** la conexión proviene solo de `DATABASE_URL`; sin credenciales en el código.
-- **Convenciones:** rutas REST en `kebab-case`, archivos y funciones en `snake_case`, clases en `PascalCase`.
+> Work ONE AT A TIME, in order. Mark `[x]` when each is finished and pause at the final checkpoint before closing the US.
+
+- [x] **AC-1: Ticket Creation (POST)**
+  - Refactor `POST /api/v1/tickets` in `apps/api_gateway/routers/tickets.py` so that it receives the `AsyncSession` via Dependency Injection (`Depends(get_db_session)`).
+  - Save the real ticket in the database using the SQLAlchemy `Ticket` model and return the serialized schema (`TicketRead`) with `201`.
+  - **Verification:** after the `POST`, the record exists in the `tickets` table with `status=open` and database-generated timestamps.
+
+- [x] **AC-2: Ticket Listing (GET)**
+  - Create the `GET /api/v1/tickets` route that returns a list of all tickets ordered by creation date descending (newest first).
+  - **Verification:** with several tickets created, the response is ordered by `created_at` descending; with no tickets, it returns `200` with an empty list.
+
+- [x] **AC-3: Read by ID (GET)**
+  - Create the `GET /api/v1/tickets/{ticket_id}` route.
+  - If the UUID does not exist, return an `HTTPException` `404`.
+  - **Verification:** an existing ID returns `200` with the ticket; a nonexistent UUID returns `404`; an ID that is not a UUID returns `422`.
+
+- [x] **AC-4: State Update (PATCH)**
+  - Create the `PATCH /api/v1/tickets/{ticket_id}` route.
+  - It must accept a new Pydantic model `TicketUpdate` where all fields are optional, mainly `status` and `severity`.
+  - Update the database record and the `updated_at` date.
+  - **Verification:** after the `PATCH`, the submitted field changes, unsent fields are preserved and `updated_at` is later than `created_at`; a nonexistent UUID returns `404`.
+
+---
+
+## Technical Notes
+
+- **Out of scope:** JWT authentication, ticket deletion, pagination and filters, and connection to the AI engine (later Phase 2 USs).
+- **Strict asynchrony:** all handlers are `async def` and use `AsyncSession`; no blocking database calls.
+- **Schema layer:** `TicketRead` already includes `status`, `created_at` and `updated_at` (US-DB-001); `TicketUpdate` is added to `schemas.py`, outside `routers/`.
+- **Tests:** define the strategy for isolating the database in `pytest` (e.g. overriding `get_db_session`) before implementing; the current `POST` tests assume there is no persistence.
+- **Twelve-Factor:** the connection comes only from `DATABASE_URL`; no credentials in the code.
+- **Conventions:** REST routes in `kebab-case`, files and functions in `snake_case`, classes in `PascalCase`.

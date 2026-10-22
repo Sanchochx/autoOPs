@@ -1,13 +1,13 @@
-# Orquestación de AutoOps. Toda la configuración sale de .env (ver .env.example);
-# las variables obligatorias fallan con un mensaje claro si no están definidas.
+# AutoOps orchestration. All configuration comes from .env (see .env.example);
+# required variables fail with a clear message if they are not defined.
 #
-#   docker compose up -d --build        # levanta el stack completo
-#   docker compose --profile tools run --rm migrate   # migraciones Alembic (paso explícito)
+#   docker compose up -d --build        # brings up the full stack
+#   docker compose --profile tools run --rm migrate   # Alembic migrations (explicit step)
 #
-# Redes (todas bridge):
-#   frontend_net  publicación al host + salida a Internet (frontend, api-gateway)
-#   backend_net   api-gateway <-> postgres            (internal: sin Internet ni host)
-#   mcp_net       api-gateway <-> servidores MCP      (internal: sin Internet ni host)
+# Networks (all bridge):
+#   frontend_net  host publishing + Internet egress (frontend, api-gateway)
+#   backend_net   api-gateway <-> postgres            (internal: no Internet or host access)
+#   mcp_net       api-gateway <-> MCP servers      (internal: no Internet or host access)
 
 x-hardening: &hardening
   cap_drop: [ALL]
@@ -17,7 +17,7 @@ services:
   postgres:
     image: postgres:15-alpine
     restart: unless-stopped
-    # postgres arranca como root y baja a `postgres`: necesita estas capacidades.
+    # postgres starts as root and drops to `postgres`: it needs these capabilities.
     security_opt: ["no-new-privileges:true"]
     cap_drop: [ALL]
     cap_add: [CHOWN, DAC_OVERRIDE, FOWNER, SETGID, SETUID]
@@ -44,7 +44,7 @@ services:
     environment:
       MCP_LOGS_HOST: 0.0.0.0
       MCP_LOGS_PORT: ${MCP_LOGS_PORT:?define MCP_LOGS_PORT en .env}
-    expose: ["${MCP_LOGS_PORT}"]   # solo visible en mcp_net; sin `ports:`
+    expose: ["${MCP_LOGS_PORT}"]   # only visible in mcp_net; no `ports:`
     healthcheck:
       test:
         - CMD
@@ -73,7 +73,7 @@ services:
       SECRET_KEY: ${SECRET_KEY:?define SECRET_KEY en .env}
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:?define CORS_ALLOWED_ORIGINS en .env}
       WS_BROADCAST_TIMEOUT_SECONDS: ${WS_BROADCAST_TIMEOUT_SECONDS:-2}
-      # El host `postgres` es el nombre del servicio en backend_net.
+      # The `postgres` host is the service name on backend_net.
       DATABASE_URL: postgresql+asyncpg://${DB_USER}:${DB_PASSWORD}@postgres:5432/${DB_NAME}
       MCP_LOGS_SERVER_URL: http://mcp-logs:${MCP_LOGS_PORT}/sse
       AI_MODEL_NAME: ${AI_MODEL_NAME:?define AI_MODEL_NAME en .env}
@@ -103,7 +103,7 @@ services:
   frontend:
     build:
       context: ./apps/frontend
-      # Vite incrusta las VITE_* al compilar: deben ser URLs alcanzables desde el navegador.
+      # Vite embeds the VITE_* variables at build time: they must be URLs reachable from the browser.
       args:
         VITE_API_BASE_URL: ${VITE_API_BASE_URL:?define VITE_API_BASE_URL en .env}
         VITE_WS_BASE_URL: ${VITE_WS_BASE_URL:?define VITE_WS_BASE_URL en .env}
@@ -124,7 +124,7 @@ services:
       start_period: 5s
     networks: [frontend_net]
 
-  # Migraciones Alembic: paso explícito, no se ejecuta con `up`.
+  # Alembic migrations: explicit step, not run by `up`.
   #   docker compose --profile tools run --rm migrate
   migrate:
     build:

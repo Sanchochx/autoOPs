@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Verifica los controles de US-SYS-002 (solo lectura). Mismas variables que 60_docker.sh:
+# Verifies the controls of US-SYS-002 (read-only). Same variables as 60_docker.sh:
 #
 #   sudo ./scripts/provision/checks/60_docker.sh
 set -euo pipefail

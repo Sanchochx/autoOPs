@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
-# US-SYS-002: Docker Engine + Compose desde el repositorio oficial y daemon.json endurecido. Idempotente.
+# US-SYS-002: Docker Engine + Compose from the official repository and hardened daemon.json. Idempotent.
 #
 #   sudo ./scripts/provision/60_docker.sh
 #
-# Variables (todas opcionales):
-#   DOCKER_VERSION               versión apt de docker-ce y docker-ce-cli (ej. 5:27.3.1-1~ubuntu.24.04~noble);
-#                                vacío = la última del repositorio
-#   DOCKER_CONTAINERD_VERSION    ídem para containerd.io
-#   DOCKER_COMPOSE_VERSION       ídem para docker-compose-plugin
-#   DOCKER_BUILDX_VERSION        ídem para docker-buildx-plugin
-#   DOCKER_APT_SUITE             suite del repositorio (por defecto VERSION_CODENAME de /etc/os-release)
-#   DOCKER_GPG_FINGERPRINT       huella esperada de la llave de Docker (por defecto, la oficial)
-#   SERVICE_USER=autoops         único usuario que pertenece al grupo docker
-# Ver infra/docker/README.md. El firewall (Docker ↔ UFW) se resuelve en US-NET-002.
+# Variables (all optional):
+#   DOCKER_VERSION               apt version of docker-ce and docker-ce-cli (e.g. 5:27.3.1-1~ubuntu.24.04~noble);
+#                                empty = latest in the repository
+#   DOCKER_CONTAINERD_VERSION    same for containerd.io
+#   DOCKER_COMPOSE_VERSION       same for docker-compose-plugin
+#   DOCKER_BUILDX_VERSION        same for docker-buildx-plugin
+#   DOCKER_APT_SUITE             repository suite (default: VERSION_CODENAME from /etc/os-release)
+#   DOCKER_GPG_FINGERPRINT       expected fingerprint of Docker's key (default: the official one)
+#   SERVICE_USER=autoops         only user that belongs to the docker group
+# See infra/docker/README.md. The firewall (Docker <-> UFW) is resolved in US-NET-002.
 set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/lib/common.sh"
 
@@ -46,12 +46,12 @@ fi
 has_systemd() { [[ -d /run/systemd/system ]]; }
 export DEBIAN_FRONTEND=noninteractive
 
-# Paquetes que chocan con docker-ce: no se eliminan solos (podrían tener contenedores/datos).
+# Packages that conflict with docker-ce: not removed automatically (they may hold containers/data).
 for conflict in docker.io docker-doc docker-compose podman-docker; do
   ! dpkg -s "$conflict" >/dev/null 2>&1 || die "Está instalado '${conflict}', que choca con docker-ce. Retíralo manualmente (sudo apt-get remove ${conflict}) y reintenta."
 done
 
-# --- CA-1: repositorio oficial con llave verificada ----------------------------------
+# --- AC-1: official repository with verified key ----------------------------------
 install -d -m 755 /etc/apt/keyrings
 key_fpr() { gpg --show-keys --with-colons "$1" 2>/dev/null | awk -F: '$1 == "fpr" { print $10; exit }'; }
 if [[ ! -f $KEYRING ]] || [[ "$(key_fpr "$KEYRING")" != "${DOCKER_GPG_FINGERPRINT^^}" ]]; then
@@ -80,7 +80,7 @@ fi
 docker_preinstalled=0
 dpkg -s docker-ce >/dev/null 2>&1 && docker_preinstalled=1
 
-# --- CA-2: daemon.json ANTES de instalar (el primer arranque ya sale endurecido) -------
+# --- AC-2: daemon.json BEFORE installing (the first start is already hardened) -------
 install -d -m 755 /etc/docker
 DAEMON_CHANGED=0
 if [[ ! -f $DAEMON_DST ]] || ! cmp -s "$DAEMON_SRC" "$DAEMON_DST"; then
@@ -90,7 +90,7 @@ if [[ ! -f $DAEMON_DST ]] || ! cmp -s "$DAEMON_SRC" "$DAEMON_DST"; then
   log_change "escrito ${DAEMON_DST}"
 fi
 
-# --- CA-1: instalación (solo lo que falta o difiere de la versión fijada) ----------------
+# --- AC-1: installation (only what is missing or differs from the pinned version) ----------------
 to_install=()
 for pkg in "${PACKAGES[@]}"; do
   want="${PIN[$pkg]}"
@@ -106,7 +106,7 @@ if ((${#to_install[@]} > 0)); then
   log_change "instalados: ${to_install[*]}"
 fi
 
-# --- CA-2: validar y, si el demonio ya corría con otra config, reiniciarlo -----------------
+# --- AC-2: validate and, if the daemon was already running with another config, restart it -----------------
 if ((DAEMON_CHANGED)); then
   if ! dockerd --validate --config-file="$DAEMON_DST" >/dev/null 2>&1; then
     dockerd --validate --config-file="$DAEMON_DST" >&2 || true
@@ -126,7 +126,7 @@ if has_systemd; then
   fi
 fi
 
-# --- CA-3: acceso al socket (grupo docker = root) -----------------------------------------------
+# --- AC-3: socket access (docker group = root) -----------------------------------------------
 getent group docker >/dev/null || groupadd --system docker
 in_group "$SERVICE_USER" docker || { usermod -aG docker "$SERVICE_USER"; log_change "${SERVICE_USER} añadido al grupo docker"; }
 for member in $(getent group docker | cut -d: -f4 | tr ',' ' '); do

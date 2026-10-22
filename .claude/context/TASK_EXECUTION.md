@@ -1,84 +1,84 @@
-# 📋 FLUJO DE EJECUCIÓN DE TAREAS
+# 📋 TASK EXECUTION WORKFLOW
 
-**Proyecto:** AutoOps — Plataforma SRE Multi-Agente Autohospedada
+**Project:** AutoOps — Self-Hosted Multi-Agent SRE Platform
 
-**Versión:** 2.0
-**Última actualización:** 2026-10-15
+**Version:** 2.0
+**Last updated:** 2026-10-15
 
 ---
 
-## 📁 Archivos de Contexto
+## 📁 Context Files
 
-Antes de comenzar cualquier tarea, revisar estos archivos:
+Before starting any task, review these files:
 
-- **`@context/IMPLEMENTATION_PLAN.md`** — Plan maestro con historias de usuario (US) y progreso por fases
-- **`@CLAUDE.md`** — Detalles del proyecto, stack tecnológico y estándares de código
+- **`@context/IMPLEMENTATION_PLAN.md`** — Master plan with user stories (US) and progress by phase
+- **`@CLAUDE.md`** — Project details, tech stack and code standards
 
-> En todo este documento, "el plan" = `@context/IMPLEMENTATION_PLAN.md`.
+> Throughout this document, "the plan" = `@context/IMPLEMENTATION_PLAN.md`.
 
-### Mapa de directorios (según `CLAUDE.md`)
+### Directory map (per `CLAUDE.md`)
 
-| Ruta | Contenido |
-|------|-----------|
-| `apps/frontend/` | React + Vite + TypeScript + TailwindCSS (Dashboard Admin) |
+| Path | Contents |
+|------|----------|
+| `apps/frontend/` | React + Vite + TypeScript + TailwindCSS (Admin dashboard) |
 | `apps/api_gateway/` | FastAPI (REST, WebSockets, Auth) |
-| `services/ai-engine/` | LangGraph (agentes de Triaje, Investigador y Ejecutor) |
-| `services/mcp-servers/` | Servidores MCP (aislamiento de BD, logs y métricas) |
-| `context/user_stories/epic_NN_slug/` | Historias de usuario por épica |
-| `context/summaries/` | Resúmenes de fase |
+| `services/ai-engine/` | LangGraph (Triage, Investigator and Executor agents) |
+| `services/mcp-servers/` | MCP servers (DB, logs and metrics isolation) |
+| `context/user_stories/epic_NN_slug/` | User stories by epic |
+| `context/summaries/` | Phase summaries |
 
-> Las rutas `context/...` de este documento y del plan son relativas a `.claude/` (es decir, `.claude/context/...`).
+> The `context/...` paths in this document and in the plan are relative to `.claude/` (that is, `.claude/context/...`).
 
-Los archivos de cada US deben crearse **solo** dentro del directorio que corresponda a su épica.
+The files of each US must be created **only** inside the directory that corresponds to its epic.
 
 ---
 
-## 🔄 Proceso de Ejecución
+## 🔄 Execution Process
 
-### 1. Encontrar la siguiente US
+### 1. Find the next US
 
-- Si hay una US marcada `[~]` en el plan, **retómala primero**.
-- Si no hay ninguna, toma la **primera US `[ ]`** del plan y márcala `[~]` antes de empezar (solo UNA `[~]` a la vez).
-- Lee el archivo completo de la US: TODOS los criterios de aceptación y el campo **Dependencias** (si existe).
-- Si una dependencia no está `[x]`, avisa al usuario antes de continuar.
+- If a US is marked `[~]` in the plan, **resume it first**.
+- If there is none, take the **first `[ ]` US** in the plan and mark it `[~]` before starting (only ONE `[~]` at a time).
+- Read the full US file: ALL acceptance criteria and the **Dependencies** field (if present).
+- If a dependency is not `[x]`, warn the user before continuing.
 
 ```markdown
 [~] US-MONO-001: Monorepo Setup
 ```
 
-Prefijos de ID: `MONO` (Epic 01), `GATE` (Epic 02), `MCP` (Epic 03), `LANG` (Epic 04), `FRONT` (Epic 05).
-Si la US está marcada *(por redactar)* en el plan, redáctala primero en su carpeta de épica y pide validación al usuario antes de implementarla.
+ID prefixes: `MONO` (Epic 01), `GATE` (Epic 02), `MCP` (Epic 03), `LANG` (Epic 04), `FRONT` (Epic 05).
+If the US is marked *(to be written)* in the plan, write it first in its epic folder and ask the user for validation before implementing it.
 
 ---
 
-### 2. Implementar cada criterio de aceptación
+### 2. Implement each acceptance criterion
 
-**Regla de oro:** trabaja los criterios **UNO A LA VEZ**.
+**Golden rule:** work on the criteria **ONE AT A TIME**.
 
-Para cada criterio:
+For each criterion:
 
-1. **Explica qué vas a construir y por qué** (objetivo y relación con la arquitectura).
-2. **Crea/modifica archivos** en los directorios definidos en `CLAUDE.md`, respetando la estructura existente.
-3. **Aplica estándares y convenciones** de `CLAUDE.md`, manteniendo consistencia con el código existente.
-4. **Actualiza la documentación afectada** (forma parte del alcance de la US).
-5. **Marca el criterio `[x]`** en el archivo de la US al terminar.
+1. **Explain what you are going to build and why** (goal and relation to the architecture).
+2. **Create/modify files** in the directories defined in `CLAUDE.md`, respecting the existing structure.
+3. **Apply the standards and conventions** from `CLAUDE.md`, staying consistent with the existing code.
+4. **Update the affected documentation** (it is part of the US scope).
+5. **Mark the criterion `[x]`** in the US file when done.
 
 ```markdown
-## Criterios de Aceptación
+## Acceptance Criteria
 
-- [x] [Criterio completado]
-- [ ] [Criterio pendiente]
+- [x] [Completed criterion]
+- [ ] [Pending criterion]
 ```
 
 ---
 
-### 3. Cerrar la US
+### 3. Close the US
 
-Cuando TODOS los criterios estén `[x]`:
+When ALL criteria are `[x]`:
 
-1. Recorre el **Checklist de Verificación** (al final de este documento).
-2. En el plan: marca la US `[x]` (reemplaza `[~]`).
-3. Actualiza el dashboard (contadores) y las barras de progreso de **épica** y **fase**.
+1. Go through the **Verification Checklist** (at the end of this document).
+2. In the plan: mark the US `[x]` (replacing `[~]`).
+3. Update the dashboard (counters) and the **epic** and **phase** progress bars.
 
 ```markdown
 [x] US-MONO-001: Monorepo Setup
@@ -86,108 +86,108 @@ Cuando TODOS los criterios estén `[x]`:
 
 ---
 
-### 4. Checkpoint (obligatorio)
+### 4. Checkpoint (mandatory)
 
-Muestra un resumen y **detente a esperar confirmación**:
+Show a summary and **stop to wait for confirmation**:
 
 ```
-✅ US-MONO-001 Completada
+✅ US-MONO-001 Completed
 
-Archivos creados/modificados:
-- [ruta/archivo] - [propósito]
+Files created/modified:
+- [path/file] - [purpose]
 
-Funcionalidades:
-- [Funcionalidad implementada]
+Features:
+- [Implemented feature]
 
-Decisiones técnicas:
-- [Decisión y motivo]
+Technical decisions:
+- [Decision and reason]
 
-¿Proceder con US-MONO-002?
+Proceed with US-MONO-002?
 ```
 
-- No avances a la siguiente US sin aprobación explícita del usuario.
-- No hagas nada fuera de este flujo mientras esperas.
+- Do not move on to the next US without explicit user approval.
+- Do not do anything outside this workflow while waiting.
 
 ---
 
-### 5. Resumen de fase (solo si corresponde)
+### 5. Phase summary (only when applicable)
 
-**Cuándo:** al completar TODAS las US de una **fase** (después del checkpoint de la última US).
+**When:** upon completing ALL the US of a **phase** (after the checkpoint of the last US).
 
-**Dónde y nombre:** `context/summaries/phase-[N]-resume.md`
+**Where and name:** `context/summaries/phase-[N]-resume.md`
 
-**Contenido:**
+**Contents:**
 
-- **📝 Changes Made:** módulos, funcionalidades core e integraciones de la fase.
-- **📂 Files Modified/Created:** ruta, propósito y cambios principales de cada archivo.
-- **🎯 Rationale:** qué se completó y por qué, cómo encaja en la arquitectura, decisiones de diseño y patrones usados.
-- **🚀 Next Steps:** fase siguiente, dependencias y consideraciones.
+- **📝 Changes Made:** modules, core features and integrations of the phase.
+- **📂 Files Modified/Created:** path, purpose and main changes of each file.
+- **🎯 Rationale:** what was completed and why, how it fits in the architecture, design decisions and patterns used.
+- **🚀 Next Steps:** next phase, dependencies and considerations.
 
-**Propósito:** que futuras sesiones de LLM entiendan el estado del proyecto sin releer todo el código.
-
----
-
-## ⚠️ Guías Importantes
-
-- **Arquitectura:** sigue `CLAUDE.md` (arquitectura, estándares, organización de archivos, nombres).
-- **Cero hardcoding (Twelve-Factor):** nunca escribas credenciales, claves de API, URLs ni puertos en el código; todo se lee de variables de entorno y se documenta en `.env.example`.
-- **Aislamiento MCP:** el motor de IA (`services/ai-engine/`) NUNCA se conecta directo a PostgreSQL ni ejecuta comandos del SO; toda interacción con la infraestructura pasa por los servidores de `services/mcp-servers/`.
-- **Logging cloud-native:** todos los servicios emiten logs a stdout/stderr; sin librerías que escriban o roten archivos locales.
-- **Frontend:** TypeScript `strict` sin `any`, estructura por features (`components/`, `services/`, `models/`, `hooks/`, `index.ts`), máx. ~150 líneas por archivo, TailwindCSS mobile-first y accesibilidad WCAG AA (ver sección "Estándares de Frontend" de `CLAUDE.md`).
-- **Convenciones de nombres:** Python `snake_case`; TS/React `camelCase` y `PascalCase` para componentes/interfaces; constantes `UPPER_SNAKE_CASE`; rutas REST en `/kebab-case`.
-- **Ramas:** `main` (producción), `develop` (integración), `feature/nombre-descriptivo`, `fix/nombre-del-bug`.
-- **Trabajo incremental:** un criterio a la vez; una US a la vez.
-- **Commits:** no hagas commits a menos que el usuario lo pida. Si lo pide, que sean pequeños y atómicos (uno por criterio).
-- **Testing:** solo implementación. No escribas tests salvo que la US los exija en sus criterios.
-- **Dudas:** si un criterio es ambiguo o choca con la arquitectura existente, pregunta antes de implementar.
-- **Alcance:** no modifiques archivos fuera del alcance de la US actual.
+**Purpose:** so that future LLM sessions understand the state of the project without rereading all the code.
 
 ---
 
-## 🎯 Buenas Prácticas
+## ⚠️ Important Guidelines
 
-### ✅ HACER
-- Leer toda la US antes de comenzar
-- Seguir el orden del plan
-- Marcar el progreso en tiempo real
-- Explicar decisiones técnicas
-
-### ❌ NO HACER
-- Saltarte US
-- Trabajar en varias US a la vez
-- Asumir implementaciones sin revisar criterios
-- Avanzar sin autorización del usuario
-
----
-
-## 🔍 Checklist de Verificación
-
-Antes de marcar una US como completa:
-
-- [ ] Todos los criterios de aceptación están `[x]`
-- [ ] Los archivos están en los directorios correctos
-- [ ] El código sigue los estándares de `CLAUDE.md`
-- [ ] Sin credenciales, URLs ni puertos hardcodeados; variables nuevas añadidas a `.env.example`
-- [ ] Sin acceso directo a PostgreSQL/SO desde `services/ai-engine/` (solo vía MCP)
-- [ ] Logs a stdout/stderr, sin archivos locales
-- [ ] (Frontend) TypeScript strict sin `any`, a11y y `:focus-visible` verificados
-- [ ] La documentación está actualizada
-- [ ] No hay código comentado sin razón
-- [ ] Las funcionalidades cumplen los criterios
+- **Architecture:** follow `CLAUDE.md` (architecture, standards, file organization, naming).
+- **Zero hardcoding (Twelve-Factor):** never write credentials, API keys, URLs or ports in code; everything is read from environment variables and documented in `.env.example`.
+- **MCP isolation:** the AI engine (`services/ai-engine/`) NEVER connects directly to PostgreSQL nor runs OS commands; all infrastructure interaction goes through the servers in `services/mcp-servers/`.
+- **Cloud-native logging:** all services emit logs to stdout/stderr; no libraries that write or rotate local files.
+- **Frontend:** TypeScript `strict` without `any`, feature-based structure (`components/`, `services/`, `models/`, `hooks/`, `index.ts`), max. ~150 lines per file, mobile-first TailwindCSS and WCAG AA accessibility (see the "Frontend Standards" section of `CLAUDE.md`).
+- **Naming conventions:** Python `snake_case`; TS/React `camelCase` and `PascalCase` for components/interfaces; constants `UPPER_SNAKE_CASE`; REST routes in `/kebab-case`.
+- **Branches:** `main` (production), `develop` (integration), `feature/descriptive-name`, `fix/bug-name`.
+- **Incremental work:** one criterion at a time; one US at a time.
+- **Commits:** do not make commits unless the user asks. If asked, keep them small and atomic (one per criterion).
+- **Testing:** implementation only. Do not write tests unless the US requires them in its criteria.
+- **Doubts:** if a criterion is ambiguous or conflicts with the existing architecture, ask before implementing.
+- **Scope:** do not modify files outside the scope of the current US.
 
 ---
 
-## 📌 Referencia Rápida
+## 🎯 Best Practices
 
-| Archivo | Propósito |
-|---------|-----------|
-| `@context/IMPLEMENTATION_PLAN.md` | Plan maestro con todas las US y progreso |
-| `@CLAUDE.md` | Detalles técnicos y estándares del proyecto |
-| `context/user_stories/` | Archivos individuales de historias de usuario (una carpeta por épica) |
-| `context/summaries/` | Resúmenes de fase (`phase-[N]-resume.md`) |
-| `.env.example` | Plantilla centralizada de variables de entorno |
-| `docker-compose.yml` | Orquestación de contenedores (Fase 2) |
+### ✅ DO
+- Read the entire US before starting
+- Follow the order of the plan
+- Mark progress in real time
+- Explain technical decisions
+
+### ❌ DO NOT
+- Skip US
+- Work on several US at once
+- Assume implementations without reviewing the criteria
+- Move forward without user authorization
 
 ---
 
-**Importante:** flujo diseñado para trabajo incremental y colaborativo. Siempre espera confirmación del usuario antes de pasar a la siguiente US.
+## 🔍 Verification Checklist
+
+Before marking a US as complete:
+
+- [ ] All acceptance criteria are `[x]`
+- [ ] Files are in the correct directories
+- [ ] The code follows the standards in `CLAUDE.md`
+- [ ] No hardcoded credentials, URLs or ports; new variables added to `.env.example`
+- [ ] No direct PostgreSQL/OS access from `services/ai-engine/` (only via MCP)
+- [ ] Logs to stdout/stderr, no local files
+- [ ] (Frontend) TypeScript strict without `any`, a11y and `:focus-visible` verified
+- [ ] Documentation is up to date
+- [ ] No commented-out code without a reason
+- [ ] The features meet the criteria
+
+---
+
+## 📌 Quick Reference
+
+| File | Purpose |
+|------|---------|
+| `@context/IMPLEMENTATION_PLAN.md` | Master plan with all US and progress |
+| `@CLAUDE.md` | Technical details and project standards |
+| `context/user_stories/` | Individual user story files (one folder per epic) |
+| `context/summaries/` | Phase summaries (`phase-[N]-resume.md`) |
+| `.env.example` | Centralized environment variable template |
+| `docker-compose.yml` | Container orchestration (Phase 2) |
+
+---
+
+**Important:** workflow designed for incremental and collaborative work. Always wait for user confirmation before moving on to the next US.

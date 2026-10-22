@@ -1,4 +1,4 @@
-"""Endpoint WebSocket de streaming."""
+"""Streaming WebSocket endpoint."""
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
@@ -9,7 +9,7 @@ router = APIRouter(tags=["websocket"])
 
 @router.websocket("/ws/stream")
 async def stream(websocket: WebSocket) -> None:
-    """Confirma la conexión y hace eco de los mensajes recibidos."""
+    """Acknowledge the connection and echo received messages."""
     await manager.connect(websocket)
     try:
         await manager.send_personal_message("connected", websocket)

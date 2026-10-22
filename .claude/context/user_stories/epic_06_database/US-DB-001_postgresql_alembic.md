@@ -1,53 +1,53 @@
-# US-DB-001: Configuración de ORM, Modelos y Migraciones
+# US-DB-001: ORM, Models and Migrations Setup
 
-**Épica:** 06 — Database & Persistence
-**Prioridad:** ALTA
-**Estimación:** 5 pts
-**Dependencias:** Fase 1 (US-GATE-002)
-**Estado:** Completada
-
----
-
-## Historia de Usuario
-
-**Como** sistema con estado,
-**necesito** integrar PostgreSQL en el API Gateway usando SQLAlchemy y Alembic,
-**para** persistir los tickets y su estado de resolución.
+**Epic:** 06 — Database & Persistence
+**Priority:** HIGH
+**Estimate:** 5 pts
+**Dependencies:** Phase 1 (US-GATE-002)
+**Status:** Completed
 
 ---
 
-## Criterios de Aceptación
+## User Story
 
-> Trabajar UNO A LA VEZ, en orden. Marcar `[x]` al terminar cada uno y hacer pausa en el checkpoint final antes de cerrar la US.
-
-- [x] **CA-1: Dependencias y Configuración de Base de Datos**
-  - Instalar `sqlalchemy`, `alembic` y `asyncpg` (motor estrictamente asíncrono) en `apps/api_gateway/requirements.txt`.
-  - Crear `apps/api_gateway/database.py` con el motor de conexión (`create_async_engine` / `AsyncEngine`) y la fábrica de sesiones (`AsyncSession`), leyendo `DATABASE_URL` (`postgresql+asyncpg://...`) del entorno.
-  - **Verificación:** el módulo importa sin errores y el motor asíncrono se conecta al contenedor PostgreSQL local (`SELECT 1`).
-
-- [x] **CA-2: Modelos SQLAlchemy**
-  - Crear `apps/api_gateway/models.py`.
-  - Definir el modelo `Ticket` mapeando los campos de Pydantic: `id`, `title`, `description`, `severity`, `status`, `created_at`, `updated_at`.
-  - **Verificación:** el modelo importa sin errores y `Base.metadata` contiene la tabla `tickets` con todas las columnas.
-
-- [x] **CA-3: Configuración de Alembic**
-  - Inicializar Alembic en la carpeta del Gateway.
-  - Configurar `alembic/env.py` para leer `DATABASE_URL` del entorno y cargar el `Base.metadata` de los modelos.
-  - **Verificación:** `alembic current` se ejecuta contra la base local sin errores.
-
-- [x] **CA-4: Primera Migración**
-  - Generar y aplicar la primera migración de esquema que cree la tabla `tickets` en la base de datos local.
-  - **Comandos:** `alembic -c apps/api_gateway/alembic.ini <cmd>` desde la raíz del monorepo.
-  - **Verificación:** `alembic upgrade head` crea la tabla `tickets`; `alembic downgrade base` la elimina limpiamente.
+**As** a stateful system,
+**I need** to integrate PostgreSQL into the API Gateway using SQLAlchemy and Alembic,
+**so that** tickets and their resolution state are persisted.
 
 ---
 
-## Notas Técnicas
+## Acceptance Criteria
 
-- **Fuera de alcance:** endpoints CRUD sobre la base de datos, conexión LangGraph-Gateway y Agente Ejecutor HITL (US posteriores de la Fase 2).
-- **Doce factores:** `DATABASE_URL` se lee solo del entorno; sin credenciales ni URLs en el código. Se añade a `.env.example` como `DATABASE_URL=postgresql+asyncpg://user:password@localhost:5432/dbname`.
-- **Aislamiento:** solo el API Gateway accede a PostgreSQL; el motor de IA nunca se conecta directamente a la base de datos.
-- **Modelo de datos:** `schemas.py` se extiende con el enum `TicketStatus` (`open`, `investigating`, `pending_approval`, `resolved`) y los campos `status`, `created_at` y `updated_at` en el esquema de lectura (`TicketRead`).
-- **Decisión:** código estrictamente asíncrono (`asyncpg` + `sqlalchemy.ext.asyncio`); Alembic usa el template `async`.
-- **Convenciones:** archivos y funciones en `snake_case`, clases (`Ticket`, `Base`) en `PascalCase`, tabla `tickets` en plural.
-- **Logging:** solo stdout/stderr; sin handlers que escriban o roten archivos.
+> Work ONE AT A TIME, in order. Mark `[x]` when each is finished and pause at the final checkpoint before closing the US.
+
+- [x] **AC-1: Dependencies and Database Configuration**
+  - Install `sqlalchemy`, `alembic` and `asyncpg` (strictly async engine) in `apps/api_gateway/requirements.txt`.
+  - Create `apps/api_gateway/database.py` with the connection engine (`create_async_engine` / `AsyncEngine`) and the session factory (`AsyncSession`), reading `DATABASE_URL` (`postgresql+asyncpg://...`) from the environment.
+  - **Verification:** the module imports without errors and the async engine connects to the local PostgreSQL container (`SELECT 1`).
+
+- [x] **AC-2: SQLAlchemy Models**
+  - Create `apps/api_gateway/models.py`.
+  - Define the `Ticket` model mapping the Pydantic fields: `id`, `title`, `description`, `severity`, `status`, `created_at`, `updated_at`.
+  - **Verification:** the model imports without errors and `Base.metadata` contains the `tickets` table with all columns.
+
+- [x] **AC-3: Alembic Configuration**
+  - Initialize Alembic in the Gateway folder.
+  - Configure `alembic/env.py` to read `DATABASE_URL` from the environment and load the models' `Base.metadata`.
+  - **Verification:** `alembic current` runs against the local database without errors.
+
+- [x] **AC-4: First Migration**
+  - Generate and apply the first schema migration that creates the `tickets` table in the local database.
+  - **Commands:** `alembic -c apps/api_gateway/alembic.ini <cmd>` from the monorepo root.
+  - **Verification:** `alembic upgrade head` creates the `tickets` table; `alembic downgrade base` drops it cleanly.
+
+---
+
+## Technical Notes
+
+- **Out of scope:** CRUD endpoints on the database, LangGraph-Gateway connection and the HITL Executor Agent (later Phase 2 USs).
+- **Twelve-Factor:** `DATABASE_URL` is read only from the environment; no credentials or URLs in the code. It is added to `.env.example` as `DATABASE_URL=postgresql+asyncpg://user:password@localhost:5432/dbname`.
+- **Isolation:** only the API Gateway accesses PostgreSQL; the AI engine never connects directly to the database.
+- **Data model:** `schemas.py` is extended with the `TicketStatus` enum (`open`, `investigating`, `pending_approval`, `resolved`) and the `status`, `created_at` and `updated_at` fields in the read schema (`TicketRead`).
+- **Decision:** strictly async code (`asyncpg` + `sqlalchemy.ext.asyncio`); Alembic uses the `async` template.
+- **Conventions:** files and functions in `snake_case`, classes (`Ticket`, `Base`) in `PascalCase`, plural `tickets` table.
+- **Logging:** stdout/stderr only; no handlers that write or rotate files.

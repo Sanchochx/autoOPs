@@ -1,8 +1,8 @@
-"""Nodos del grafo: Triaje e Investigador.
+"""Graph nodes: Triage and Investigator.
 
-Cada nodo se construye con una fábrica que recibe sus dependencias (modelo de
-chat y, opcionalmente, un proveedor de contexto MCP), de modo que pueden
-probarse con un modelo falso sin llamar a la API.
+Each node is built by a factory that receives its dependencies (chat model
+and, optionally, an MCP context provider), so they can be tested with a fake
+model without calling the API.
 """
 
 import logging
@@ -29,15 +29,15 @@ INVESTIGATOR_PROMPT = (
     "información técnica habría que consultar. Sé conciso."
 )
 
-# Punto de inyección del cliente MCP: recibe el estado y devuelve contexto
-# técnico (logs, métricas). Se conectará a los servidores MCP en otra US.
+# MCP client injection point: receives the state and returns technical
+# context (logs, metrics). It will connect to the MCP servers in another US.
 ContextProvider = Callable[[AgentState], str]
 
 
 def parse_severity(raw_text: str) -> Severity:
-    """Extrae una severidad válida del texto del modelo.
+    """Extract a valid severity from the model text.
 
-    Si no hay ninguna reconocible, usa ``DEFAULT_SEVERITY`` y lo registra.
+    If none is recognizable, uses ``DEFAULT_SEVERITY`` and logs it.
     """
     text = raw_text.strip().lower()
     for severity in SEVERITIES:
@@ -48,7 +48,7 @@ def parse_severity(raw_text: str) -> Severity:
 
 
 def make_triage_node(model: BaseChatModel) -> Callable[[AgentState], dict]:
-    """Crea el nodo de triaje que asigna ``severity`` al ticket."""
+    """Create the triage node that assigns ``severity`` to the ticket."""
 
     def triage_node(state: AgentState) -> dict:
         response = model.invoke(
@@ -69,11 +69,11 @@ def make_triage_node(model: BaseChatModel) -> Callable[[AgentState], dict]:
 def make_investigator_node(
     model: BaseChatModel, context_provider: ContextProvider | None = None
 ) -> Callable[[AgentState], dict]:
-    """Crea el nodo investigador.
+    """Create the investigator node.
 
     Args:
-        model: modelo de chat usado para razonar sobre el incidente.
-        context_provider: función opcional que aporta contexto técnico (MCP).
+        model: chat model used to reason about the incident.
+        context_provider: optional function that supplies technical context (MCP).
     """
 
     def investigator_node(state: AgentState) -> dict:

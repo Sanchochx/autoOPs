@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Revierte el drop-in SSH al estado previo a la última ejecución de 20_ssh.sh.
-# Lo dispara un temporizador de systemd si no se confirma el cambio a tiempo
-# (`20_ssh.sh --confirm`). Se instala en /usr/local/sbin/autoops-ssh-rollback.
+# Reverts the SSH drop-in to the state prior to the last run of 20_ssh.sh.
+# Triggered by a systemd timer if the change is not confirmed in time
+# (`20_ssh.sh --confirm`). Installed at /usr/local/sbin/autoops-ssh-rollback.
 set -euo pipefail
 
 CONF=/etc/ssh/sshd_config.d/10-autoops.conf

@@ -1,4 +1,4 @@
-"""Estado compartido que viaja entre los nodos del grafo."""
+"""Shared state that travels between the graph nodes."""
 
 import operator
 from typing import Annotated, Literal, TypedDict
@@ -13,10 +13,10 @@ SEVERITIES: tuple[Severity, ...] = ("low", "medium", "high", "critical")
 
 
 class AgentState(TypedDict, total=False):
-    """Estado del grafo para un ticket.
+    """Graph state for a ticket.
 
-    ``messages`` acumula el historial con el reducer ``add_messages`` y
-    ``agent_notes`` acumula las notas de cada agente.
+    ``messages`` accumulates the history with the ``add_messages`` reducer and
+    ``agent_notes`` accumulates each agent's notes.
     """
 
     ticket_id: str

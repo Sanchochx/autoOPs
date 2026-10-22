@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
-# US-SYS-001: baseline del SO, parches automáticos, hora y sysctl. Idempotente.
+# US-SYS-001: OS baseline, automatic patches, time and sysctl. Idempotent.
 #
 #   sudo ./scripts/provision/50_os_baseline.sh
 #
-# Variables (todas opcionales):
-#   TIMEZONE=UTC             zona horaria del servidor
-#   AUTO_REBOOT_TIME         HH:MM; si se define, unattended-upgrades reinicia a esa hora cuando
-#                            un parche lo exige. Por defecto: sin reinicio automático.
-#   EXTRA_PACKAGES="git htop tree"  utilidades de administración (además de las obligatorias)
-#   APT_UPGRADE=1            ejecutar `apt-get upgrade` (0 = solo actualizar el índice)
+# Variables (all optional):
+#   TIMEZONE=UTC             server time zone
+#   AUTO_REBOOT_TIME         HH:MM; if set, unattended-upgrades reboots at that time when
+#                            a patch requires it. Default: no automatic reboot.
+#   EXTRA_PACKAGES="git htop tree"  admin utilities (in addition to the mandatory ones)
+#   APT_UPGRADE=1            run `apt-get upgrade` (0 = only refresh the index)
 #   DISABLE_SERVICES="avahi-daemon cups cups-browsed rpcbind bluetooth ModemManager"
-#                            servicios innecesarios a deshabilitar si existen
-# Ver infra/sysctl/ para los parámetros de kernel.
+#                            unneeded services to disable if present
+# See infra/sysctl/ for kernel parameters.
 set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/lib/common.sh"
 
@@ -27,7 +27,7 @@ AUTO_REBOOT_TIME="${AUTO_REBOOT_TIME:-}"
 EXTRA_PACKAGES="${EXTRA_PACKAGES-git htop tree}"
 APT_UPGRADE="${APT_UPGRADE:-1}"
 DISABLE_SERVICES="${DISABLE_SERVICES-avahi-daemon cups cups-browsed rpcbind bluetooth ModemManager}"
-# ca-certificates/curl/gnupg: requisitos del repositorio apt de Docker (US-SYS-002).
+# ca-certificates/curl/gnupg: prerequisites of Docker's apt repository (US-SYS-002).
 REQUIRED_PACKAGES="ca-certificates curl gnupg jq chrony unattended-upgrades"
 
 [[ $AUTO_REBOOT_TIME =~ ^([01][0-9]|2[0-3]):[0-5][0-9]$ || -z $AUTO_REBOOT_TIME ]] || die "AUTO_REBOOT_TIME debe ser HH:MM."
@@ -40,7 +40,7 @@ timedatectl list-timezones | grep -qxF "$TIMEZONE" || die "TIMEZONE inválida: '
 has_systemd() { [[ -d /run/systemd/system ]]; }
 export DEBIAN_FRONTEND=noninteractive
 
-# --- CA-1: paquetes mínimos y servicios innecesarios ---------------------------------
+# --- AC-1: minimal packages and unneeded services ---------------------------------
 missing=()
 for pkg in $REQUIRED_PACKAGES $EXTRA_PACKAGES; do
   dpkg -s "$pkg" >/dev/null 2>&1 || missing+=("$pkg")
@@ -72,7 +72,7 @@ fi
 log_info "Puertos en escucha (revisa que solo quede SSH y servicios internos de systemd):"
 ss -tulpn || true
 
-# --- CA-2: parches de seguridad automáticos ---------------------------------------------
+# --- AC-2: automatic security patches ---------------------------------------------
 ensure_file "$UU_AUTO" 'APT::Periodic::Update-Package-Lists "1";
 APT::Periodic::Unattended-Upgrade "1";'
 
@@ -82,8 +82,8 @@ Unattended-Upgrade::Automatic-Reboot-Time \"${AUTO_REBOOT_TIME}\";"
 else
   reboot_cfg='Unattended-Upgrade::Automatic-Reboot "false";'
 fi
-# `#clear` descarta los orígenes de 50unattended-upgrades: solo el canal de seguridad (+ ESM).
-# SyslogEnable manda los registros también a journald.
+# `#clear` discards the origins from 50unattended-upgrades: only the security channel (+ ESM).
+# SyslogEnable sends logs to journald as well.
 ensure_file "$UU_CONF" "#clear Unattended-Upgrade::Allowed-Origins;
 Unattended-Upgrade::Allowed-Origins {
   \"\${distro_id}:\${distro_codename}-security\";
@@ -96,7 +96,7 @@ if has_systemd; then
   systemctl enable --now apt-daily.timer apt-daily-upgrade.timer >/dev/null 2>&1
 fi
 
-# --- CA-3: hora (chrony + zona horaria) -------------------------------------------------------
+# --- AC-3: time (chrony + time zone) -------------------------------------------------------
 if [[ "$(timedatectl show -p Timezone --value)" != "$TIMEZONE" ]]; then
   timedatectl set-timezone "$TIMEZONE"
   log_change "zona horaria -> ${TIMEZONE}"
@@ -109,7 +109,7 @@ if has_systemd; then
   fi
 fi
 
-# --- CA-4: sysctl --------------------------------------------------------------------------------
+# --- AC-4: sysctl --------------------------------------------------------------------------------
 ensure_file "$SYSCTL_DST" "$(cat "$SYSCTL_SRC")"
 chmod 644 "$SYSCTL_DST"
 if ((FILE_CHANGED)); then

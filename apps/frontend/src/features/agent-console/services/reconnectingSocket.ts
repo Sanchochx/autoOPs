@@ -10,8 +10,8 @@ interface SocketOptions {
 }
 
 /**
- * Abre un WebSocket y lo reconecta con espera creciente (con tope) si cae.
- * Devuelve una función que cierra la conexión y cancela los reintentos.
+ * Opens a WebSocket and reconnects it with growing (capped) backoff if it drops.
+ * Returns a function that closes the connection and cancels retries.
  */
 export function openReconnectingSocket(options: SocketOptions): () => void {
   let socket: WebSocket | null = null

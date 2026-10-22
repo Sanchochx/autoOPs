@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import type { AgentMessage } from '../models/agentMessage'
 
-/** Tope de mensajes en memoria para no degradar el render del stream. */
+/** In-memory message cap so stream rendering does not degrade. */
 export const MAX_LOGS = 500
 
 interface AiStoreState {

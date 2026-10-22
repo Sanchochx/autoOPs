@@ -1,53 +1,53 @@
-# US-LANG-004: Grafo Base de Agentes (Triaje e Investigación)
+# US-LANG-004: Base Agent Graph (Triage and Investigation)
 
-**Épica:** 04 — AI Engine (LangGraph)
-**Prioridad:** CRÍTICA
-**Estimación:** 8 pts
-**Dependencias:** US-MCP-003
-**Estado:** Completada
-
----
-
-## Historia de Usuario
-
-**Como** sistema autónomo,
-**necesito** un motor multi-agente basado en LangGraph que procese un ticket entrante, clasifique su severidad mediante un Agente de Triaje y luego invoque a un Agente Investigador preparado para usar herramientas MCP,
-**para** contar con el flujo base de análisis sobre el que se construirán la investigación real y el Agente Ejecutor.
+**Epic:** 04 — AI Engine (LangGraph)
+**Priority:** CRITICAL
+**Estimate:** 8 pts
+**Dependencies:** US-MCP-003
+**Status:** Completed
 
 ---
 
-## Criterios de Aceptación
+## User Story
 
-> Trabajar UNO A LA VEZ, en orden. Marcar `[x]` al terminar cada uno y hacer pausa en el checkpoint final antes de cerrar la US.
-
-- [x] **CA-1: Estructura base e instanciación**
-  - Se crea la carpeta `services/ai-engine/`.
-  - Se crea `requirements.txt` con `langgraph`, `langchain-anthropic`, `langchain-core`, `pydantic` y `mcp<2` (cliente MCP).
-  - El modelo y su clave se configuran por variables de entorno (`ANTHROPIC_API_KEY` ya existe; el nombre del modelo se añade a `.env.example`); sin valores hardcodeados.
-  - **Verificación:** las dependencias se instalan y los módulos del paquete importan sin errores.
-
-- [x] **CA-2: Definición del Estado del Grafo (`state.py`)**
-  - Se crea `AgentState` (`TypedDict`) con los campos: `ticket_id`, `description`, `severity`, `agent_notes`, `status` y `messages` (historial de mensajes de LangChain, con el reducer `add_messages`).
-  - `severity` se restringe a `low | medium | high | critical` (mismos valores que `TicketSeverity` del Gateway).
-  - **Verificación:** el estado se importa y un diccionario de ejemplo cumple el tipado.
-
-- [x] **CA-3: Nodos Iniciales (`nodes.py`)**
-  - `triage_node`: usa un prompt base para analizar `description` y asigna una severidad válida; si el modelo devuelve un valor fuera del conjunto, aplica un valor por defecto seguro y lo registra.
-  - `investigator_node`: reacciona a la severidad y registra en `agent_notes` el contexto técnico recopilado; deja un punto de inyección explícito para el cliente MCP (sin conectarlo todavía).
-  - Cada nodo recibe el modelo/cliente como dependencia inyectada, para poder probarlos con un modelo falso sin llamar a la API.
-  - **Verificación:** pruebas con un modelo falso: el triaje devuelve una severidad válida y el investigador añade notas sin romper el estado.
-
-- [x] **CA-4: Enrutamiento y Compilación (`graph.py`)**
-  - Se configura el flujo `START -> triage_node -> investigator_node -> END`.
-  - Se expone el grafo compilado como `compiled_graph`, invocable externamente.
-  - **Verificación:** `compiled_graph.invoke(...)` con un modelo falso recorre ambos nodos y devuelve el estado final con `severity` y `agent_notes` poblados.
+**As** an autonomous system,
+**I need** a multi-agent engine based on LangGraph that processes an incoming ticket, classifies its severity through a Triage Agent and then invokes an Investigator Agent prepared to use MCP tools,
+**so that** we have the base analysis flow on which the real investigation and the Executor Agent will be built.
 
 ---
 
-## Notas Técnicas
+## Acceptance Criteria
 
-- **Aislamiento (MCP):** el motor de IA NUNCA se conecta a PostgreSQL ni ejecuta comandos del SO; la infraestructura solo se consulta mediante servidores MCP. En esta US el cliente MCP queda como punto de inyección, sin conexión real.
-- **Doce factores:** modelo, claves y rutas de servidores MCP provienen de variables de entorno, documentadas en `.env.example`.
-- **Logging:** solo stdout/stderr.
-- **Fuera de alcance:** conexión efectiva al servidor MCP de logs, Agente Ejecutor, aprobación HITL, integración con el Gateway y persistencia del estado.
-- **Convenciones:** archivos y funciones en `snake_case`; clases y tipos en `PascalCase`.
+> Work ONE AT A TIME, in order. Mark `[x]` when each one is finished and pause at the final checkpoint before closing the US.
+
+- [x] **AC-1: Base structure and instantiation**
+  - The folder `services/ai-engine/` is created.
+  - `requirements.txt` is created with `langgraph`, `langchain-anthropic`, `langchain-core`, `pydantic` and `mcp<2` (MCP client).
+  - The model and its key are configured via environment variables (`ANTHROPIC_API_KEY` already exists; the model name is added to `.env.example`); no hardcoded values.
+  - **Verification:** dependencies install and the package modules import without errors.
+
+- [x] **AC-2: Graph State definition (`state.py`)**
+  - `AgentState` (`TypedDict`) is created with the fields: `ticket_id`, `description`, `severity`, `agent_notes`, `status` and `messages` (LangChain message history, with the `add_messages` reducer).
+  - `severity` is restricted to `low | medium | high | critical` (same values as the Gateway's `TicketSeverity`).
+  - **Verification:** the state imports and a sample dictionary satisfies the typing.
+
+- [x] **AC-3: Initial Nodes (`nodes.py`)**
+  - `triage_node`: uses a base prompt to analyze `description` and assigns a valid severity; if the model returns a value outside the set, it applies a safe default and logs it.
+  - `investigator_node`: reacts to the severity and records the gathered technical context in `agent_notes`; leaves an explicit injection point for the MCP client (not connected yet).
+  - Each node receives the model/client as an injected dependency, so they can be tested with a fake model without calling the API.
+  - **Verification:** tests with a fake model: triage returns a valid severity and the investigator adds notes without breaking the state.
+
+- [x] **AC-4: Routing and Compilation (`graph.py`)**
+  - The flow `START -> triage_node -> investigator_node -> END` is configured.
+  - The compiled graph is exposed as `compiled_graph`, invocable externally.
+  - **Verification:** `compiled_graph.invoke(...)` with a fake model traverses both nodes and returns the final state with `severity` and `agent_notes` populated.
+
+---
+
+## Technical Notes
+
+- **Isolation (MCP):** the AI engine NEVER connects to PostgreSQL or runs OS commands; infrastructure is only queried through MCP servers. In this US the MCP client remains an injection point, with no real connection.
+- **Twelve-Factor:** model, keys and MCP server paths come from environment variables, documented in `.env.example`.
+- **Logging:** stdout/stderr only.
+- **Out of scope:** effective connection to the logs MCP server, Executor Agent, HITL approval, integration with the Gateway and state persistence.
+- **Conventions:** files and functions in `snake_case`; classes and types in `PascalCase`.

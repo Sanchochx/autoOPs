@@ -1,4 +1,4 @@
-"""Pruebas del grafo base de agentes con un modelo falso (US-LANG-004)."""
+"""Tests of the base agent graph with a fake model (US-LANG-004)."""
 
 import pytest
 from langchain_core.language_models.fake_chat_models import FakeListChatModel

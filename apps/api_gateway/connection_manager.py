@@ -1,4 +1,4 @@
-"""Gestión de conexiones WebSocket activas."""
+"""Management of active WebSocket connections."""
 
 import logging
 
@@ -8,33 +8,33 @@ logger = logging.getLogger(__name__)
 
 
 class ConnectionManager:
-    """Mantiene las conexiones WebSocket activas y permite enviarles mensajes."""
+    """Keep track of active WebSocket connections and allow sending them messages."""
 
     def __init__(self) -> None:
         self.active_connections: list[WebSocket] = []
 
     async def connect(self, websocket: WebSocket) -> None:
-        """Acepta la conexión y la registra."""
+        """Accept the connection and register it."""
         await websocket.accept()
         self.active_connections.append(websocket)
         logger.info("WebSocket conectado (activas=%d)", len(self.active_connections))
 
     def disconnect(self, websocket: WebSocket) -> None:
-        """Elimina la conexión; es idempotente."""
+        """Remove the connection; idempotent."""
         if websocket in self.active_connections:
             self.active_connections.remove(websocket)
             logger.info("WebSocket desconectado (activas=%d)", len(self.active_connections))
 
     async def send_personal_message(self, message: str, websocket: WebSocket) -> None:
-        """Envía un mensaje a una conexión concreta."""
+        """Send a message to a specific connection."""
         await websocket.send_text(message)
 
     async def broadcast(self, message: str) -> None:
-        """Envía un mensaje a todas las conexiones, descartando las rotas."""
+        """Send a message to all connections, dropping broken ones."""
         for connection in list(self.active_connections):
             try:
                 await connection.send_text(message)
-            except Exception:  # conexión caída: se limpia sin afectar al resto
+            except Exception:  # dropped connection: cleaned up without affecting the rest
                 logger.warning("Fallo al emitir; se descarta la conexión")
                 self.disconnect(connection)
 

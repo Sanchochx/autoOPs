@@ -2,9 +2,9 @@ import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import { defineConfig, loadEnv } from 'vite'
 
-// El puerto del servidor de desarrollo se lee de VITE_DEV_SERVER_PORT (.env).
-// Si no está definido, se usa el valor por defecto de Vite.
-// Las variables se leen del .env centralizado en la raíz del monorepo.
+// The dev server port is read from VITE_DEV_SERVER_PORT (.env).
+// If undefined, Vite's default value is used.
+// Variables are read from the centralized .env at the monorepo root.
 const ENV_DIR = '../..'
 
 export default defineConfig(({ mode }) => {

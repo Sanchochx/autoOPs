@@ -1,4 +1,4 @@
-"""Pruebas del endpoint WebSocket /ws/stream (CA-3)."""
+"""Tests of the /ws/stream WebSocket endpoint (AC-3)."""
 
 from fastapi.testclient import TestClient
 

@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# US-HOST-001: usuarios nativos y modelo de privilegios. Idempotente.
+# US-HOST-001: native users and privilege model. Idempotent.
 #
-#   sudo ADMIN_USER=<usuario> ./scripts/provision/10_users.sh
+#   sudo ADMIN_USER=<user> ./scripts/provision/10_users.sh
 #
-# Variables: ADMIN_USER (obligatoria), SERVICE_USER=autoops, SERVICE_UID=1500,
+# Variables: ADMIN_USER (required), SERVICE_USER=autoops, SERVICE_UID=1500,
 # SERVICE_GID=1500, APP_DIR=/opt/autoops, PWQUALITY_MINLEN=14.
 set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/lib/common.sh"
@@ -21,7 +21,7 @@ NOLOGIN_SHELL=/usr/sbin/nologin
 [[ $ADMIN_USER != root && $ADMIN_USER != "$SERVICE_USER" ]] \
   || die "ADMIN_USER no puede ser root ni ${SERVICE_USER}."
 
-# --- CA-1: usuario administrador y root bloqueado ---------------------------
+# --- AC-1: admin user and locked root ---------------------------
 if ! id "$ADMIN_USER" >/dev/null 2>&1; then
   useradd --create-home --shell /bin/bash --groups sudo "$ADMIN_USER"
   log_change "creado el usuario ${ADMIN_USER}"
@@ -32,7 +32,7 @@ if ! in_group "$ADMIN_USER" sudo; then
   log_change "${ADMIN_USER} añadido al grupo sudo"
 fi
 
-# CA-4: el grupo docker equivale a root; el admin opera con `sudo docker`.
+# AC-4: the docker group is equivalent to root; the admin operates with `sudo docker`.
 if getent group docker >/dev/null && in_group "$ADMIN_USER" docker; then
   gpasswd --delete "$ADMIN_USER" docker >/dev/null
   log_change "${ADMIN_USER} retirado del grupo docker"
@@ -42,7 +42,7 @@ if sudo -l -U "$ADMIN_USER" 2>/dev/null | grep -q 'NOPASSWD'; then
   log_warn "${ADMIN_USER} tiene reglas sudo NOPASSWD; revisa /etc/sudoers.d (el check lo marcará como FAIL)."
 fi
 
-# Salvaguarda anti-bloqueo: sin un admin con contraseña y sudo no se bloquea root.
+# Anti-lockout safeguard: root is not locked unless an admin with a password and sudo exists.
 if [[ "$(passwd_status "$ADMIN_USER")" != P ]]; then
   die "${ADMIN_USER} no tiene contraseña usable. Ejecuta 'sudo passwd ${ADMIN_USER}' y repite; no se ha bloqueado root."
 fi
@@ -52,7 +52,7 @@ if [[ "$(passwd_status root)" != L ]]; then
   log_change "contraseña de root bloqueada"
 fi
 
-# --- CA-2: usuario de servicio sin login --------------------------------------
+# --- AC-2: service user without login --------------------------------------
 if getent group "$SERVICE_USER" >/dev/null; then
   [[ "$(getent group "$SERVICE_USER" | cut -d: -f3)" == "$SERVICE_GID" ]] \
     || die "El grupo ${SERVICE_USER} existe con un GID distinto de ${SERVICE_GID}."
@@ -87,15 +87,15 @@ if [[ ! -d $APP_DIR ]]; then
 fi
 ensure_perms "$APP_DIR" "${SERVICE_USER}:${SERVICE_USER}" 750
 
-# --- CA-3: secretos, umask y política de contraseñas -------------------------
+# --- AC-3: secrets, umask and password policy -------------------------
 if [[ -f $APP_DIR/.env ]]; then
   ensure_perms "$APP_DIR/.env" "${SERVICE_USER}:${SERVICE_USER}" 600
 else
   log_info "${APP_DIR}/.env aún no existe: al desplegarlo debe quedar ${SERVICE_USER}:${SERVICE_USER} 0600."
 fi
 
-# Umask 027 para sesiones de login (pam_umask lo lee de login.defs). El proceso
-# del servicio lo recibe de la unidad systemd (UMask=0027, US-SYS-003).
+# Umask 027 for login sessions (pam_umask reads it from login.defs). The service
+# process gets it from the systemd unit (UMask=0027, US-SYS-003).
 if grep -Eq '^UMASK[[:space:]]+027$' /etc/login.defs; then
   :
 elif grep -Eq '^UMASK[[:space:]]' /etc/login.defs; then

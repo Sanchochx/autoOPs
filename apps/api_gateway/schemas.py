@@ -1,4 +1,4 @@
-"""Esquemas Pydantic del API Gateway."""
+"""Pydantic schemas of the API Gateway."""
 
 from datetime import datetime
 from enum import Enum
@@ -8,7 +8,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 class TicketSeverity(str, Enum):
-    """Niveles de severidad permitidos para un ticket."""
+    """Allowed severity levels for a ticket."""
 
     LOW = "low"
     MEDIUM = "medium"
@@ -17,7 +17,7 @@ class TicketSeverity(str, Enum):
 
 
 class TicketStatus(str, Enum):
-    """Estados del ciclo de vida de un ticket."""
+    """Lifecycle states of a ticket."""
 
     OPEN = "open"
     INVESTIGATING = "investigating"
@@ -26,7 +26,7 @@ class TicketStatus(str, Enum):
 
 
 class TicketCreate(BaseModel):
-    """Payload de entrada para crear un ticket."""
+    """Input payload to create a ticket."""
 
     model_config = ConfigDict(str_strip_whitespace=True)
 
@@ -36,7 +36,7 @@ class TicketCreate(BaseModel):
 
 
 class TicketRead(TicketCreate):
-    """Ticket devuelto por la API, con los campos generados por el servidor."""
+    """Ticket returned by the API, with the server-generated fields."""
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -47,14 +47,14 @@ class TicketRead(TicketCreate):
 
 
 class HealthResponse(BaseModel):
-    """Respuesta del endpoint de salud."""
+    """Health endpoint response."""
 
     status: str
     service: str
 
 
 class TicketUpdate(BaseModel):
-    """Payload parcial para actualizar un ticket (todos los campos opcionales)."""
+    """Partial payload to update a ticket (all fields optional)."""
 
     model_config = ConfigDict(str_strip_whitespace=True)
 

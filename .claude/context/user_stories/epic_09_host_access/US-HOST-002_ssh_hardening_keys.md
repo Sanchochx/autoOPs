@@ -1,50 +1,50 @@
-# US-HOST-002: Hardening de SSH y Gestión de Llaves
+# US-HOST-002: SSH Hardening and Key Management
 
-**Épica:** 09 — Host Access & Identity
-**Prioridad:** CRÍTICA
-**Estimación:** 5 pts
-**Dependencias:** US-HOST-001
-**Estado:** Completada
-
----
-
-## Historia de Usuario
-
-**Como** administrador del servidor,
-**necesito** que el acceso remoto sea exclusivamente por llaves criptográficas modernas y con superficie mínima,
-**para** eliminar los ataques de contraseñas y poder otorgar y revocar accesos (humano y CI/CD) de forma controlada.
+**Epic:** 09 — Host Access & Identity
+**Priority:** CRITICAL
+**Estimate:** 5 pts
+**Dependencies:** US-HOST-001
+**Status:** Completed
 
 ---
 
-## Criterios de Aceptación
+## User Story
 
-> Trabajar UNO A LA VEZ, en orden. Marcar `[x]` al terminar cada uno y hacer pausa en el checkpoint final antes de cerrar la US.
-
-- [x] **CA-1: Autenticación Solo por Llave**
-  - Instalar la llave pública `ed25519` del admin en `~/.ssh/authorized_keys` (permisos `700`/`600`) desde una variable/archivo, sin hardcodear la llave en el script.
-  - Drop-in `/etc/ssh/sshd_config.d/10-autoops.conf` (plantilla versionada en `infra/ssh/`): `PasswordAuthentication no`, `KbdInteractiveAuthentication no`, `PermitRootLogin no`, `PubkeyAuthentication yes`.
-  - **Verificación:** `sshd -t` valida; login por contraseña y como `root` rechazados; login con llave correcto.
-
-- [x] **CA-2: Superficie Reducida y Criptografía Moderna**
-  - `AllowUsers` limitado al admin (y a la cuenta de despliegue del CA-3), `MaxAuthTries 3`, `LoginGraceTime 30`, `X11Forwarding no`, `AllowAgentForwarding no`, `AllowTcpForwarding no`, `ClientAliveInterval`/`ClientAliveCountMax`, banner de aviso.
-  - Restringir algoritmos a los modernos (KEX, cifrados y MAC) compatibles con OpenSSH de Ubuntu 24.04.
-  - **Verificación:** `sshd -T` refleja cada directiva; el script aplica el cambio con `sshd -t` previo y recarga sin cortar la sesión activa.
-
-- [x] **CA-3: Llave de Despliegue Dedicada para CI/CD**
-  - Cuenta/llave separada de la del admin, para la Fase 5. La entrada en `authorized_keys` va restringida con `restrict`, `from="<CIDR>"` y `command="..."` hacia un script de despliegue acotado (sin shell interactiva). El CIDR de origen sale de variable de entorno.
-  - Documentar que la llave privada vive solo como secreto de GitHub Actions y nunca en el repositorio.
-  - **Verificación:** la llave de despliegue solo ejecuta el comando permitido; no obtiene shell, PTY ni forwarding.
-
-- [x] **CA-4: Rotación, Revocación y Verificación**
-  - Documentar (README de `infra/ssh/`) el procedimiento de alta, rotación y revocación de llaves y la recuperación de acceso en la consola de la VM/EC2.
-  - Check `scripts/provision/checks/20_ssh.sh` con `sshd -T` y permisos de `~/.ssh`.
-  - **Verificación:** el check pasa; una llave retirada de `authorized_keys` deja de funcionar.
+**As** the server administrator,
+**I need** remote access to be exclusively via modern cryptographic keys and with a minimal surface,
+**so that** password attacks are eliminated and access (human and CI/CD) can be granted and revoked in a controlled way.
 
 ---
 
-## Notas Técnicas
+## Acceptance Criteria
 
-- **Riesgo de bloqueo:** mantener una segunda sesión abierta y probar el login en una conexión nueva antes de cerrar; conservar la consola de VirtualBox como vía de recuperación.
-- **Fuera de alcance:** fail2ban (US-HOST-003), firewall (US-NET-001), certificados SSH / bastion, MFA para SSH.
-- **Puerto SSH:** se mantiene en 22. En Ubuntu 24.04 `ssh.socket` ignora `Port` de `sshd_config`; cambiarlo exige un override del socket y queda fuera de alcance. US-HOST-003 y US-NET-001 leen el puerto efectivo (`sshd -T`).
-- **Anti-bloqueo:** si la configuración cambia, el script arma un rollback automático (temporizador transitorio de systemd) que solo se cancela con `20_ssh.sh --confirm` tras probar el login con llave en una sesión nueva.
+> Work ONE AT A TIME, in order. Mark `[x]` when each one is done and pause at the final checkpoint before closing the US.
+
+- [x] **AC-1: Key-Only Authentication**
+  - Install the admin's `ed25519` public key in `~/.ssh/authorized_keys` (permissions `700`/`600`) from a variable/file, without hardcoding the key in the script.
+  - Drop-in `/etc/ssh/sshd_config.d/10-autoops.conf` (versioned template in `infra/ssh/`): `PasswordAuthentication no`, `KbdInteractiveAuthentication no`, `PermitRootLogin no`, `PubkeyAuthentication yes`.
+  - **Verification:** `sshd -t` validates; password login and login as `root` are rejected; key login works.
+
+- [x] **AC-2: Reduced Surface and Modern Cryptography**
+  - `AllowUsers` limited to the admin (and to the deployment account from AC-3), `MaxAuthTries 3`, `LoginGraceTime 30`, `X11Forwarding no`, `AllowAgentForwarding no`, `AllowTcpForwarding no`, `ClientAliveInterval`/`ClientAliveCountMax`, warning banner.
+  - Restrict algorithms to modern ones (KEX, ciphers and MACs) compatible with Ubuntu 24.04's OpenSSH.
+  - **Verification:** `sshd -T` reflects each directive; the script applies the change with a prior `sshd -t` and reloads without cutting the active session.
+
+- [x] **AC-3: Dedicated Deployment Key for CI/CD**
+  - Account/key separate from the admin's, for Phase 5. The `authorized_keys` entry is restricted with `restrict`, `from="<CIDR>"` and `command="..."` pointing to a bounded deployment script (no interactive shell). The source CIDR comes from an environment variable.
+  - Document that the private key lives only as a GitHub Actions secret and never in the repository.
+  - **Verification:** the deployment key only runs the allowed command; it gets no shell, PTY or forwarding.
+
+- [x] **AC-4: Rotation, Revocation and Verification**
+  - Document (README in `infra/ssh/`) the procedure for adding, rotating and revoking keys and for recovering access through the VM/EC2 console.
+  - Check `scripts/provision/checks/20_ssh.sh` with `sshd -T` and `~/.ssh` permissions.
+  - **Verification:** the check passes; a key removed from `authorized_keys` stops working.
+
+---
+
+## Technical Notes
+
+- **Lockout risk:** keep a second session open and test login on a new connection before closing; keep the VirtualBox console as a recovery path.
+- **Out of scope:** fail2ban (US-HOST-003), firewall (US-NET-001), SSH certificates / bastion, MFA for SSH.
+- **SSH port:** stays at 22. On Ubuntu 24.04 `ssh.socket` ignores `Port` from `sshd_config`; changing it requires a socket override and is out of scope. US-HOST-003 and US-NET-001 read the effective port (`sshd -T`).
+- **Anti-lockout:** if the configuration changes, the script arms an automatic rollback (transient systemd timer) that is only cancelled with `20_ssh.sh --confirm` after testing key login in a new session.

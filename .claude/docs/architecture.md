@@ -1,49 +1,49 @@
-# Arquitectura del Proyecto
+# Project Architecture
 
-## Visión general
-[Descripción de alto nivel de cómo está organizado el sistema]
+## Overview
+[High-level description of how the system is organized]
 
-## Diagrama de componentes
+## Component diagram
 ```
-[Cliente / Frontend]
+[Client / Frontend]
         |
         ▼
-[API REST / Flask o Express]
+[REST API / Flask or Express]
         |
    ┌────┴────┐
    ▼         ▼
-[Servicios] [Auth]
+[Services]  [Auth]
    |
    ▼
-[Base de datos / PostgreSQL o MySQL]
+[Database / PostgreSQL or MySQL]
 ```
 
-## Decisiones de diseño
+## Design decisions
 
-### Por qué [tecnología X]
-[Razón]
+### Why [technology X]
+[Reason]
 
-### Estructura de capas
-- **Rutas/Controladores** — reciben la request, validan formato básico, llaman al servicio
-- **Servicios** — contienen la lógica de negocio, no saben nada de HTTP
-- **Modelos** — representan las entidades de la DB, tienen métodos de serialización
-- **Utils** — helpers reutilizables sin estado
+### Layer structure
+- **Routes/Controllers** — receive the request, validate basic format, call the service
+- **Services** — contain the business logic, know nothing about HTTP
+- **Models** — represent the DB entities, have serialization methods
+- **Utils** — reusable stateless helpers
 
-## Flujo de una request típica
-1. Cliente hace `POST /api/recurso`
-2. Ruta valida que el body tenga los campos requeridos
-3. Ruta llama a `servicio.crear(data)`
-4. Servicio ejecuta la lógica, persiste en DB
-5. Servicio retorna un dict limpio (sin objetos ORM)
-6. Ruta retorna `jsonify(resultado), 201`
+## Typical request flow
+1. Client makes `POST /api/resource`
+2. Route validates that the body has the required fields
+3. Route calls `service.create(data)`
+4. Service runs the logic, persists to the DB
+5. Service returns a clean dict (no ORM objects)
+6. Route returns `jsonify(result), 201`
 
-## Módulos principales
-| Módulo | Descripción | Archivos clave |
-|--------|-------------|----------------|
-| [Módulo 1] | [Qué hace] | [Archivos] |
-| [Módulo 2] | [Qué hace] | [Archivos] |
+## Main modules
+| Module | Description | Key files |
+|--------|-------------|-----------|
+| [Module 1] | [What it does] | [Files] |
+| [Module 2] | [What it does] | [Files] |
 
-## Consideraciones de seguridad
-- Autenticación: [JWT / Sessions / etc.]
-- Autorización: [cómo se controlan los permisos]
-- Validación: [dónde y cómo se validan los inputs]
+## Security considerations
+- Authentication: [JWT / Sessions / etc.]
+- Authorization: [how permissions are controlled]
+- Validation: [where and how inputs are validated]

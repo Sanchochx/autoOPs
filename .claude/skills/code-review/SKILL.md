@@ -1,61 +1,61 @@
 # Skill: Code Review
 
-## Objetivo
-Revisar código antes de hacer merge o subir a producción. Aplica para Python/Flask y Node.js/Express.
+## Purpose
+Review code before merging or releasing to production. Applies to Python/Flask and Node.js/Express.
 
-## Cómo activar
+## How to trigger
 ```
-Usa el skill code-review en [archivo o carpeta]
+Use the code-review skill on [file or folder]
 ```
 
-## Checklist general
+## General checklist
 
-### Seguridad
-- [ ] No hay credenciales hardcodeadas
-- [ ] Los inputs del usuario se validan antes de usarlos
-- [ ] Los queries usan parámetros (no concatenación de strings)
-- [ ] Los endpoints protegidos verifican autenticación/autorización
+### Security
+- [ ] No hardcoded credentials
+- [ ] User inputs are validated before use
+- [ ] Queries use parameters (no string concatenation)
+- [ ] Protected endpoints verify authentication/authorization
 
-### Calidad de código
-- [ ] Las funciones hacen una sola cosa
-- [ ] Los nombres son descriptivos y en inglés
-- [ ] No hay código comentado sin explicación
-- [ ] No hay `print()` o `console.log()` de debug olvidados
-- [ ] El manejo de errores es explícito (no `except: pass`)
+### Code quality
+- [ ] Functions do a single thing
+- [ ] Names are descriptive and in English
+- [ ] No commented-out code without explanation
+- [ ] No forgotten debug `print()` or `console.log()`
+- [ ] Error handling is explicit (no `except: pass`)
 
-### Base de datos
-- [ ] Las queries están optimizadas (evitar N+1)
-- [ ] Se usa transacción donde se necesita consistencia
-- [ ] Los índices necesarios están definidos en el modelo
+### Database
+- [ ] Queries are optimized (avoid N+1)
+- [ ] Transactions are used where consistency is needed
+- [ ] Necessary indexes are defined in the model
 
 ### Tests
-- [ ] Existe al menos un test para la funcionalidad nueva
-- [ ] Los casos edge están cubiertos (vacío, null, límites)
-- [ ] Los tests son independientes entre sí
+- [ ] There is at least one test for the new functionality
+- [ ] Edge cases are covered (empty, null, limits)
+- [ ] Tests are independent of each other
 
 ### API / Endpoints
-- [ ] Los códigos HTTP son correctos (200, 201, 400, 401, 404, 500)
-- [ ] Las respuestas tienen estructura consistente
-- [ ] Los errores devuelven mensajes útiles (no stack traces)
+- [ ] HTTP codes are correct (200, 201, 400, 401, 404, 500)
+- [ ] Responses have a consistent structure
+- [ ] Errors return useful messages (no stack traces)
 
-## Formato de respuesta
+## Response format
 
 ```
-RESULTADO: APROBADO / RECHAZADO / APROBADO CON OBSERVACIONES
+RESULT: APPROVED / REJECTED / APPROVED WITH COMMENTS
 
-PROBLEMAS CRÍTICOS (bloquean el merge):
-- [descripción + línea + sugerencia de fix]
+CRITICAL ISSUES (block the merge):
+- [description + line + fix suggestion]
 
-ADVERTENCIAS (revisar pronto):
-- [descripción + línea + sugerencia]
+WARNINGS (review soon):
+- [description + line + suggestion]
 
-SUGERENCIAS (mejoras opcionales):
-- [descripción + línea]
+SUGGESTIONS (optional improvements):
+- [description + line]
 
-RESUMEN: [2-3 líneas con lo más importante]
+SUMMARY: [2-3 lines with the most important points]
 ```
 
-## Notas
-- Un CRÍTICO es suficiente para rechazar el PR
-- Siempre incluir el número de línea cuando sea posible
-- Si el archivo tiene más de 300 líneas, revisar por secciones
+## Notes
+- A single CRITICAL issue is enough to reject the PR
+- Always include the line number when possible
+- If the file has more than 300 lines, review it in sections

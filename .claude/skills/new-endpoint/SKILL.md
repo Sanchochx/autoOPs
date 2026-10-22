@@ -1,61 +1,61 @@
-# Skill: Nuevo Endpoint
+# Skill: New Endpoint
 
-## Objetivo
-Crear un endpoint completo siguiendo las convenciones del proyecto.
-Aplica para Flask (Python) y Express (Node.js).
+## Purpose
+Create a complete endpoint following the project conventions.
+Applies to Flask (Python) and Express (Node.js).
 
-## Cómo activar
+## How to trigger
 ```
-Usa el skill new-endpoint para crear [método] /[ruta] que [descripción]
+Use the new-endpoint skill to create [method] /[route] that [description]
 ```
-Ejemplo:
+Example:
 ```
-Usa el skill new-endpoint para crear POST /api/invoices que registre una factura nueva
+Use the new-endpoint skill to create POST /api/invoices that registers a new invoice
 ```
 
-## Flujo de creación
+## Creation flow
 
-Siempre en este orden:
-1. Modelo (si es entidad nueva)
-2. Servicio (lógica de negocio)
-3. Ruta / Controlador
+Always in this order:
+1. Model (if it is a new entity)
+2. Service (business logic)
+3. Route / Controller
 4. Test
-5. Actualizar documentación
+5. Update documentation
 
 ---
 
-## Patrón Flask
+## Flask pattern
 
-### Modelo (SQLAlchemy)
+### Model (SQLAlchemy)
 ```python
-# src/models/nombre.py
+# src/models/item.py
 from app import db
 from datetime import datetime
 
-class NombreModelo(db.Model):
-    __tablename__ = 'nombre_tabla'
+class ItemModel(db.Model):
+    __tablename__ = 'item_tabla'
 
     id = db.Column(db.Integer, primary_key=True)
-    # campos...
+    # fields...
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     def to_dict(self):
         return {
             'id': self.id,
-            # campos...
+            # fields...
         }
 ```
 
-### Servicio
+### Service
 ```python
-# src/services/nombre_service.py
-from src.models.nombre import NombreModelo
+# src/services/item_service.py
+from src.models.item import ItemModel
 from app import db
 
-def crear_nombre(data: dict) -> dict:
+def create_item(data: dict) -> dict:
     try:
-        item = NombreModelo(**data)
+        item = ItemModel(**data)
         db.session.add(item)
         db.session.commit()
         return item.to_dict()
@@ -63,81 +63,81 @@ def crear_nombre(data: dict) -> dict:
         db.session.rollback()
         raise e
 
-def obtener_nombre(id: int) -> dict | None:
-    item = db.session.get(NombreModelo, id)
+def get_item(id: int) -> dict | None:
+    item = db.session.get(ItemModel, id)
     return item.to_dict() if item else None
 ```
 
-### Ruta
+### Route
 ```python
-# src/api/nombre_routes.py
+# src/api/item_routes.py
 from flask import Blueprint, request, jsonify
-from src.services import nombre_service
+from src.services import item_service
 
-nombre_bp = Blueprint('nombre', __name__, url_prefix='/api/nombre')
+item_bp = Blueprint('item', __name__, url_prefix='/api/item')
 
-@nombre_bp.route('/', methods=['POST'])
-def crear():
+@item_bp.route('/', methods=['POST'])
+def create():
     data = request.get_json()
     if not data:
-        return jsonify({'error': 'Datos requeridos'}), 400
+        return jsonify({'error': 'Data required'}), 400
     try:
-        resultado = nombre_service.crear_nombre(data)
-        return jsonify(resultado), 201
+        result = item_service.create_item(data)
+        return jsonify(result), 201
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@nombre_bp.route('/<int:id>', methods=['GET'])
-def obtener(id):
-    item = nombre_service.obtener_nombre(id)
+@item_bp.route('/<int:id>', methods=['GET'])
+def get(id):
+    item = item_service.get_item(id)
     if not item:
-        return jsonify({'error': 'No encontrado'}), 404
+        return jsonify({'error': 'Not found'}), 404
     return jsonify(item), 200
 ```
 
 ---
 
-## Patrón Express
+## Express pattern
 
-### Modelo (si usas Sequelize)
+### Model (if you use Sequelize)
 ```javascript
-// src/models/nombre.model.js
+// src/models/item.model.js
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('../config/database');
 
-const Nombre = sequelize.define('Nombre', {
-  // campos...
+const Item = sequelize.define('Item', {
+  // fields...
 }, { timestamps: true });
 
-module.exports = Nombre;
+module.exports = Item;
 ```
 
-### Servicio
+### Service
 ```javascript
-// src/services/nombre.service.js
-const Nombre = require('../models/nombre.model');
+// src/services/item.service.js
+const Item = require('../models/item.model');
 
-const crear = async (data) => {
-  return await Nombre.create(data);
+const create = async (data) => {
+  return await Item.create(data);
 };
 
-const obtenerPorId = async (id) => {
-  return await Nombre.findByPk(id);
+const getById = async (id) => {
+  return await Item.findByPk(id);
 };
 
-module.exports = { crear, obtenerPorId };
+module.exports = { create, getById };
 ```
 
-### Ruta
+### Route
 ```javascript
-// src/api/nombre.routes.js
+// src/api/item.routes.js
 const express = require('express');
 const router = express.Router();
-const nombreService = require('../services/nombre.service');
+const itemService = require('../services/item.service');
 
 router.post('/', async (req, res) => {
   try {
-    const item = await nombreService.crear(req.body);
+    const item = await itemService.create(req.body);
     res.status(201).json(item);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -145,8 +145,8 @@ router.post('/', async (req, res) => {
 });
 
 router.get('/:id', async (req, res) => {
-  const item = await nombreService.obtenerPorId(req.params.id);
-  if (!item) return res.status(404).json({ error: 'No encontrado' });
+  const item = await itemService.getById(req.params.id);
+  if (!item) return res.status(404).json({ error: 'Not found' });
   res.json(item);
 });
 
@@ -155,31 +155,31 @@ module.exports = router;
 
 ---
 
-## Estructura de respuesta estándar
+## Standard response structure
 
-### Éxito
+### Success
 ```json
 {
   "data": { ... },
-  "message": "Operación exitosa"
+  "message": "Operation successful"
 }
 ```
 
 ### Error
 ```json
 {
-  "error": "Descripción del error",
-  "details": "Información adicional (solo en desarrollo)"
+  "error": "Error description",
+  "details": "Additional information (development only)"
 }
 ```
 
-## Códigos HTTP a usar
-| Situación | Código |
+## HTTP codes to use
+| Situation | Code |
 |---|---|
-| GET exitoso | 200 |
-| POST exitoso (creó recurso) | 201 |
-| Datos inválidos / faltantes | 400 |
-| No autenticado | 401 |
-| Sin permisos | 403 |
-| No encontrado | 404 |
-| Error del servidor | 500 |
+| Successful GET | 200 |
+| Successful POST (created resource) | 201 |
+| Invalid / missing data | 400 |
+| Not authenticated | 401 |
+| No permission | 403 |
+| Not found | 404 |
+| Server error | 500 |

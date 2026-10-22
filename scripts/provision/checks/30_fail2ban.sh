@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Verifica los controles de US-HOST-003 (solo lectura). Mismas variables que 30_fail2ban.sh:
+# Verifies the controls of US-HOST-003 (read-only). Same variables as 30_fail2ban.sh:
 #
-#   sudo FAIL2BAN_IGNOREIP="<IP/CIDR admin> <red local>" ./scripts/provision/checks/30_fail2ban.sh
+#   sudo FAIL2BAN_IGNOREIP="<IP/CIDR admin> <local network>" ./scripts/provision/checks/30_fail2ban.sh
 set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/../lib/common.sh"
 
@@ -16,8 +16,8 @@ jail_loaded()   { fail2ban-client status sshd; }
 conf_has()      { grep -Eq "$1" "$JAIL_CONF"; }
 jail_get()      { fail2ban-client get sshd "$1"; }
 maxretry_ok()   { [[ "$(jail_get maxretry)" == "$MAXRETRY" ]]; }
-# fail2ban lista las redes normalizadas (127.0.0.1/8 -> 127.0.0.0/8; hosts sin /32),
-# así que cada entrada se normaliza igual antes de buscarla en `get sshd ignoreip`.
+# fail2ban lists networks normalized (127.0.0.1/8 -> 127.0.0.0/8; hosts without /32),
+# so each entry is normalized the same way before looking it up in `get sshd ignoreip`.
 normalize_net() {
   python3 -I -c '
 import ipaddress, sys

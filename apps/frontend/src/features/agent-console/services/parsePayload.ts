@@ -11,7 +11,7 @@ function isMessagePayload(value: unknown): value is MessagePayload {
   )
 }
 
-/** Extrae el texto a mostrar: campo `message` si es JSON válido, o el texto crudo. */
+/** Extracts the text to display: the `message` field if valid JSON, or the raw text. */
 export function parsePayload(raw: string): string {
   try {
     const parsed: unknown = JSON.parse(raw)

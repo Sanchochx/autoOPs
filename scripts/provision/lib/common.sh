@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Utilidades compartidas por los scripts de aprovisionamiento y sus checks.
-# Se carga con `source`; no se ejecuta directamente.
+# Utilities shared by the provisioning scripts and their checks.
+# Loaded with `source`; not executed directly.
 
 log_info()   { printf '[INFO]   %s\n' "$*"; }
 log_change() { printf '[CAMBIO] %s\n' "$*"; }
@@ -18,8 +18,8 @@ require_var() {
   done
 }
 
-# in_group <usuario> <grupo>: éxito si el usuario pertenece al grupo.
-# (sin pipes: con `pipefail`, `grep -q` puede provocar falsos negativos)
+# in_group <user> <group>: succeeds if the user belongs to the group.
+# (no pipes: with `pipefail`, `grep -q` can cause false negatives)
 in_group() {
   local group
   for group in $(id -nG "$1" 2>/dev/null); do
@@ -28,12 +28,12 @@ in_group() {
   return 1
 }
 
-# passwd_status <usuario>: P (contraseña usable), L (bloqueada) o NP (sin contraseña).
+# passwd_status <user>: P (usable password), L (locked) or NP (no password).
 passwd_status() {
   passwd -S "$1" | awk '{print $2}'
 }
 
-# ensure_perms <ruta> <propietario:grupo> <modo>: corrige solo si hay diferencia.
+# ensure_perms <path> <owner:group> <mode>: fixes only if there is a difference.
 ensure_perms() {
   local path=$1 owner=$2 mode=$3
   if [[ "$(stat -c '%U:%G %a' "$path")" != "${owner} ${mode}" ]]; then
@@ -43,8 +43,8 @@ ensure_perms() {
   fi
 }
 
-# ensure_file <ruta> <contenido>: escribe el archivo solo si cambia y deja
-# FILE_CHANGED=1 (o 0) para que el llamador decida si hay que recargar algo.
+# ensure_file <path> <content>: writes the file only if it changes and sets
+# FILE_CHANGED=1 (or 0) so the caller can decide whether to reload something.
 FILE_CHANGED=0
 ensure_file() {
   local path=$1 content=$2
@@ -56,7 +56,7 @@ ensure_file() {
   fi
 }
 
-# --- Checks: cada `check` imprime OK/FAIL y acumula fallos ---------------------
+# --- Checks: each `check` prints OK/FAIL and accumulates failures ---------------------
 CHECK_FAILS=0
 
 check() {
@@ -78,7 +78,7 @@ check_finish() {
   printf '\nTodos los controles pasaron.\n'
 }
 
-# resolve_ssh_port: imprime el puerto SSH (SSH_PORT o, si falta, el efectivo de sshd -T).
+# resolve_ssh_port: prints the SSH port (SSH_PORT or, if unset, sshd -T's effective one).
 resolve_ssh_port() {
   local port="${SSH_PORT:-}"
   if [[ -z $port ]]; then

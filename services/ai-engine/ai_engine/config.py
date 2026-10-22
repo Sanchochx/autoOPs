@@ -1,6 +1,6 @@
-"""Configuración del motor de IA (Twelve-Factor).
+"""AI engine configuration (Twelve-Factor).
 
-El modelo y la clave de API provienen de variables de entorno.
+The model and the API key come from environment variables.
 """
 
 import os
@@ -10,13 +10,13 @@ from langchain_openai import ChatOpenAI
 
 
 def build_chat_model() -> BaseChatModel:
-    """Construye el modelo de chat a partir del entorno.
+    """Build the chat model from the environment.
 
-    Requiere ``AI_MODEL_NAME``; ``OPENAI_API_KEY`` la lee el cliente de
-    OpenAI directamente del entorno.
+    Requires ``AI_MODEL_NAME``; ``OPENAI_API_KEY`` is read by the OpenAI
+    client directly from the environment.
 
     Raises:
-        RuntimeError: si ``AI_MODEL_NAME`` no está definida.
+        RuntimeError: if ``AI_MODEL_NAME`` is not defined.
     """
     model_name = os.getenv("AI_MODEL_NAME")
     if not model_name:

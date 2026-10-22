@@ -1,77 +1,77 @@
-# Resumen de Fase 1: Fundación y Core Multi-Agente
+# Phase 1 Summary: Foundation and Multi-Agent Core
 
-**Proyecto:** AutoOps — Plataforma SRE Multi-Agente Autohospedada
-**Fecha de cierre:** 2026-10-15
-**Estado:** Completada (5/5 US)
+**Project:** AutoOps — Self-Hosted Multi-Agent SRE Platform
+**Closing date:** 2026-10-15
+**Status:** Completed (5/5 US)
 
-| US | Épica | Commit |
-|----|-------|--------|
+| US | Epic | Commit |
+|----|------|--------|
 | US-MONO-001 Monorepo Setup | 01 | `6ed1169` |
-| US-GATE-002 API Gateway base en FastAPI | 02 | `762b423` |
-| US-MCP-003 Servidor MCP de logs y métricas simuladas | 03 | `47f555b` |
-| US-LANG-004 Grafo base de agentes (Triaje e Investigación) | 04 | `1aa00ab` |
-| US-FRONT-005 Dashboard admin e integración de WebSockets | 05 | `05b5284` |
+| US-GATE-002 Base API Gateway in FastAPI | 02 | `762b423` |
+| US-MCP-003 MCP server for simulated logs and metrics | 03 | `47f555b` |
+| US-LANG-004 Base agent graph (Triage and Investigation) | 04 | `1aa00ab` |
+| US-FRONT-005 Admin dashboard and WebSocket integration | 05 | `05b5284` |
 
 ---
 
 ## 📝 Changes Made
 
-- **Monorepo:** estructura `apps/`, `services/`, `.claude/context/` y `.env.example` centralizado.
+- **Monorepo:** `apps/`, `services/`, `.claude/context/` structure and a centralized `.env.example`.
 - **API Gateway (FastAPI):**
-  - CORS configurable por entorno, restrictivo por defecto.
-  - `GET /health` y `POST /api/v1/tickets` (validación Pydantic, UUID4 generado en servidor, sin persistencia).
-  - Canal WebSocket `/ws/stream` con `ConnectionManager` (confirmación y eco).
-  - Arranque local con `HOST`/`PORT` desde `.env`.
-- **Servidor MCP (`logs_server`):** `FastMCP` por stdio con las tools `get_system_logs(service_name)` y `get_db_metrics()` sobre datos simulados.
-- **Motor de IA (LangGraph):** grafo `START → triage_node → investigator_node → END`, con `AgentState`, nodos construidos por fábricas con dependencias inyectadas y `compiled_graph` de construcción diferida.
-- **Frontend:** React 19 + Vite 8 + TypeScript strict + Tailwind v4. Store Zustand, cliente WebSocket con reconexión de espera creciente, layout con sidebar y `AgentConsole` accesible.
+  - CORS configurable per environment, restrictive by default.
+  - `GET /health` and `POST /api/v1/tickets` (Pydantic validation, server-generated UUID4, no persistence).
+  - WebSocket channel `/ws/stream` with `ConnectionManager` (acknowledgement and echo).
+  - Local startup with `HOST`/`PORT` from `.env`.
+- **MCP server (`logs_server`):** `FastMCP` over stdio with the tools `get_system_logs(service_name)` and `get_db_metrics()` over simulated data.
+- **AI Engine (LangGraph):** graph `START → triage_node → investigator_node → END`, with `AgentState`, nodes built by factories with injected dependencies, and a lazily constructed `compiled_graph`.
+- **Frontend:** React 19 + Vite 8 + TypeScript strict + Tailwind v4. Zustand store, WebSocket client with increasing-backoff reconnection, layout with sidebar and an accessible `AgentConsole`.
 
 ## 📂 Files Modified/Created
 
-| Ruta | Propósito |
-|------|-----------|
-| `apps/api_gateway/main.py` | Fábrica `create_app()`, CORS y routers |
-| `apps/api_gateway/config.py` | Lectura de `CORS_ALLOWED_ORIGINS` y `load_dotenv` propio (sin dependencias) |
+| Path | Purpose |
+|------|---------|
+| `apps/api_gateway/main.py` | `create_app()` factory, CORS and routers |
+| `apps/api_gateway/config.py` | Reads `CORS_ALLOWED_ORIGINS` and its own `load_dotenv` (dependency-free) |
 | `apps/api_gateway/schemas.py` | `TicketCreate`, `TicketRead`, `TicketSeverity`, `HealthResponse` |
-| `apps/api_gateway/routers/{health,tickets,ws}.py` | Endpoints REST y WebSocket |
-| `apps/api_gateway/connection_manager.py` | Gestión de conexiones WebSocket (connect, disconnect, broadcast) |
-| `apps/api_gateway/run.py` | Arranque: `python -m apps.api_gateway.run` |
-| `services/mcp-servers/logs_server/server.py` | Servidor MCP por stdio, logs a stderr |
-| `services/ai-engine/ai_engine/{state,nodes,graph,config}.py` | Estado, nodos, grafo y construcción del modelo desde el entorno |
-| `apps/frontend/src/features/agent-console/` | Store, servicios, hooks y consola (estructura por feature) |
-| `apps/frontend/src/layouts/` | `DashboardLayout` y `Sidebar` |
-| `apps/frontend/vite.config.ts` | Tailwind v4, `envDir` en la raíz y puerto desde `VITE_DEV_SERVER_PORT` |
-| `tests/` | 12 pruebas pytest (REST, WebSocket, grafo con modelo falso) |
-| `.env.example`, `pytest.ini` | Variables nuevas (`HOST`, `CORS_ALLOWED_ORIGINS`, `AI_MODEL_NAME`, `VITE_DEV_SERVER_PORT`) y rutas de pytest |
+| `apps/api_gateway/routers/{health,tickets,ws}.py` | REST and WebSocket endpoints |
+| `apps/api_gateway/connection_manager.py` | WebSocket connection management (connect, disconnect, broadcast) |
+| `apps/api_gateway/run.py` | Startup: `python -m apps.api_gateway.run` |
+| `services/mcp-servers/logs_server/server.py` | MCP server over stdio, logs to stderr |
+| `services/ai-engine/ai_engine/{state,nodes,graph,config}.py` | State, nodes, graph and model construction from the environment |
+| `apps/frontend/src/features/agent-console/` | Store, services, hooks and console (feature-based structure) |
+| `apps/frontend/src/layouts/` | `DashboardLayout` and `Sidebar` |
+| `apps/frontend/vite.config.ts` | Tailwind v4, `envDir` at the root and port from `VITE_DEV_SERVER_PORT` |
+| `tests/` | 12 pytest tests (REST, WebSocket, graph with a fake model) |
+| `.env.example`, `pytest.ini` | New variables (`HOST`, `CORS_ALLOWED_ORIGINS`, `AI_MODEL_NAME`, `VITE_DEV_SERVER_PORT`) and pytest paths |
 
 ## 🎯 Rationale
 
-- **Qué se completó y por qué:** las tres capas de la arquitectura (Gateway, MCP/motor de IA, dashboard) existen y son ejecutables de forma independiente, con contratos mínimos entre ellas. Esto permite integrarlas en fases posteriores sin rehacer cimientos.
-- **Cómo encaja:** el motor de IA nunca toca PostgreSQL ni el SO; la infraestructura se consulta solo vía MCP (hoy simulada). El frontend consume solo el Gateway.
-- **Decisiones de diseño:**
-  - **Twelve-Factor:** toda configuración viene de variables de entorno; ningún host, puerto u origen en el código.
-  - **Logging cloud-native:** stdout/stderr; en el servidor MCP, stderr para no contaminar el canal JSON-RPC.
-  - **`mcp<2`:** la v2 del SDK renombra `FastMCP` a `MCPServer`; se fijó la v1 y la migración queda como tarea futura.
-  - **Paquete `ai_engine/`:** `services/ai-engine` tiene guion y no es importable; el subpaquete evita colisiones de nombres.
-  - **Dependencias inyectadas en los nodos:** permiten probar el grafo con un modelo falso, sin red ni API key.
-  - **`compiled_graph` diferido (`__getattr__`):** importar el módulo no exige credenciales.
-  - **Tailwind v4:** plugin `@tailwindcss/vite`; `postcss` y `autoprefixer` no son necesarios.
-  - **Consolidación de contexto:** un solo conjunto de US por épica (carpetas `epic_02_gateway`, `epic_03_mcp`, `epic_04_ai_engine`, `epic_05_frontend`) y prefijos `MONO`, `GATE`, `MCP`, `LANG`, `FRONT`.
+- **What was completed and why:** the three layers of the architecture (Gateway, MCP/AI engine, dashboard) exist and can run independently, with minimal contracts between them. This allows integrating them in later phases without redoing the foundations.
+- **How it fits:** the AI engine never touches PostgreSQL or the OS; infrastructure is queried only via MCP (simulated for now). The frontend consumes only the Gateway.
+- **Design decisions:**
+  - **Twelve-Factor:** all configuration comes from environment variables; no host, port or origin in the code.
+  - **Cloud-native logging:** stdout/stderr; in the MCP server, stderr so as not to pollute the JSON-RPC channel.
+  - **`mcp<2`:** v2 of the SDK renames `FastMCP` to `MCPServer`; v1 was pinned and the migration remains a future task.
+  - **`ai_engine/` package:** `services/ai-engine` contains a hyphen and is not importable; the subpackage avoids name collisions.
+  - **Dependencies injected into the nodes:** they allow testing the graph with a fake model, without network or API key.
+  - **Deferred `compiled_graph` (`__getattr__`):** importing the module does not require credentials.
+  - **Tailwind v4:** `@tailwindcss/vite` plugin; `postcss` and `autoprefixer` are not needed.
+  - **Context consolidation:** a single set of US per epic (folders `epic_02_gateway`, `epic_03_mcp`, `epic_04_ai_engine`, `epic_05_frontend`) and prefixes `MONO`, `GATE`, `MCP`, `LANG`, `FRONT`.
 
-### Alcance entregado frente al objetivo original
-El objetivo de la fase describía el flujo completo ticket → triaje → investigación MCP → plan de remediación con aprobación HITL, visible en tiempo real. La Fase 1 entregó los bloques de ese flujo, pero **no el flujo integrado**:
-- No hay Agente Ejecutor ni aprobación HITL.
-- El motor de IA no está conectado al servidor MCP (solo un punto de inyección `context_provider`).
-- El Gateway no invoca al grafo ni emite su razonamiento: `/ws/stream` es un eco.
-- `POST /api/v1/tickets` no persiste (sin SQLAlchemy/Alembic/PostgreSQL) y no hay autenticación JWT.
-- El frontend no lista tickets; solo muestra la consola.
+### Delivered scope versus the original goal
+The phase goal described the full flow ticket → triage → MCP investigation → remediation plan with HITL approval, visible in real time. Phase 1 delivered the building blocks of that flow, but **not the integrated flow**:
+- There is no Executor Agent or HITL approval.
+- The AI engine is not connected to the MCP server (only a `context_provider` injection point).
+- The Gateway does not invoke the graph or emit its reasoning: `/ws/stream` is an echo.
+- `POST /api/v1/tickets` does not persist (no SQLAlchemy/Alembic/PostgreSQL) and there is no JWT authentication.
+- The frontend does not list tickets; it only shows the console.
 
 ## 🚀 Next Steps
 
-1. **Integración end-to-end (siguiente prioridad):** cliente MCP real en el investigador, invocación del grafo desde el Gateway y emisión de eventos por `/ws/stream`.
-2. **Agente Ejecutor y HITL:** plan de remediación con aprobación humana y su modal en el frontend.
-3. **Persistencia y autenticación:** modelos SQLAlchemy, migraciones Alembic y JWT.
-4. **Frontend:** tabla de tickets y login.
-5. **Calidad base:** configuración y logging compartidos, y pipeline de CI (lint + tests).
-6. **Fase 2 (contenerización):** Docker Compose, Traefik/Nginx con SSL y CI/CD por SSH. Considerar entonces `HOST=0.0.0.0` en contenedores y la migración a `mcp` v2.
-7. **Deuda conocida:** verificación manual del flujo contra la API real de Anthropic, que no se ejecutó en esta fase.
+1. **End-to-end integration (next priority):** real MCP client in the investigator, graph invocation from the Gateway and event emission over `/ws/stream`.
+2. **Executor Agent and HITL:** remediation plan with human approval and its modal in the frontend.
+3. **Persistence and authentication:** SQLAlchemy models, Alembic migrations and JWT.
+4. **Frontend:** ticket table and login.
+5. **Base quality:** shared configuration and logging, and a CI pipeline (lint + tests).
+6. **Phase 2 (containerization):** Docker Compose, Traefik/Nginx with SSL and CI/CD over SSH. Consider then `HOST=0.0.0.0` in containers and the migration to `mcp` v2.
+7. **Known debt:** manual verification of the flow against the real Anthropic API, which was not run in this phase.

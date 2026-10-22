@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Verifica los controles de US-HOST-002 (solo lectura). Mismas variables que 20_ssh.sh:
+# Verifies the controls of US-HOST-002 (read-only). Same variables as 20_ssh.sh:
 #
-#   sudo ADMIN_USER=<usuario> [DEPLOY_SSH_PUBKEY_FILE=<ruta.pub>] ./scripts/provision/checks/20_ssh.sh
+#   sudo ADMIN_USER=<user> [DEPLOY_SSH_PUBKEY_FILE=<path.pub>] ./scripts/provision/checks/20_ssh.sh
 set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/../lib/common.sh"
 
@@ -11,8 +11,8 @@ DEPLOY_USER="${DEPLOY_USER:-autoops-deploy}"
 DEPLOY_SSH_PUBKEY_FILE="${DEPLOY_SSH_PUBKEY_FILE:-}"
 ENTRYPOINT=/usr/local/sbin/autoops-deploy-entrypoint
 
-# sshd_is <directiva> <valor>: compara con la configuración efectiva (sshd -T).
-# (directivas repetidas, como allowusers, se unen con espacios)
+# sshd_is <directive> <value>: compares against the effective configuration (sshd -T).
+# (repeated directives, such as allowusers, are joined with spaces)
 sshd_is() { [[ "$(/usr/sbin/sshd -T | awk -v k="$1" '$1 == k { $1 = ""; print substr($0, 2) }' | paste -sd' ')" == "$2" ]]; }
 user_home()      { getent passwd "$1" | cut -d: -f6; }
 perms_of()       { stat -c '%U %a' "$1"; }

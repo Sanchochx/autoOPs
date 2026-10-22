@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-# US-HOST-002: hardening de SSH y gestión de llaves. Idempotente.
+# US-HOST-002: SSH hardening and key management. Idempotent.
 #
-#   sudo ADMIN_USER=<usuario> ADMIN_SSH_PUBKEY_FILE=<ruta.pub> ./scripts/provision/20_ssh.sh
-#   sudo ADMIN_USER=<usuario> ./scripts/provision/20_ssh.sh --confirm   # tras probar el login
+#   sudo ADMIN_USER=<user> ADMIN_SSH_PUBKEY_FILE=<path.pub> ./scripts/provision/20_ssh.sh
+#   sudo ADMIN_USER=<user> ./scripts/provision/20_ssh.sh --confirm   # after testing the login
 #
-# Si la configuración cambia, arma un rollback automático (SSH_ROLLBACK_MINUTES)
-# que solo se cancela con --confirm. Ver infra/ssh/README.md.
-# Variables opcionales: DEPLOY_USER=autoops-deploy, DEPLOY_SSH_PUBKEY_FILE,
-# DEPLOY_ALLOWED_FROM (obligatoria si hay llave de despliegue), SSH_ROLLBACK_MINUTES=5.
+# If the configuration changes, arms an automatic rollback (SSH_ROLLBACK_MINUTES)
+# that is only cancelled with --confirm. See infra/ssh/README.md.
+# Optional variables: DEPLOY_USER=autoops-deploy, DEPLOY_SSH_PUBKEY_FILE,
+# DEPLOY_ALLOWED_FROM (required if there is a deploy key), SSH_ROLLBACK_MINUTES=5.
 set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/lib/common.sh"
 
@@ -35,7 +35,7 @@ reload_sshd() {
   fi
 }
 
-# --- Modo --confirm: cancela el rollback automático --------------------------
+# --- --confirm mode: cancels the automatic rollback --------------------------
 if [[ "${1:-}" == "--confirm" ]]; then
   if has_systemd; then
     systemctl stop "${ROLLBACK_UNIT}.timer" 2>/dev/null || true
@@ -62,7 +62,7 @@ if [[ -n $DEPLOY_SSH_PUBKEY_FILE ]]; then
   [[ $DEPLOY_USER =~ ^[a-z_][a-z0-9_-]*$ && $DEPLOY_USER != "$ADMIN_USER" ]] || die "DEPLOY_USER inválido."
 fi
 
-# read_pubkey <archivo>: imprime la llave pública ed25519 (una línea) o aborta.
+# read_pubkey <file>: prints the ed25519 public key (one line) or aborts.
 read_pubkey() {
   local file=$1 line
   [[ -r $file ]] || die "No se puede leer ${file}."
@@ -74,7 +74,7 @@ read_pubkey() {
   printf '%s' "$line"
 }
 
-# ensure_ssh_dir <usuario>: crea ~/.ssh (700) y devuelve el home por stdout.
+# ensure_ssh_dir <user>: creates ~/.ssh (700) and returns the home via stdout.
 ensure_ssh_dir() {
   local user=$1 home
   home="$(getent passwd "$user" | cut -d: -f6)"
@@ -82,7 +82,7 @@ ensure_ssh_dir() {
   printf '%s' "$home"
 }
 
-# --- CA-1: llave del admin (se añade; nunca se borran las existentes) --------
+# --- AC-1: admin key (added; existing ones are never deleted) --------
 admin_key="$(read_pubkey "$ADMIN_SSH_PUBKEY_FILE")"
 admin_home="$(ensure_ssh_dir "$ADMIN_USER")"
 admin_auth="${admin_home}/.ssh/authorized_keys"
@@ -93,11 +93,11 @@ if ! grep -qF "$admin_blob" "$admin_auth"; then
   log_change "llave ed25519 añadida a ${admin_auth}"
 fi
 ensure_perms "$admin_auth" "${ADMIN_USER}:$(id -gn "$ADMIN_USER")" 600
-# StrictModes: sshd ignora las llaves si el home admite escritura de grupo u otros.
+# StrictModes: sshd ignores keys if the home is writable by group or others.
 [[ "$(stat -c '%A' "$admin_home")" =~ ^d....-..-.$ ]] \
   || die "${admin_home} admite escritura de grupo/otros: sshd rechazaría la llave (StrictModes)."
 
-# --- CA-3: cuenta y llave de despliegue (restringida) -------------------------
+# --- AC-3: deploy account and key (restricted) -------------------------
 allow_users="$ADMIN_USER"
 if [[ -n $DEPLOY_SSH_PUBKEY_FILE ]]; then
   deploy_key="$(read_pubkey "$DEPLOY_SSH_PUBKEY_FILE")"
@@ -123,7 +123,7 @@ else
   log_info "Sin DEPLOY_SSH_PUBKEY_FILE: no se configura la llave de despliegue."
 fi
 
-# --- CA-2 / CA-1: drop-in de sshd con rollback automático ---------------------
+# --- AC-2 / AC-1: sshd drop-in with automatic rollback ---------------------
 install -m 755 -o root -g root "${SSH_INFRA}/autoops-ssh-rollback.sh" "$ROLLBACK_BIN"
 ensure_file "$BANNER" "Acceso restringido a personal autorizado. La actividad es registrada."
 

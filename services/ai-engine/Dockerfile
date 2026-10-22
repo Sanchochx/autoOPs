@@ -1,11 +1,11 @@
 # syntax=docker/dockerfile:1
-# AI Engine (LangGraph). Hoy es una librería que importa el API Gateway, no un
-# servicio: esta imagen aísla sus dependencias y verifica que el grafo compila.
-# Su comando por defecto es una comprobación de humo (sin red ni claves reales).
-# Contexto de build: raíz del monorepo.
+# AI Engine (LangGraph). Today it is a library imported by the API Gateway, not a
+# service: this image isolates its dependencies and verifies the graph compiles.
+# Its default command is a smoke check (no network or real keys).
+# Build context: monorepo root.
 #   docker build -f services/ai-engine/Dockerfile -t autoops-ai-engine .
 
-# ── Etapa 1: dependencias ───────────────────────────────────────
+# ── Stage 1: dependencies ───────────────────────────────────────
 FROM python:3.11-slim AS builder
 
 ENV PIP_NO_CACHE_DIR=1 \
@@ -17,7 +17,7 @@ ENV PATH="/opt/venv/bin:$PATH"
 COPY services/ai-engine/requirements.txt /tmp/requirements.txt
 RUN pip install -r /tmp/requirements.txt
 
-# ── Etapa 2: runtime mínimo ─────────────────────────────────────
+# ── Stage 2: minimal runtime ─────────────────────────────────────
 FROM python:3.11-slim AS runtime
 
 RUN groupadd --system --gid 10001 autoops \
@@ -36,5 +36,5 @@ ENV PATH="/opt/venv/bin:$PATH" \
 
 USER autoops
 
-# Humo: importa el grafo; falla si falta alguna dependencia o hay un error de import.
+# Smoke: imports the graph; fails if a dependency is missing or an import error occurs.
 CMD ["python", "-c", "import ai_engine.graph; print('ai_engine.graph importado correctamente')"]

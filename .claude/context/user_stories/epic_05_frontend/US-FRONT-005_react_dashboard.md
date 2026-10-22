@@ -1,65 +1,65 @@
-# US-FRONT-005: Dashboard Admin e Integración de WebSockets
+# US-FRONT-005: Admin Dashboard and WebSocket Integration
 
-**Épica:** 05 — Frontend Dashboard
-**Prioridad:** MEDIA
-**Estimación:** 5 pts
-**Dependencias:** US-LANG-004
-**Estado:** Completada
-
----
-
-## Historia de Usuario
-
-**Como** agente de soporte,
-**necesito** una interfaz gráfica construida en React y Vite que muestre los tickets y se conecte al servidor de WebSockets,
-**para** observar el razonamiento del motor de IA en tiempo real.
+**Epic:** 05 — Frontend Dashboard
+**Priority:** MEDIUM
+**Estimate:** 5 pts
+**Dependencies:** US-LANG-004
+**Status:** Completed
 
 ---
 
-## Criterios de Aceptación
+## User Story
 
-> Trabajar UNO A LA VEZ, en orden. Marcar `[x]` al terminar cada uno y hacer pausa en el checkpoint final antes de cerrar la US.
-
-- [x] **CA-1: Inicialización de React y TailwindCSS**
-  - Se genera el proyecto base con Vite (React + TypeScript) dentro de `apps/frontend/`.
-  - Se instalan y configuran `tailwindcss`, `postcss` y `autoprefixer` según la documentación oficial.
-  - Se instalan `zustand` (estado) y `lucide-react` (iconografía básica).
-  - `tsconfig` en modo `strict: true`.
-  - **Verificación:** `npm run build` termina sin errores y una clase de Tailwind aplicada en `App.tsx` se refleja en el navegador.
-
-- [x] **CA-2: Store y Cliente WebSocket**
-  - Se crea el store de Zustand `store/useAiStore.ts` con un arreglo de `logs` (mensajes de agentes) y acciones para añadirlos y limpiarlos, con tipos en `models/`.
-  - Se crea el custom hook `hooks/useWebSocket.ts` que:
-    - abre la conexión a la URL derivada de `VITE_WS_BASE_URL`;
-    - reconecta automáticamente si la conexión cae (espera creciente, con límite);
-    - despacha los mensajes entrantes al store;
-    - cierra la conexión y cancela reintentos al desmontar.
-  - Los mensajes entrantes se validan con `unknown` + type guard (sin `any`).
-  - **Verificación:** al levantar el Gateway, el hook conecta y los mensajes llegan al store; al detener y reiniciar el Gateway, reconecta solo.
-
-- [x] **CA-3: Componentes de UI Básicos**
-  - `DashboardLayout.tsx`: layout principal con barra lateral (Sidebar) y área principal, usando CSS Grid y enfoque mobile-first.
-  - `AgentConsole.tsx`: vista tipo terminal de fondo oscuro que se suscribe al store y renderiza la lista de mensajes de la IA.
-  - Accesibilidad: la consola usa `role="log"` y `aria-live="polite"`, contraste WCAG AA y `:focus-visible` en elementos interactivos.
-  - La lógica vive en hooks; los componentes solo renderizan (máx. ~150 líneas por archivo).
-  - **Verificación:** al llegar mensajes por WebSocket, la consola los muestra en orden y se desplaza al más reciente.
-
-- [x] **CA-4: Integración y Limpieza**
-  - Se elimina el código por defecto de Vite (`App.css`, logos giratorios, contador de ejemplo).
-  - `App.tsx` ensambla `DashboardLayout` y `AgentConsole`.
-  - `npm run dev` lee el puerto desde `.env` (variable nueva en `.env.example`) y, si no está definida, usa el valor por defecto de Vite.
-  - **Verificación:** `npm run dev` levanta en el puerto configurado y la app no contiene restos de la plantilla de Vite.
+**As** a support agent,
+**I need** a graphical interface built with React and Vite that shows tickets and connects to the WebSocket server,
+**so that** I can observe the AI engine's reasoning in real time.
 
 ---
 
-## Notas Técnicas
+## Acceptance Criteria
 
-- **Estructura por features** (CLAUDE.md): `components/`, `hooks/`, `models/`, `services/` e `index.ts`; el cliente WebSocket va en `services/` y el hook lo consume. Las rutas de CA-2 y CA-3 se ubican dentro de esa estructura bajo `apps/frontend/src/`.
-- **URL del WebSocket:** `VITE_WS_BASE_URL` ya incluye el prefijo `/ws` (`ws://localhost:8000/ws`); el endpoint del Gateway es `/ws/stream`, por lo que el cliente compone `${VITE_WS_BASE_URL}/stream`. Sin URLs hardcodeadas.
-- **Alcance real del streaming:** hoy `/ws/stream` solo confirma la conexión y hace eco; el motor de IA aún no emite razonamiento al Gateway. La consola mostrará esos mensajes hasta que otra US conecte ambos.
-- **Dependencia efectiva:** requiere el Gateway de US-GATE-002 (`/ws/stream`) y CORS configurado con el origen del frontend (`CORS_ALLOWED_ORIGINS`).
-- **Puerto de desarrollo:** Vite solo expone al código las variables con prefijo `VITE_`; el puerto del servidor de desarrollo se lee en `vite.config.ts` con `loadEnv`.
-- **Rendimiento:** limitar el tamaño del arreglo de logs y evitar re-renders innecesarios en el componente vinculado al stream.
-- **Tailwind v4:** la documentación oficial vigente usa el plugin `@tailwindcss/vite`; `postcss` y `autoprefixer` ya no son necesarios y no se instalaron.
-- **Fuera de alcance:** autenticación, tabla de tickets, modal de aprobación HITL y llamadas REST.
-- **Convenciones:** TypeScript `camelCase` para variables y funciones, `PascalCase` para componentes e interfaces; TailwindCSS para estilos.
+> Work ONE AT A TIME, in order. Mark `[x]` when each one is finished and pause at the final checkpoint before closing the US.
+
+- [x] **AC-1: React and TailwindCSS initialization**
+  - The base project is generated with Vite (React + TypeScript) inside `apps/frontend/`.
+  - `tailwindcss`, `postcss` and `autoprefixer` are installed and configured per the official documentation.
+  - `zustand` (state) and `lucide-react` (basic iconography) are installed.
+  - `tsconfig` in `strict: true` mode.
+  - **Verification:** `npm run build` finishes without errors and a Tailwind class applied in `App.tsx` is reflected in the browser.
+
+- [x] **AC-2: Store and WebSocket Client**
+  - The Zustand store `store/useAiStore.ts` is created with a `logs` array (agent messages) and actions to add and clear them, with types in `models/`.
+  - The custom hook `hooks/useWebSocket.ts` is created, which:
+    - opens the connection to the URL derived from `VITE_WS_BASE_URL`;
+    - reconnects automatically if the connection drops (increasing wait, with a cap);
+    - dispatches incoming messages to the store;
+    - closes the connection and cancels retries on unmount.
+  - Incoming messages are validated with `unknown` + type guard (no `any`).
+  - **Verification:** when the Gateway is brought up, the hook connects and messages reach the store; when the Gateway is stopped and restarted, it reconnects on its own.
+
+- [x] **AC-3: Basic UI Components**
+  - `DashboardLayout.tsx`: main layout with a sidebar (Sidebar) and main area, using CSS Grid and a mobile-first approach.
+  - `AgentConsole.tsx`: terminal-style dark-background view that subscribes to the store and renders the list of AI messages.
+  - Accessibility: the console uses `role="log"` and `aria-live="polite"`, WCAG AA contrast and `:focus-visible` on interactive elements.
+  - Logic lives in hooks; components only render (max ~150 lines per file).
+  - **Verification:** when messages arrive over WebSocket, the console shows them in order and scrolls to the latest.
+
+- [x] **AC-4: Integration and Cleanup**
+  - The default Vite code is removed (`App.css`, spinning logos, sample counter).
+  - `App.tsx` assembles `DashboardLayout` and `AgentConsole`.
+  - `npm run dev` reads the port from `.env` (new variable in `.env.example`) and, if not defined, uses Vite's default value.
+  - **Verification:** `npm run dev` starts on the configured port and the app contains no leftovers from the Vite template.
+
+---
+
+## Technical Notes
+
+- **Feature-based structure** (CLAUDE.md): `components/`, `hooks/`, `models/`, `services/` and `index.ts`; the WebSocket client goes in `services/` and the hook consumes it. The paths in AC-2 and AC-3 are located within that structure under `apps/frontend/src/`.
+- **WebSocket URL:** `VITE_WS_BASE_URL` already includes the `/ws` prefix (`ws://localhost:8000/ws`); the Gateway endpoint is `/ws/stream`, so the client composes `${VITE_WS_BASE_URL}/stream`. No hardcoded URLs.
+- **Actual streaming scope:** today `/ws/stream` only confirms the connection and echoes; the AI engine does not yet emit reasoning to the Gateway. The console will show those messages until another US connects both.
+- **Effective dependency:** requires the Gateway from US-GATE-002 (`/ws/stream`) and CORS configured with the frontend origin (`CORS_ALLOWED_ORIGINS`).
+- **Development port:** Vite only exposes variables prefixed with `VITE_` to the code; the development server port is read in `vite.config.ts` with `loadEnv`.
+- **Performance:** limit the size of the logs array and avoid unnecessary re-renders in the component bound to the stream.
+- **Tailwind v4:** the current official documentation uses the `@tailwindcss/vite` plugin; `postcss` and `autoprefixer` are no longer needed and were not installed.
+- **Out of scope:** authentication, tickets table, HITL approval modal and REST calls.
+- **Conventions:** TypeScript `camelCase` for variables and functions, `PascalCase` for components and interfaces; TailwindCSS for styles.

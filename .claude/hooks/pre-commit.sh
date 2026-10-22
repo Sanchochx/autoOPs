@@ -1,17 +1,17 @@
 #!/bin/bash
 # .claude/hooks/pre-commit.sh
-# Se ejecuta en cada PreToolUse de Bash en Claude Code.
-# Solo actúa cuando el comando es un git commit.
+# Runs on every Bash PreToolUse in Claude Code.
+# Only acts when the command is a git commit.
 #
-# Agnóstico de tecnología: detecta los stacks presentes por sus archivos
-# marcadores y corre tests + lint con las herramientas que estén instaladas.
-# Para stacks no cubiertos o comandos propios, ver "Personalización" en el README:
-#   - Variables de entorno: HOOK_TEST_CMD, HOOK_LINT_CMD, HOOK_SKIP_STACKS
-#   - Script opcional: .claude/hooks/project-checks.sh (exit != 0 = falla)
+# Technology-agnostic: detects the stacks present by their marker files
+# and runs tests + lint with whichever tools are installed.
+# For uncovered stacks or custom commands, see "Customization" in the README:
+#   - Environment variables: HOOK_TEST_CMD, HOOK_LINT_CMD, HOOK_SKIP_STACKS
+#   - Optional script: .claude/hooks/project-checks.sh (exit != 0 = failure)
 
 INPUT=$(cat)
 
-# Extraer el comando del JSON (jq si existe; si no, fallback con sed)
+# Extract the command from the JSON (jq if available; otherwise sed fallback)
 if command -v jq &> /dev/null; then
   COMMAND=$(echo "$INPUT" | jq -r '.tool_input.command // empty')
 else
@@ -21,7 +21,7 @@ if ! echo "$COMMAND" | grep -Eq '(^|[;&|[:space:]])git[[:space:]]+commit'; then
   exit 0
 fi
 
-# Ejecutar desde la raíz del repo
+# Run from the repo root
 cd "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" || exit 0
 
 echo ""
@@ -32,7 +32,7 @@ echo "======================================="
 ERRORS=0
 DETECTED=0
 
-has_file() { # has_file patrón...  (admite globs)
+has_file() { # has_file pattern...  (supports globs)
   local f
   for f in "$@"; do compgen -G "$f" > /dev/null && return 0; done
   return 1
@@ -40,7 +40,7 @@ has_file() { # has_file patrón...  (admite globs)
 
 stack_enabled() { [[ " $HOOK_SKIP_STACKS " != *" $1 "* ]]; }
 
-# run_check "<etiqueta>" <comando...>
+# run_check "<label>" <command...>
 run_check() {
   local label="$1"; shift
   echo "  $label..."
@@ -52,12 +52,12 @@ run_check() {
   fi
 }
 
-# run_sh "<etiqueta>" "<comando como string>"  (para comandos del usuario)
+# run_sh "<label>" "<command as string>"  (for user commands)
 run_sh() { run_check "$1" bash -c "$2"; }
 
 begin_stack() { DETECTED=$((DETECTED + 1)); echo ""; echo "▶ Stack detectado: $1"; }
 
-# ─── Comandos definidos por el usuario (reemplazan a la autodetección) ───
+# ─── User-defined commands (replace autodetection) ───
 if [ -n "$HOOK_TEST_CMD" ] || [ -n "$HOOK_LINT_CMD" ]; then
   begin_stack "personalizado"
   [ -n "$HOOK_TEST_CMD" ] && run_sh "Tests" "$HOOK_TEST_CMD"
@@ -84,7 +84,7 @@ else
     [ -f yarn.lock ] && PM=yarn
     [ -f bun.lockb ] || [ -f bun.lock ] && PM=bun
     if command -v "$PM" &> /dev/null; then
-      # Respeta los scripts del proyecto: así sirve para Express, React, Angular, etc.
+      # Respects the project scripts: works for Express, React, Angular, etc.
       if grep -q '"test"[[:space:]]*:' package.json && ! grep -q 'no test specified' package.json; then
         run_check "Tests ($PM test)" "$PM" run test
       fi
@@ -152,7 +152,7 @@ else
   fi
 fi
 
-# ─── Script propio del proyecto (opcional) ───────────────────
+# ─── Project's own script (optional) ───────────────────
 if [ -f .claude/hooks/project-checks.sh ]; then
   begin_stack "checks del proyecto"
   run_check "project-checks.sh" bash .claude/hooks/project-checks.sh
@@ -164,8 +164,8 @@ if [ "$DETECTED" -eq 0 ]; then
   echo "  (Define HOOK_TEST_CMD / HOOK_LINT_CMD o .claude/hooks/project-checks.sh)"
 fi
 
-# ─── Credenciales hardcodeadas (cualquier lenguaje) ──────────
-# Revisa solo las líneas AÑADIDAS en el commit, ignorando tests/ejemplos.
+# ─── Hardcoded credentials (any language) ──────────
+# Checks only the lines ADDED in the commit, ignoring tests/examples.
 echo ""
 echo "▶ Buscando credenciales hardcodeadas en cambios staged..."
 SECRET_RE="(password|passwd|secret|api[_-]?key|access[_-]?key|auth[_-]?token|private[_-]?key)[\"']?[[:space:]]*[:=][[:space:]]*[\"'][^\"'\$\{][^\"']{3,}[\"']|AKIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY-----|gh[pousr]_[A-Za-z0-9]{36,}"
@@ -180,7 +180,7 @@ else
   echo "  ✓ Sin credenciales hardcodeadas"
 fi
 
-# ─── Resultado final ─────────────────────────────────────────
+# ─── Final result ─────────────────────────────────────────
 echo ""
 echo "======================================="
 if [ $ERRORS -eq 0 ]; then

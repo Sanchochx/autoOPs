@@ -1,15 +1,15 @@
-# Decisiones de arquitectura (ADRs)
+# Architecture Decision Records (ADRs)
 
-Documenta aquí las decisiones importantes del proyecto.
+Document the project's important decisions here.
 
-## Formato sugerido
+## Suggested format
 
-### ADR-001: [Título de la decisión]
-**Fecha:** YYYY-MM-DD  
-**Estado:** Aceptada / Rechazada / Deprecada
+### ADR-001: [Decision title]
+**Date:** YYYY-MM-DD  
+**Status:** Accepted / Rejected / Deprecated
 
-**Contexto:** Por qué se necesitaba tomar esta decisión.
+**Context:** Why this decision needed to be made.
 
-**Decisión:** Qué se decidió hacer.
+**Decision:** What was decided.
 
-**Consecuencias:** Qué implica esta decisión (ventajas y trade-offs).
+**Consequences:** What this decision implies (benefits and trade-offs).

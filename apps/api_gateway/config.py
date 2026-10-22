@@ -1,28 +1,28 @@
-"""Configuración del API Gateway (Twelve-Factor).
+"""API Gateway configuration (Twelve-Factor).
 
-Todos los parámetros se leen desde variables de entorno; no hay orígenes,
-hosts ni puertos hardcodeados fuera de los fallbacks seguros de desarrollo.
+All parameters are read from environment variables; there are no origins,
+hosts or ports hardcoded beyond the safe development fallbacks.
 """
 
 import os
 
 
 def get_cors_allowed_origins() -> list[str]:
-    """Devuelve los orígenes CORS permitidos desde ``CORS_ALLOWED_ORIGINS``.
+    """Return the allowed CORS origins from ``CORS_ALLOWED_ORIGINS``.
 
-    El valor es una lista separada por comas. Si la variable no está definida
-    o está vacía, retorna una lista vacía (política restrictiva: ningún
-    origen permitido; nunca se usa ``*``).
+    The value is a comma-separated list. If the variable is undefined or
+    empty, returns an empty list (restrictive policy: no origin allowed;
+    ``*`` is never used).
     """
     raw_origins = os.getenv("CORS_ALLOWED_ORIGINS", "")
     return [origin.strip() for origin in raw_origins.split(",") if origin.strip()]
 
 
 def load_dotenv(path: str = ".env") -> None:
-    """Carga pares ``CLAVE=valor`` de un archivo ``.env`` en ``os.environ``.
+    """Load ``KEY=value`` pairs from a ``.env`` file into ``os.environ``.
 
-    No sobrescribe variables ya definidas en el entorno real. Si el archivo
-    no existe, no hace nada.
+    Does not overwrite variables already defined in the real environment. If
+    the file does not exist, does nothing.
     """
     try:
         with open(path, encoding="utf-8") as env_file:

@@ -1,47 +1,47 @@
-# US-SYS-003: Servicio systemd para el Stack AutoOps
+# US-SYS-003: systemd Service for the AutoOps Stack
 
-**Épica:** 11 — OS Hardening & Runtime
-**Prioridad:** ALTA
-**Estimación:** 8 pts
-**Dependencias:** US-HOST-001, US-SYS-002, US-NET-002
-**Estado:** Pendiente
-
----
-
-## Historia de Usuario
-
-**Como** administrador del servidor,
-**necesito** que la plataforma arranque, se detenga y se reinicie como un servicio nativo de systemd,
-**para** que AutoOps se recupere sola tras un reinicio del host y se opere con las herramientas estándar de Linux.
+**Epic:** 11 — OS Hardening & Runtime
+**Priority:** HIGH
+**Estimate:** 8 pts
+**Dependencies:** US-HOST-001, US-SYS-002, US-NET-002
+**Status:** Pending
 
 ---
 
-## Criterios de Aceptación
+## User Story
 
-> Trabajar UNO A LA VEZ, en orden. Marcar `[x]` al terminar cada uno y hacer pausa en el checkpoint final antes de cerrar la US.
-
-- [ ] **CA-1: Unidad `autoops.service`**
-  - Unidad (plantilla en `infra/systemd/`, instalada por `scripts/provision/70_systemd.sh`): `Type=oneshot`, `RemainAfterExit=yes`, `User=autoops`, `WorkingDirectory=/opt/autoops`, `After=docker.service network-online.target`, `Requires=docker.service`.
-  - `ExecStart=docker compose up -d`, `ExecStop=docker compose down` (sin `-v`: los datos persisten) y `ExecReload` opcional; `TimeoutStartSec` acorde a los healthchecks.
-  - **Verificación:** `systemctl start/stop/restart autoops` funciona y el stack queda `healthy`.
-
-- [ ] **CA-2: Configuración y Sandboxing de la Unidad**
-  - `EnvironmentFile`/`.env` en `/opt/autoops` (modo `0600`), sin secretos en la unidad. Directivas de aislamiento compatibles con Docker: `NoNewPrivileges=yes`, `ProtectHome=yes`, `PrivateTmp=yes`, `ProtectSystem=full` y `ReadWritePaths` acotados. Revisar con `systemd-analyze security autoops`.
-  - **Verificación:** la unidad arranca con el sandboxing activo y la puntuación de `systemd-analyze security` queda documentada.
-
-- [ ] **CA-3: Migraciones como Oneshot Manual**
-  - `autoops-migrate.service` (`Type=oneshot`, sin `[Install]`, nunca activado en el arranque) que ejecuta `docker compose --profile tools run --rm migrate`, invocable con `systemctl start autoops-migrate`.
-  - **Verificación:** el comando deja el esquema Alembic en `head`; `autoops.service` no lo ejecuta.
-
-- [ ] **CA-4: Arranque en Boot y Resiliencia**
-  - `systemctl enable autoops` y comprobación de la política de reinicio (`restart: unless-stopped` de Compose más `live-restore`).
-  - Check `scripts/provision/checks/70_systemd.sh` (unidad habilitada, activa y servicios `healthy`).
-  - **Verificación:** tras `sudo reboot` de la VM, el stack vuelve `healthy` sin intervención y los tickets previos siguen existiendo.
+**As** the server administrator,
+**I need** the platform to start, stop and restart as a native systemd service,
+**so that** AutoOps recovers on its own after a host reboot and is operated with standard Linux tools.
 
 ---
 
-## Notas Técnicas
+## Acceptance Criteria
 
-- **Logs:** `journalctl -u autoops` para el ciclo de vida; los logs de aplicación siguen en `docker compose logs` (stdout/stderr).
-- **Usuario `autoops`:** necesita acceso al socket de Docker (grupo `docker`), único caso permitido por US-HOST-001.
-- **Fuera de alcance:** health-watchdog avanzado, notificaciones de fallo, despliegue desde CI/CD (Fase 5).
+> Work ONE AT A TIME, in order. Mark `[x]` when each one is done and pause at the final checkpoint before closing the US.
+
+- [ ] **AC-1: `autoops.service` Unit**
+  - Unit (template in `infra/systemd/`, installed by `scripts/provision/70_systemd.sh`): `Type=oneshot`, `RemainAfterExit=yes`, `User=autoops`, `WorkingDirectory=/opt/autoops`, `After=docker.service network-online.target`, `Requires=docker.service`.
+  - `ExecStart=docker compose up -d`, `ExecStop=docker compose down` (without `-v`: data persists) and optional `ExecReload`; `TimeoutStartSec` consistent with the healthchecks.
+  - **Verification:** `systemctl start/stop/restart autoops` works and the stack ends up `healthy`.
+
+- [ ] **AC-2: Unit Configuration and Sandboxing**
+  - `EnvironmentFile`/`.env` in `/opt/autoops` (mode `0600`), no secrets in the unit. Docker-compatible isolation directives: `NoNewPrivileges=yes`, `ProtectHome=yes`, `PrivateTmp=yes`, `ProtectSystem=full` and bounded `ReadWritePaths`. Review with `systemd-analyze security autoops`.
+  - **Verification:** the unit starts with sandboxing active and the `systemd-analyze security` score is documented.
+
+- [ ] **AC-3: Migrations as a Manual Oneshot**
+  - `autoops-migrate.service` (`Type=oneshot`, no `[Install]`, never enabled at boot) that runs `docker compose --profile tools run --rm migrate`, invocable with `systemctl start autoops-migrate`.
+  - **Verification:** the command leaves the Alembic schema at `head`; `autoops.service` does not run it.
+
+- [ ] **AC-4: Boot Startup and Resilience**
+  - `systemctl enable autoops` and verification of the restart policy (Compose's `restart: unless-stopped` plus `live-restore`).
+  - Check `scripts/provision/checks/70_systemd.sh` (unit enabled, active and services `healthy`).
+  - **Verification:** after `sudo reboot` of the VM, the stack comes back `healthy` without intervention and previous tickets still exist.
+
+---
+
+## Technical Notes
+
+- **Logs:** `journalctl -u autoops` for the lifecycle; application logs remain in `docker compose logs` (stdout/stderr).
+- **`autoops` user:** needs access to the Docker socket (`docker` group), the only case allowed by US-HOST-001.
+- **Out of scope:** advanced health-watchdog, failure notifications, deployment from CI/CD (Phase 5).

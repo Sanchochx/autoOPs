@@ -1,45 +1,45 @@
-# US-SYS-002: Docker Engine en el Host y `daemon.json` Endurecido
+# US-SYS-002: Docker Engine on the Host and Hardened `daemon.json`
 
-**Épica:** 11 — OS Hardening & Runtime
-**Prioridad:** ALTA
-**Estimación:** 5 pts
-**Dependencias:** US-SYS-001
-**Estado:** Completada
-
----
-
-## Historia de Usuario
-
-**Como** administrador del servidor,
-**necesito** instalar Docker Engine desde el repositorio oficial con una configuración de demonio segura por defecto,
-**para** ejecutar el stack de AutoOps con rotación de logs, límites razonables y sin escaladas de privilegios.
+**Epic:** 11 — OS Hardening & Runtime
+**Priority:** HIGH
+**Estimate:** 5 pts
+**Dependencies:** US-SYS-001
+**Status:** Completed
 
 ---
 
-## Criterios de Aceptación
+## User Story
 
-> Trabajar UNO A LA VEZ, en orden. Marcar `[x]` al terminar cada uno y hacer pausa en el checkpoint final antes de cerrar la US.
+**As** the server administrator,
+**I need** to install Docker Engine from the official repository with a secure-by-default daemon configuration,
+**so that** I can run the AutoOps stack with log rotation, reasonable limits and no privilege escalation.
 
-- [x] **CA-1: Instalación desde el Repositorio Oficial**
-  - Script idempotente `scripts/provision/60_docker.sh`: repositorio apt oficial de Docker con su llave GPG verificada, instalación de `docker-ce`, `docker-ce-cli`, `containerd.io` y los plugins `buildx` y `compose`; versiones fijables por variable.
-  - **Verificación:** `docker version` y `docker compose version` funcionan; reejecutar el script no cambia nada.
+---
 
-- [x] **CA-2: `daemon.json` Endurecido**
-  - Plantilla `infra/docker/daemon.json`: `"no-new-privileges": true`, `"log-driver": "json-file"` con `max-size`/`max-file`, `"live-restore": true`, `"userland-proxy": false`. Sin desactivar `iptables`.
-  - **Verificación:** `docker info` refleja la configuración; el stack de Compose arranca y sus contenedores respetan `no-new-privileges`.
+## Acceptance Criteria
 
-- [x] **CA-3: Acceso al Socket y Pertenencia a Grupos**
-  - Sin usuarios en el grupo `docker` salvo `autoops` (ver US-HOST-001 CA-4); socket `/var/run/docker.sock` con permisos por defecto y sin exposición TCP del demonio.
-  - **Verificación:** `ss -tlnp` no muestra el puerto 2375/2376; el admin usa `sudo docker`.
+> Work ONE AT A TIME, in order. Mark `[x]` when each one is done and pause at the final checkpoint before closing the US.
 
-- [x] **CA-4: Decisión Documentada y Verificación**
-  - Registrar en `infra/docker/README.md` por qué se usa Docker estándar y no *rootless* (puertos <1024 del proxy de la Fase 5 y redes `internal`), y que `userns-remap` queda como mejora futura.
+- [x] **AC-1: Installation from the Official Repository**
+  - Idempotent script `scripts/provision/60_docker.sh`: Docker's official apt repository with its GPG key verified, installation of `docker-ce`, `docker-ce-cli`, `containerd.io` and the `buildx` and `compose` plugins; versions pinnable via variable.
+  - **Verification:** `docker version` and `docker compose version` work; re-running the script changes nothing.
+
+- [x] **AC-2: Hardened `daemon.json`**
+  - Template `infra/docker/daemon.json`: `"no-new-privileges": true`, `"log-driver": "json-file"` with `max-size`/`max-file`, `"live-restore": true`, `"userland-proxy": false`. Without disabling `iptables`.
+  - **Verification:** `docker info` reflects the configuration; the Compose stack starts and its containers respect `no-new-privileges`.
+
+- [x] **AC-3: Socket Access and Group Membership**
+  - No users in the `docker` group except `autoops` (see US-HOST-001 AC-4); `/var/run/docker.sock` socket with default permissions and no TCP exposure of the daemon.
+  - **Verification:** `ss -tlnp` does not show port 2375/2376; the admin uses `sudo docker`.
+
+- [x] **AC-4: Documented Decision and Verification**
+  - Record in `infra/docker/README.md` why standard Docker is used and not *rootless* (Phase 5 proxy ports <1024 and `internal` networks), and that `userns-remap` remains a future improvement.
   - Check `scripts/provision/checks/60_docker.sh`.
-  - **Verificación:** el check pasa y `docker compose up -d --build` deja todos los servicios `healthy`.
+  - **Verification:** the check passes and `docker compose up -d --build` leaves all services `healthy`.
 
 ---
 
-## Notas Técnicas
+## Technical Notes
 
-- **Logging cloud-native:** los contenedores siguen emitiendo a stdout/stderr; la rotación del driver evita que los logs llenen el disco.
-- **Fuera de alcance:** Docker rootless, registro privado de imágenes, escaneo de imágenes.
+- **Cloud-native logging:** containers keep emitting to stdout/stderr; the driver's rotation prevents logs from filling the disk.
+- **Out of scope:** rootless Docker, private image registry, image scanning.

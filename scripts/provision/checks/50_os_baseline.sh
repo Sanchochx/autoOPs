@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# Verifica los controles de US-SYS-001 (solo lectura). Mismas variables que 50_os_baseline.sh:
+# Verifies the controls of US-SYS-001 (read-only). Same variables as 50_os_baseline.sh:
 #
 #   sudo [TIMEZONE=UTC] [AUTO_REBOOT_TIME=HH:MM] [EXPECTED_TCP_PORTS="8000 3000"] ./scripts/provision/checks/50_os_baseline.sh
 #
-# EXPECTED_TCP_PORTS: puertos TCP extra que pueden escuchar en interfaces no-loopback
-# (por defecto solo SSH; tras desplegar Docker, añade los puertos publicados).
+# EXPECTED_TCP_PORTS: extra TCP ports that may listen on non-loopback interfaces
+# (default: SSH only; after deploying Docker, add the published ports).
 set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/../lib/common.sh"
 
@@ -28,7 +28,7 @@ svc_disabled() {
     done
   done
 }
-# Escuchas TCP fuera de loopback distintas de SSH y de EXPECTED_TCP_PORTS.
+# TCP listeners outside loopback other than SSH and EXPECTED_TCP_PORTS.
 no_extra_listeners() {
   local listeners addr port allowed=" ${SSH_PORT} ${EXPECTED_TCP_PORTS} "
   listeners="$(ss -H -ltn | awk '{print $4}')"
@@ -54,7 +54,7 @@ chrony_active()  { systemctl is-active --quiet chrony; }
 chrony_synced()  { chronyc tracking | grep -q 'Leap status *: Normal'; }
 tz_ok()          { [[ "$(timedatectl show -p Timezone --value)" == "$TIMEZONE" ]]; }
 sysctl_file()    { cmp -s "${REPO_ROOT}/infra/sysctl/99-autoops.conf" "$SYSCTL_DST"; }
-# Solo cuenta una asignación real (no el texto de los comentarios): `[-]net.ipv4.ip_forward =`.
+# Only counts a real assignment (not comment text): `[-]net.ipv4.ip_forward =`.
 no_ip_forward()  { ! grep -Eq '^[[:space:]]*-?net\.ipv4\.(conf\.[^.]+\.)?(ip_)?forward(ing)?[[:space:]]*=' "$SYSCTL_DST"; }
 sysctl_values() {
   local line key value actual rc=0

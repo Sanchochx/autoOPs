@@ -1,4 +1,4 @@
-"""Endpoint de salud del API Gateway."""
+"""Health endpoint of the API Gateway."""
 
 from fastapi import APIRouter
 
@@ -9,5 +9,5 @@ router = APIRouter(tags=["health"])
 
 @router.get("/health", response_model=HealthResponse)
 def health() -> HealthResponse:
-    """Indica que el servicio está levantado."""
+    """Report that the service is up."""
     return HealthResponse(status="ok", service="api_gateway")

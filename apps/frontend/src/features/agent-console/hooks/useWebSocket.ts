@@ -4,10 +4,10 @@ import { parsePayload } from '../services/parsePayload'
 import { openReconnectingSocket } from '../services/reconnectingSocket'
 import { useAiStore } from '../store/useAiStore'
 
-/** Ruta del canal de streaming relativa a VITE_WS_BASE_URL. */
+/** Streaming channel path relative to VITE_WS_BASE_URL. */
 const STREAM_PATH = '/stream'
 
-/** Conecta al stream del Gateway y despacha los mensajes al store. */
+/** Connects to the Gateway stream and dispatches messages to the store. */
 export function useWebSocket(): ConnectionStatus {
   const addLog = useAiStore((state) => state.addLog)
   const baseUrl = import.meta.env.VITE_WS_BASE_URL

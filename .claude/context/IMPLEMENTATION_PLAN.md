@@ -1,35 +1,35 @@
-# 🚀 AutoOps - Plan de Implementación
+# 🚀 AutoOps - Implementation Plan
 
 <!--
-  Estados de US (el checkbox del título es la ÚNICA fuente de verdad):
-    [ ]  Pendiente
-    [~]  En progreso (solo UNA a la vez)
-    [x]  Completada
-  El workflow (TASK_EXECUTION.md) actualiza este archivo al cerrar cada US.
+  US states (the title checkbox is the ONLY source of truth):
+    [ ]  Pending
+    [~]  In progress (only ONE at a time)
+    [x]  Completed
+  The workflow (TASK_EXECUTION.md) updates this file when closing each US.
 -->
 
-**Última actualización:** 2026-10-19
-**Versión:** 2.3
+**Last updated:** 2026-10-19
+**Version:** 2.3
 
 ---
 
-## 📊 Dashboard General
+## 📊 General Dashboard
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  PROGRESO GLOBAL DEL PROYECTO                               │
+│  OVERALL PROJECT PROGRESS                                   │
 ├─────────────────────────────────────────────────────────────┤
-│  Total Historias de Usuario:     23                         │
-│  ✅ Completadas:                 19                         │
-│  ⏳ En Progreso:                 1                          │
-│  ⏸️  Pendientes:                 3                          │
+│  Total User Stories:             23                         │
+│  ✅ Completed:                   19                         │
+│  ⏳ In Progress:                 1                          │
+│  ⏸️  Pending:                    3                          │
 │                                                             │
-│  Progreso: [████████░░] 83% (19/23)                          │
+│  Progress: [████████░░] 83% (19/23)                          │
 └─────────────────────────────────────────────────────────────┘
 ```
 
 <!--
-  Barra de progreso de referencia (10 caracteres):
+  Reference progress bar (10 characters):
   0%   → [░░░░░░░░░░]    50%  → [█████░░░░░]
   10%  → [█░░░░░░░░░]    60%  → [██████░░░░]
   20%  → [██░░░░░░░░]    70%  → [███████░░░]
@@ -40,14 +40,14 @@
 
 ---
 
-## 🎯 Progreso por Épica
+## 🎯 Progress by Epic
 
-| Epic | Nombre | Prefijo | Total US | Completadas | En Progreso | Pendientes | Progreso |
-|------|--------|---------|----------|-------------|-------------|------------|----------|
+| Epic | Name | Prefix | Total US | Completed | In Progress | Pending | Progress |
+|------|------|--------|----------|-----------|-------------|---------|----------|
 | 01 | Monorepo & Base Setup | MONO | 1 | 1 | 0 | 0 | [██████████] 100% |
-| 02 | API Gateway & Comunicaciones (FastAPI + WebSockets) | GATE | 1 | 1 | 0 | 0 | [██████████] 100% |
-| 03 | Servidores MCP (Logs y Métricas) | MCP | 1 | 1 | 0 | 0 | [██████████] 100% |
-| 04 | Motor de IA (LangGraph: Triaje e Investigación) | LANG | 1 | 1 | 0 | 0 | [██████████] 100% |
+| 02 | API Gateway & Communications (FastAPI + WebSockets) | GATE | 1 | 1 | 0 | 0 | [██████████] 100% |
+| 03 | MCP Servers (Logs and Metrics) | MCP | 1 | 1 | 0 | 0 | [██████████] 100% |
+| 04 | AI Engine (LangGraph: Triage and Investigation) | LANG | 1 | 1 | 0 | 0 | [██████████] 100% |
 | 05 | Frontend Dashboard (React + Vite + TailwindCSS) | FRONT | 1 | 1 | 0 | 0 | [██████████] 100% |
 | 06 | Database & Persistence (PostgreSQL + SQLAlchemy + Alembic) | DB | 2 | 2 | 0 | 0 | [██████████] 100% |
 | 07 | AI Integration (Gateway ↔ LangGraph) | INT | 2 | 2 | 0 | 0 | [██████████] 100% |
@@ -59,350 +59,350 @@
 
 ---
 
-## 📅 Plan de Implementación por Fases
+## 📅 Implementation Plan by Phase
 
 ---
 
-# 🎯 FASE 1: FUNDACIÓN Y CORE MULTI-AGENTE (Sprint 1-2)
+# 🎯 PHASE 1: FOUNDATION AND MULTI-AGENT CORE (Sprint 1-2)
 
-**Objetivo:** Construcción de los cimientos aislados de los microservicios (Gateway, IA, MCP, Frontend) y definición de contratos de comunicación, sin integración profunda ni persistencia.
-**Épicas:** 01 Monorepo & Base Setup, 02 API Gateway & Comunicaciones, 03 Servidores MCP, 04 Motor de IA, 05 Frontend Dashboard
+**Goal:** Build the isolated foundations of the microservices (Gateway, AI, MCP, Frontend) and define communication contracts, without deep integration or persistence.
+**Epics:** 01 Monorepo & Base Setup, 02 API Gateway & Communications, 03 MCP Servers, 04 AI Engine, 05 Frontend Dashboard
 **Total US:** 5
-**Progreso:** [██████████] 100% (5/5)
+**Progress:** [██████████] 100% (5/5)
 
-> Orden recomendado de ejecución: 01 → 02 → 03 → 04 → 05 (MCP depende del Gateway; el motor de IA necesita MCP y el Gateway; el Frontend consume el Gateway). Las dependencias de cada US son la fuente de verdad.
+> Recommended execution order: 01 → 02 → 03 → 04 → 05 (MCP depends on the Gateway; the AI engine needs MCP and the Gateway; the Frontend consumes the Gateway). The dependencies of each US are the source of truth.
 
 ---
 
-## Epic 01: Monorepo & Base Setup - Estructura, configuración y calidad base
+## Epic 01: Monorepo & Base Setup - Structure, configuration and base quality
 
-**Prioridad:** CRÍTICA
-**Carpeta:** `context/user_stories/epic_01_monorepo/`
+**Priority:** CRITICAL
+**Folder:** `context/user_stories/epic_01_monorepo/`
 
-### Historias de Usuario
+### User Stories
 
 #### [x] US-MONO-001: Monorepo Setup
-- **Archivo:** `context/user_stories/epic_01_monorepo/US-MONO-001_monorepo_setup.md`
-- **Prioridad:** CRÍTICA
-- **Estimación:** 3 pts
-- **Dependencias:** Ninguna
-- **Criterios de Aceptación:** 5
+- **File:** `context/user_stories/epic_01_monorepo/US-MONO-001_monorepo_setup.md`
+- **Priority:** CRITICAL
+- **Estimate:** 3 pts
+- **Dependencies:** None
+- **Acceptance Criteria:** 5
 
 ---
 
-## Epic 02: API Gateway & Comunicaciones - FastAPI, REST y WebSockets
+## Epic 02: API Gateway & Communications - FastAPI, REST and WebSockets
 
-**Prioridad:** ALTA
-**Carpeta:** `context/user_stories/epic_02_gateway/`
+**Priority:** HIGH
+**Folder:** `context/user_stories/epic_02_gateway/`
 
-### Historias de Usuario
+### User Stories
 
-#### [x] US-GATE-002: Implementación Base del API Gateway en FastAPI
-- **Archivo:** `context/user_stories/epic_02_gateway/US-GATE-002_fastapi_gateway.md`
-- **Prioridad:** CRÍTICA
-- **Estimación:** 5 pts
-- **Dependencias:** US-MONO-001
-- **Criterios de Aceptación:** 4
-
----
-
-## Epic 03: Servidores MCP - Inspección de Logs y Métricas
-
-**Prioridad:** ALTA
-**Carpeta:** `context/user_stories/epic_03_mcp/`
-
-### Historias de Usuario
-
-#### [x] US-MCP-003: Servidor MCP de Inspección de Logs y Métricas Simuladas
-- **Archivo:** `context/user_stories/epic_03_mcp/US-MCP-003_logs_mcp_server.md`
-- **Prioridad:** ALTA
-- **Estimación:** 5 pts
-- **Dependencias:** US-GATE-002
-- **Criterios de Aceptación:** 4
+#### [x] US-GATE-002: Base API Gateway Implementation in FastAPI
+- **File:** `context/user_stories/epic_02_gateway/US-GATE-002_fastapi_gateway.md`
+- **Priority:** CRITICAL
+- **Estimate:** 5 pts
+- **Dependencies:** US-MONO-001
+- **Acceptance Criteria:** 4
 
 ---
 
-## Epic 04: Motor de IA - LangGraph (Triaje e Investigación)
+## Epic 03: MCP Servers - Log and Metrics Inspection
 
-**Prioridad:** CRÍTICA
-**Carpeta:** `context/user_stories/epic_04_ai_engine/`
+**Priority:** HIGH
+**Folder:** `context/user_stories/epic_03_mcp/`
 
-### Historias de Usuario
+### User Stories
 
-#### [x] US-LANG-004: Grafo Base de Agentes (Triaje e Investigación)
-- **Archivo:** `context/user_stories/epic_04_ai_engine/US-LANG-004_langgraph_workflow.md`
-- **Prioridad:** CRÍTICA
-- **Estimación:** 8 pts
-- **Dependencias:** US-MCP-003
-- **Criterios de Aceptación:** 4
+#### [x] US-MCP-003: MCP Server for Simulated Log and Metrics Inspection
+- **File:** `context/user_stories/epic_03_mcp/US-MCP-003_logs_mcp_server.md`
+- **Priority:** HIGH
+- **Estimate:** 5 pts
+- **Dependencies:** US-GATE-002
+- **Acceptance Criteria:** 4
+
+---
+
+## Epic 04: AI Engine - LangGraph (Triage and Investigation)
+
+**Priority:** CRITICAL
+**Folder:** `context/user_stories/epic_04_ai_engine/`
+
+### User Stories
+
+#### [x] US-LANG-004: Base Agent Graph (Triage and Investigation)
+- **File:** `context/user_stories/epic_04_ai_engine/US-LANG-004_langgraph_workflow.md`
+- **Priority:** CRITICAL
+- **Estimate:** 8 pts
+- **Dependencies:** US-MCP-003
+- **Acceptance Criteria:** 4
 
 ---
 
 ## Epic 05: Frontend Dashboard - React + Vite + TailwindCSS
 
-**Prioridad:** MEDIA
-**Carpeta:** `context/user_stories/epic_05_frontend/`
+**Priority:** MEDIUM
+**Folder:** `context/user_stories/epic_05_frontend/`
 
-### Historias de Usuario
+### User Stories
 
-#### [x] US-FRONT-005: Dashboard Admin e Integración de WebSockets
-- **Archivo:** `context/user_stories/epic_05_frontend/US-FRONT-005_react_dashboard.md`
-- **Prioridad:** MEDIA
-- **Estimación:** 5 pts
-- **Dependencias:** US-LANG-004
-- **Criterios de Aceptación:** 4
+#### [x] US-FRONT-005: Admin Dashboard and WebSocket Integration
+- **File:** `context/user_stories/epic_05_frontend/US-FRONT-005_react_dashboard.md`
+- **Priority:** MEDIUM
+- **Estimate:** 5 pts
+- **Dependencies:** US-LANG-004
+- **Acceptance Criteria:** 4
 
 ---
 
-# 🎯 FASE 2: INTEGRACIÓN LÓGICA Y PERSISTENCIA
+# 🎯 PHASE 2: LOGICAL INTEGRATION AND PERSISTENCE
 
-**Objetivo:** Integrar los servicios y persistir el estado: PostgreSQL, ORM, conexión LangGraph-Gateway y Agente Ejecutor HITL.
-**Épicas:** 06 Database & Persistence, 07 AI Integration (resto por definir)
+**Goal:** Integrate the services and persist state: PostgreSQL, ORM, LangGraph-Gateway connection and HITL Executor Agent.
+**Epics:** 06 Database & Persistence, 07 AI Integration (rest to be defined)
 **Total US:** 4
-**Progreso:** [██████████] 100% (4/4)
+**Progress:** [██████████] 100% (4/4)
 
 ---
 
-## Epic 06: Database & Persistence - PostgreSQL, SQLAlchemy y Alembic
+## Epic 06: Database & Persistence - PostgreSQL, SQLAlchemy and Alembic
 
-**Prioridad:** ALTA
-**Carpeta:** `context/user_stories/epic_06_database/`
+**Priority:** HIGH
+**Folder:** `context/user_stories/epic_06_database/`
 
-### Historias de Usuario
+### User Stories
 
-#### [x] US-DB-001: Configuración de ORM, Modelos y Migraciones
-- **Archivo:** `context/user_stories/epic_06_database/US-DB-001_postgresql_alembic.md`
-- **Prioridad:** ALTA
-- **Estimación:** 5 pts
-- **Dependencias:** Fase 1 (US-GATE-002)
-- **Criterios de Aceptación:** 4
+#### [x] US-DB-001: ORM, Models and Migrations Setup
+- **File:** `context/user_stories/epic_06_database/US-DB-001_postgresql_alembic.md`
+- **Priority:** HIGH
+- **Estimate:** 5 pts
+- **Dependencies:** Phase 1 (US-GATE-002)
+- **Acceptance Criteria:** 4
 
-#### [x] US-DB-002: Persistencia Real y CRUD de Tickets
-- **Archivo:** `context/user_stories/epic_06_database/US-DB-002_tickets_crud.md`
-- **Prioridad:** ALTA
-- **Estimación:** 5 pts
-- **Dependencias:** US-DB-001
-- **Criterios de Aceptación:** 4
-
----
-
-## Epic 07: AI Integration - Integración del API Gateway con LangGraph
-
-**Prioridad:** ALTA
-**Carpeta:** `context/user_stories/epic_07_integration/`
-
-### Historias de Usuario
-
-#### [x] US-INT-001: Disparador del Agente de Triaje en Segundo Plano
-- **Archivo:** `context/user_stories/epic_07_integration/US-INT-001_langgraph_trigger.md`
-- **Prioridad:** ALTA
-- **Estimación:** 5 pts
-- **Dependencias:** US-DB-002, US-LANG-004
-- **Criterios de Aceptación:** 3
-
-#### [x] US-INT-002: Streaming de Razonamiento IA vía WebSockets
-- **Archivo:** `context/user_stories/epic_07_integration/US-INT-002_websocket_streaming.md`
-- **Prioridad:** ALTA
-- **Estimación:** 5 pts
-- **Dependencias:** US-INT-001, US-GATE-002
-- **Criterios de Aceptación:** 3
+#### [x] US-DB-002: Real Persistence and Ticket CRUD
+- **File:** `context/user_stories/epic_06_database/US-DB-002_tickets_crud.md`
+- **Priority:** HIGH
+- **Estimate:** 5 pts
+- **Dependencies:** US-DB-001
+- **Acceptance Criteria:** 4
 
 ---
 
-# 🎯 FASE 3: CONTENEDORIZACIÓN AVANZADA
+## Epic 07: AI Integration - Integrating the API Gateway with LangGraph
 
-**Objetivo:** Dockerfiles, Docker Compose y redes aisladas.
-**Épicas:** 08 Containerization & Orchestration
+**Priority:** HIGH
+**Folder:** `context/user_stories/epic_07_integration/`
+
+### User Stories
+
+#### [x] US-INT-001: Background Triage Agent Trigger
+- **File:** `context/user_stories/epic_07_integration/US-INT-001_langgraph_trigger.md`
+- **Priority:** HIGH
+- **Estimate:** 5 pts
+- **Dependencies:** US-DB-002, US-LANG-004
+- **Acceptance Criteria:** 3
+
+#### [x] US-INT-002: AI Reasoning Streaming via WebSockets
+- **File:** `context/user_stories/epic_07_integration/US-INT-002_websocket_streaming.md`
+- **Priority:** HIGH
+- **Estimate:** 5 pts
+- **Dependencies:** US-INT-001, US-GATE-002
+- **Acceptance Criteria:** 3
+
+---
+
+# 🎯 PHASE 3: ADVANCED CONTAINERIZATION
+
+**Goal:** Dockerfiles, Docker Compose and isolated networks.
+**Epics:** 08 Containerization & Orchestration
 **Total US:** 4
-**Progreso:** [██████████] 100% (4/4)
+**Progress:** [██████████] 100% (4/4)
 
-> Orden recomendado: DOCK-001 → DOCK-002 → DOCK-003 → DOCK-004 (la orquestación integra las tres imágenes anteriores).
-
----
-
-## Epic 08: Containerization & Orchestration - Dockerfiles, Docker Compose y redes aisladas
-
-**Prioridad:** ALTA
-**Carpeta:** `context/user_stories/epic_08_containerization/`
-
-### Historias de Usuario
-
-#### [x] US-DOCK-001: Builds Multi-Stage para API Gateway y AI Engine
-- **Archivo:** `context/user_stories/epic_08_containerization/US-DOCK-001_multi_stage_builds.md`
-- **Prioridad:** ALTA
-- **Estimación:** 5 pts
-- **Dependencias:** US-INT-002
-- **Criterios de Aceptación:** 3
-
-#### [x] US-DOCK-002: Dockerfile Multi-Stage para el Frontend (Vite + Nginx)
-- **Archivo:** `context/user_stories/epic_08_containerization/US-DOCK-002_frontend_dockerfile.md`
-- **Prioridad:** ALTA
-- **Estimación:** 3 pts
-- **Dependencias:** US-DOCK-001
-- **Criterios de Aceptación:** 3
-
-#### [x] US-DOCK-003: Dockerfiles para los Servidores MCP
-- **Archivo:** `context/user_stories/epic_08_containerization/US-DOCK-003_mcp_servers_dockerfiles.md`
-- **Prioridad:** ALTA
-- **Estimación:** 5 pts
-- **Dependencias:** US-DOCK-001, US-MCP-003
-- **Criterios de Aceptación:** 3
-
-#### [x] US-DOCK-004: Orquestación Global con Docker Compose
-- **Archivo:** `context/user_stories/epic_08_containerization/US-DOCK-004_docker_compose_orchestration.md`
-- **Prioridad:** ALTA
-- **Estimación:** 8 pts
-- **Dependencias:** US-DOCK-001, US-DOCK-002, US-DOCK-003
-- **Criterios de Aceptación:** 4
+> Recommended order: DOCK-001 → DOCK-002 → DOCK-003 → DOCK-004 (orchestration integrates the three previous images).
 
 ---
 
-# 🎯 FASE 4: INFRAESTRUCTURA LINUX Y SEGURIDAD
+## Epic 08: Containerization & Orchestration - Dockerfiles, Docker Compose and isolated networks
 
-**Objetivo:** Dejar un Ubuntu Server 24.04 LTS dedicado (validado en VM limpia de VirtualBox; EC2 como destino final) endurecido y reproducible, que ejecute el stack de Compose como servicio systemd, listo para la Fase 5.
-**Épicas:** 09 Host Access & Identity, 10 Network Security, 11 OS Hardening & Runtime, 12 Provisioning
+**Priority:** HIGH
+**Folder:** `context/user_stories/epic_08_containerization/`
+
+### User Stories
+
+#### [x] US-DOCK-001: Multi-Stage Builds for API Gateway and AI Engine
+- **File:** `context/user_stories/epic_08_containerization/US-DOCK-001_multi_stage_builds.md`
+- **Priority:** HIGH
+- **Estimate:** 5 pts
+- **Dependencies:** US-INT-002
+- **Acceptance Criteria:** 3
+
+#### [x] US-DOCK-002: Multi-Stage Dockerfile for the Frontend (Vite + Nginx)
+- **File:** `context/user_stories/epic_08_containerization/US-DOCK-002_frontend_dockerfile.md`
+- **Priority:** HIGH
+- **Estimate:** 3 pts
+- **Dependencies:** US-DOCK-001
+- **Acceptance Criteria:** 3
+
+#### [x] US-DOCK-003: Dockerfiles for the MCP Servers
+- **File:** `context/user_stories/epic_08_containerization/US-DOCK-003_mcp_servers_dockerfiles.md`
+- **Priority:** HIGH
+- **Estimate:** 5 pts
+- **Dependencies:** US-DOCK-001, US-MCP-003
+- **Acceptance Criteria:** 3
+
+#### [x] US-DOCK-004: Global Orchestration with Docker Compose
+- **File:** `context/user_stories/epic_08_containerization/US-DOCK-004_docker_compose_orchestration.md`
+- **Priority:** HIGH
+- **Estimate:** 8 pts
+- **Dependencies:** US-DOCK-001, US-DOCK-002, US-DOCK-003
+- **Acceptance Criteria:** 4
+
+---
+
+# 🎯 PHASE 4: LINUX INFRASTRUCTURE AND SECURITY
+
+**Goal:** Deliver a dedicated, hardened and reproducible Ubuntu Server 24.04 LTS (validated on a clean VirtualBox VM; EC2 as the final target) that runs the Compose stack as a systemd service, ready for Phase 5.
+**Epics:** 09 Host Access & Identity, 10 Network Security, 11 OS Hardening & Runtime, 12 Provisioning
 **Total US:** 10 (54 pts)
-**Progreso:** [██████░░░░] 60% (6/10)
+**Progress:** [██████░░░░] 60% (6/10)
 
-> Decisiones: provisioning con **scripts Bash idempotentes + `verify.sh`** (sin Ansible); **Docker estándar** con `daemon.json` endurecido (sin rootless); `auditd`/Lynis **excluidos**.
-> Orden recomendado: HOST-001 → HOST-002 → HOST-003 → NET-001 → SYS-001 → SYS-002 → NET-002 → SYS-003 → SYS-004 → PROV-001. NET-002 va tras SYS-002 porque necesita Docker instalado; PROV-001 integra todo.
-> Convención: cada US aporta su script en `scripts/provision/NN_nombre.sh` y su check en `scripts/provision/checks/`; las plantillas de configuración viven en `infra/`.
-
----
-
-## Epic 09: Host Access & Identity - Usuarios, SSH y protección de acceso
-
-**Prioridad:** CRÍTICA
-**Carpeta:** `context/user_stories/epic_09_host_access/`
-
-### Historias de Usuario
-
-#### [x] US-HOST-001: Usuarios Nativos y Modelo de Privilegios
-- **Archivo:** `context/user_stories/epic_09_host_access/US-HOST-001_native_users_privileges.md`
-- **Prioridad:** CRÍTICA
-- **Estimación:** 5 pts
-- **Dependencias:** US-DOCK-004
-- **Criterios de Aceptación:** 4
-
-#### [x] US-HOST-002: Hardening de SSH y Gestión de Llaves
-- **Archivo:** `context/user_stories/epic_09_host_access/US-HOST-002_ssh_hardening_keys.md`
-- **Prioridad:** CRÍTICA
-- **Estimación:** 5 pts
-- **Dependencias:** US-HOST-001
-- **Criterios de Aceptación:** 4
-
-#### [x] US-HOST-003: Protección contra Fuerza Bruta (fail2ban)
-- **Archivo:** `context/user_stories/epic_09_host_access/US-HOST-003_fail2ban.md`
-- **Prioridad:** ALTA
-- **Estimación:** 3 pts
-- **Dependencias:** US-HOST-002
-- **Criterios de Aceptación:** 3
+> Decisions: provisioning with **idempotent Bash scripts + `verify.sh`** (no Ansible); **standard Docker** with a hardened `daemon.json` (no rootless); `auditd`/Lynis **excluded**.
+> Recommended order: HOST-001 → HOST-002 → HOST-003 → NET-001 → SYS-001 → SYS-002 → NET-002 → SYS-003 → SYS-004 → PROV-001. NET-002 comes after SYS-002 because it needs Docker installed; PROV-001 integrates everything.
+> Convention: each US contributes its script in `scripts/provision/NN_name.sh` and its check in `scripts/provision/checks/`; configuration templates live in `infra/`.
 
 ---
 
-## Epic 10: Network Security - Firewall y coherencia Docker ↔ UFW
+## Epic 09: Host Access & Identity - Users, SSH and access protection
 
-**Prioridad:** CRÍTICA
-**Carpeta:** `context/user_stories/epic_10_network_security/`
+**Priority:** CRITICAL
+**Folder:** `context/user_stories/epic_09_host_access/`
 
-### Historias de Usuario
+### User Stories
 
-#### [x] US-NET-001: Firewall UFW con Política Deny-by-Default
-- **Archivo:** `context/user_stories/epic_10_network_security/US-NET-001_ufw_firewall.md`
-- **Prioridad:** CRÍTICA
-- **Estimación:** 5 pts
-- **Dependencias:** US-HOST-002
-- **Criterios de Aceptación:** 3
-- **Nota:** la apertura de 80/443 (CA-2) queda diferida a la Fase 5; hoy es opt-in con `UFW_WEB_PORTS` (por defecto, ningún puerto web).
+#### [x] US-HOST-001: Native Users and Privilege Model
+- **File:** `context/user_stories/epic_09_host_access/US-HOST-001_native_users_privileges.md`
+- **Priority:** CRITICAL
+- **Estimate:** 5 pts
+- **Dependencies:** US-DOCK-004
+- **Acceptance Criteria:** 4
 
-#### [~] US-NET-002: Coherencia Docker ↔ UFW
-- **Archivo:** `context/user_stories/epic_10_network_security/US-NET-002_docker_ufw_coherence.md`
-- **Prioridad:** CRÍTICA
-- **Estimación:** 5 pts
-- **Dependencias:** US-NET-001, US-SYS-002
-- **Criterios de Aceptación:** 4
-- **Decisión (CA-3):** Gateway (`PORT`) y frontend (`FRONTEND_PORT`) quedan públicos de forma provisional vía la lista de puertos permitidos de `DOCKER-USER`; el Gateway se cierra en la Fase 5 con el reverse proxy. Se mantiene `iptables` gestionado por Docker (sin `"iptables": false`).
-- **Orden:** se ejecuta tras US-SYS-002 (necesita Docker instalado).
+#### [x] US-HOST-002: SSH Hardening and Key Management
+- **File:** `context/user_stories/epic_09_host_access/US-HOST-002_ssh_hardening_keys.md`
+- **Priority:** CRITICAL
+- **Estimate:** 5 pts
+- **Dependencies:** US-HOST-001
+- **Acceptance Criteria:** 4
 
----
-
-## Epic 11: OS Hardening & Runtime - Baseline del SO, Docker Engine y systemd
-
-**Prioridad:** ALTA
-**Carpeta:** `context/user_stories/epic_11_os_runtime/`
-
-### Historias de Usuario
-
-#### [x] US-SYS-001: Baseline del SO y Parches Automáticos
-- **Archivo:** `context/user_stories/epic_11_os_runtime/US-SYS-001_os_baseline.md`
-- **Prioridad:** ALTA
-- **Estimación:** 5 pts
-- **Dependencias:** US-HOST-001
-- **Criterios de Aceptación:** 4
-
-#### [x] US-SYS-002: Docker Engine en el Host y `daemon.json` Endurecido
-- **Archivo:** `context/user_stories/epic_11_os_runtime/US-SYS-002_docker_engine_daemon.md`
-- **Prioridad:** ALTA
-- **Estimación:** 5 pts
-- **Dependencias:** US-SYS-001
-- **Criterios de Aceptación:** 4
-
-#### [ ] US-SYS-003: Servicio systemd para el Stack AutoOps
-- **Archivo:** `context/user_stories/epic_11_os_runtime/US-SYS-003_systemd_service.md`
-- **Prioridad:** ALTA
-- **Estimación:** 8 pts
-- **Dependencias:** US-HOST-001, US-SYS-002, US-NET-002
-- **Criterios de Aceptación:** 4
-
-#### [ ] US-SYS-004: Backups de PostgreSQL con systemd Timer
-- **Archivo:** `context/user_stories/epic_11_os_runtime/US-SYS-004_postgres_backups_timer.md`
-- **Prioridad:** ALTA
-- **Estimación:** 5 pts
-- **Dependencias:** US-SYS-003
-- **Criterios de Aceptación:** 4
+#### [x] US-HOST-003: Brute-Force Protection (fail2ban)
+- **File:** `context/user_stories/epic_09_host_access/US-HOST-003_fail2ban.md`
+- **Priority:** HIGH
+- **Estimate:** 3 pts
+- **Dependencies:** US-HOST-002
+- **Acceptance Criteria:** 3
 
 ---
 
-## Epic 12: Provisioning - Bootstrap idempotente y verificación
+## Epic 10: Network Security - Firewall and Docker ↔ UFW coherence
 
-**Prioridad:** ALTA
-**Carpeta:** `context/user_stories/epic_12_provisioning/`
+**Priority:** CRITICAL
+**Folder:** `context/user_stories/epic_10_network_security/`
 
-### Historias de Usuario
+### User Stories
 
-#### [ ] US-PROV-001: Bootstrap Idempotente y Verificación del Host
-- **Archivo:** `context/user_stories/epic_12_provisioning/US-PROV-001_bootstrap_verify.md`
-- **Prioridad:** ALTA
-- **Estimación:** 8 pts
-- **Dependencias:** Todas las US de las épicas 09, 10 y 11
-- **Criterios de Aceptación:** 4
+#### [x] US-NET-001: UFW Firewall with Deny-by-Default Policy
+- **File:** `context/user_stories/epic_10_network_security/US-NET-001_ufw_firewall.md`
+- **Priority:** CRITICAL
+- **Estimate:** 5 pts
+- **Dependencies:** US-HOST-002
+- **Acceptance Criteria:** 3
+- **Note:** opening 80/443 (AC-2) is deferred to Phase 5; for now it is opt-in via `UFW_WEB_PORTS` (by default, no web port).
+
+#### [~] US-NET-002: Docker ↔ UFW Coherence
+- **File:** `context/user_stories/epic_10_network_security/US-NET-002_docker_ufw_coherence.md`
+- **Priority:** CRITICAL
+- **Estimate:** 5 pts
+- **Dependencies:** US-NET-001, US-SYS-002
+- **Acceptance Criteria:** 4
+- **Decision (AC-3):** Gateway (`PORT`) and frontend (`FRONTEND_PORT`) remain provisionally public via the `DOCKER-USER` allowed-ports list; the Gateway is closed in Phase 5 with the reverse proxy. Docker-managed `iptables` is kept (no `"iptables": false`).
+- **Order:** runs after US-SYS-002 (needs Docker installed).
 
 ---
 
-# 🎯 FASE 5: EXPOSICIÓN SEGURA Y CI/CD
+## Epic 11: OS Hardening & Runtime - OS baseline, Docker Engine and systemd
 
-**Objetivo:** Traefik/Nginx, Let's Encrypt y GitHub Actions.
-**Épicas:** Por definir
-**Total US:** 0 (por redactar)
-**Progreso:** [░░░░░░░░░░] 0% (0/0)
+**Priority:** HIGH
+**Folder:** `context/user_stories/epic_11_os_runtime/`
+
+### User Stories
+
+#### [x] US-SYS-001: OS Baseline and Automatic Patching
+- **File:** `context/user_stories/epic_11_os_runtime/US-SYS-001_os_baseline.md`
+- **Priority:** HIGH
+- **Estimate:** 5 pts
+- **Dependencies:** US-HOST-001
+- **Acceptance Criteria:** 4
+
+#### [x] US-SYS-002: Docker Engine on the Host and Hardened `daemon.json`
+- **File:** `context/user_stories/epic_11_os_runtime/US-SYS-002_docker_engine_daemon.md`
+- **Priority:** HIGH
+- **Estimate:** 5 pts
+- **Dependencies:** US-SYS-001
+- **Acceptance Criteria:** 4
+
+#### [ ] US-SYS-003: systemd Service for the AutoOps Stack
+- **File:** `context/user_stories/epic_11_os_runtime/US-SYS-003_systemd_service.md`
+- **Priority:** HIGH
+- **Estimate:** 8 pts
+- **Dependencies:** US-HOST-001, US-SYS-002, US-NET-002
+- **Acceptance Criteria:** 4
+
+#### [ ] US-SYS-004: PostgreSQL Backups with systemd Timer
+- **File:** `context/user_stories/epic_11_os_runtime/US-SYS-004_postgres_backups_timer.md`
+- **Priority:** HIGH
+- **Estimate:** 5 pts
+- **Dependencies:** US-SYS-003
+- **Acceptance Criteria:** 4
 
 ---
 
-## 📝 Notas de Implementación
+## Epic 12: Provisioning - Idempotent bootstrap and verification
 
-### Cómo usar este plan
+**Priority:** HIGH
+**Folder:** `context/user_stories/epic_12_provisioning/`
 
-1. **Seguir el orden de las fases** — empezar siempre por la Fase 1
-2. **Trabajo incremental** — completar una US antes de avanzar
-3. **Marcar progreso** con el checkbox del título: `[ ]` pendiente, `[~]` en progreso (solo UNA), `[x]` completada
-4. **Actualizar métricas** — al cerrar cada US: dashboard, fila de la épica en la tabla, barra de la fase y "Última actualización"
-5. **Leer el archivo de cada US** — contiene los criterios de aceptación detallados
-6. **Redactar la US antes de implementarla** — las marcadas *(por redactar)* no tienen archivo todavía; se escriben (y se validan con el usuario) justo antes de empezar
+### User Stories
 
-### Referencias del proyecto
+#### [ ] US-PROV-001: Idempotent Bootstrap and Host Verification
+- **File:** `context/user_stories/epic_12_provisioning/US-PROV-001_bootstrap_verify.md`
+- **Priority:** HIGH
+- **Estimate:** 8 pts
+- **Dependencies:** All US of epics 09, 10 and 11
+- **Acceptance Criteria:** 4
 
-- **Nota de rutas:** `context/...` es relativo a `.claude/` (ubicación definitiva: `.claude/context/`)
-- **Historias de usuario:** `context/user_stories/`
-- **Workflow de ejecución:** `@context/TASK_EXECUTION.md`
-- **Resúmenes de fase:** `context/summaries/`
-- **Detalles técnicos:** `@CLAUDE.md`
+---
+
+# 🎯 PHASE 5: SECURE EXPOSURE AND CI/CD
+
+**Goal:** Traefik/Nginx, Let's Encrypt and GitHub Actions.
+**Epics:** To be defined
+**Total US:** 0 (to be written)
+**Progress:** [░░░░░░░░░░] 0% (0/0)
+
+---
+
+## 📝 Implementation Notes
+
+### How to use this plan
+
+1. **Follow the phase order** — always start with Phase 1
+2. **Incremental work** — complete one US before moving on
+3. **Mark progress** with the title checkbox: `[ ]` pending, `[~]` in progress (only ONE), `[x]` completed
+4. **Update metrics** — when closing each US: dashboard, epic row in the table, phase bar and "Last updated"
+5. **Read each US file** — it contains the detailed acceptance criteria
+6. **Write the US before implementing it** — those marked *(to be written)* do not have a file yet; they are written (and validated with the user) right before starting
+
+### Project references
+
+- **Path note:** `context/...` is relative to `.claude/` (final location: `.claude/context/`)
+- **User stories:** `context/user_stories/`
+- **Execution workflow:** `@context/TASK_EXECUTION.md`
+- **Phase summaries:** `context/summaries/`
+- **Technical details:** `@CLAUDE.md`

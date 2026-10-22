@@ -1,66 +1,66 @@
-# US-GATE-002: Implementación Base del API Gateway en FastAPI
+# US-GATE-002: Base API Gateway Implementation in FastAPI
 
-**Épica:** 02 — API Gateway & Comunicaciones
-**Prioridad:** CRÍTICA
-**Estimación:** 5 pts
-**Dependencias:** US-MONO-001
-**Estado:** Completada
-
----
-
-## Historia de Usuario
-
-**Como** desarrollador del equipo AutoOps,
-**quiero** un API Gateway base en FastAPI con CORS configurable, endpoints REST iniciales validados con Pydantic, un canal WebSocket de streaming y un script de arranque local,
-**para** contar con la columna vertebral de comunicación sobre la que el frontend y el motor de IA se integrarán en las siguientes historias.
+**Epic:** 02 — API Gateway & Communications
+**Priority:** CRITICAL
+**Estimate:** 5 pts
+**Dependencies:** US-MONO-001
+**Status:** Completed
 
 ---
 
-## Criterios de Aceptación
+## User Story
 
-> Trabajar UNO A LA VEZ, en orden. Marcar `[x]` al terminar cada uno y hacer pausa en el checkpoint final antes de cerrar la US.
-
-- [x] **CA-1: Estructura base de FastAPI y CORS**
-  - Se crea `apps/api_gateway/requirements.txt` con las dependencias: `fastapi`, `uvicorn[standard]` y `pydantic`.
-  - Se inicializa la aplicación FastAPI en `apps/api_gateway/main.py`.
-  - Se configura el middleware CORS (`CORSMiddleware`) leyendo los orígenes permitidos desde una variable de entorno (`CORS_ALLOWED_ORIGINS`, lista separada por comas); sin orígenes hardcodeados en el código.
-  - Si la variable no está definida, el comportamiento por defecto es restrictivo (ningún origen permitido) y no una apertura con `*`.
-  - **Verificación:** la app importa sin errores y una petición con cabecera `Origin` permitida recibe `Access-Control-Allow-Origin`; una no permitida, no.
-
-- [x] **CA-2: Endpoints REST iniciales y validación con Pydantic**
-  - `GET /health` retorna `200` con `{"status": "ok", "service": "api_gateway"}`.
-  - `POST /api/v1/tickets` recibe un modelo Pydantic `TicketCreate` con los campos `title`, `description` y `severity`.
-    - `title` y `description`: texto no vacío.
-    - `severity`: valor restringido a un conjunto cerrado (enumeración).
-  - Retorna `201` con el ticket creado, incluyendo un `id` UUID4 generado por el servidor.
-  - Un payload inválido retorna `422` con el detalle de validación de FastAPI/Pydantic.
-  - Los modelos Pydantic usan tipado estricto y viven fuera de `main.py` (módulo de esquemas).
-  - **Verificación:** pruebas con `TestClient` para el caso válido (UUID4 válido en `id`) y para casos inválidos (campo faltante, `severity` fuera del conjunto, texto vacío).
-  - **Nota:** en esta US no hay persistencia; el ticket se devuelve sin guardarse en base de datos.
-
-- [x] **CA-3: Endpoint de WebSockets para Streaming**
-  - Ruta WebSocket `/ws/stream`.
-  - Se implementa una clase `ConnectionManager` que:
-    - Gestiona la lista de conexiones activas (`connect`, `disconnect`).
-    - Permite enviar un mensaje a una conexión concreta y hacer broadcast a todas.
-    - Maneja `WebSocketDisconnect` eliminando la conexión de forma limpia, sin dejar conexiones huérfanas ni propagar la excepción.
-  - Al conectarse, el cliente recibe un mensaje de confirmación; el endpoint hace eco de los mensajes recibidos como comportamiento mínimo verificable.
-  - Los eventos de conexión y desconexión se registran mediante logging a stdout/stderr.
-  - **Verificación:** prueba con `TestClient.websocket_connect` que cubre conexión, mensaje/eco y desconexión (el manager queda sin conexiones activas).
-
-- [x] **CA-4: Script de arranque local**
-  - El arranque mediante Uvicorn lee el host y el puerto desde `.env` (`HOST`, `PORT`), sin valores hardcodeados; los valores por defecto se limitan a un fallback seguro de desarrollo.
-  - El gateway puede levantarse con un único comando documentado desde la raíz del monorepo.
-  - Se añaden a `.env.example` las variables nuevas introducidas en esta US (`HOST`, `CORS_ALLOWED_ORIGINS`), con su sección y comentario.
-  - **Verificación:** al arrancar, `GET /health` responde en el puerto configurado y cambiar `PORT` en `.env` cambia el puerto de escucha.
+**As** a developer on the AutoOps team,
+**I want** a base API Gateway in FastAPI with configurable CORS, initial REST endpoints validated with Pydantic, a streaming WebSocket channel and a local startup script,
+**so that** we have the communication backbone on which the frontend and the AI engine will be integrated in the following stories.
 
 ---
 
-## Notas Técnicas
+## Acceptance Criteria
 
-- **Fuera de alcance:** autenticación JWT, persistencia (SQLAlchemy/Alembic), integración con el motor de IA y servidores MCP; todo ello pertenece a otras US de la Épica 02 y siguientes.
-- **Doce factores:** ninguna URL, puerto, host u origen se escribe en el código; todo proviene de variables de entorno.
-- **Logging:** solo stdout/stderr; sin handlers que escriban o roten archivos.
-- **Imports:** el paquete es `apps.api_gateway` (guion bajo), comando de referencia: `uvicorn apps.api_gateway.main:app`.
-- **Convenciones:** archivos y funciones en `snake_case`, clases (`TicketCreate`, `ConnectionManager`) en `PascalCase`, rutas REST en `kebab-case`.
-- **Pruebas:** ubicadas en `tests/` y ejecutables con `pytest tests/ -v`.
+> Work ONE AT A TIME, in order. Mark `[x]` when each one is finished and pause at the final checkpoint before closing the US.
+
+- [x] **AC-1: Base FastAPI structure and CORS**
+  - `apps/api_gateway/requirements.txt` is created with the dependencies: `fastapi`, `uvicorn[standard]` and `pydantic`.
+  - The FastAPI application is initialized in `apps/api_gateway/main.py`.
+  - The CORS middleware (`CORSMiddleware`) is configured, reading the allowed origins from an environment variable (`CORS_ALLOWED_ORIGINS`, comma-separated list); no origins hardcoded in the code.
+  - If the variable is not defined, the default behavior is restrictive (no origin allowed) rather than opening up with `*`.
+  - **Verification:** the app imports without errors and a request with an allowed `Origin` header receives `Access-Control-Allow-Origin`; a disallowed one does not.
+
+- [x] **AC-2: Initial REST endpoints and Pydantic validation**
+  - `GET /health` returns `200` with `{"status": "ok", "service": "api_gateway"}`.
+  - `POST /api/v1/tickets` receives a Pydantic model `TicketCreate` with the fields `title`, `description` and `severity`.
+    - `title` and `description`: non-empty text.
+    - `severity`: value restricted to a closed set (enumeration).
+  - Returns `201` with the created ticket, including a server-generated UUID4 `id`.
+  - An invalid payload returns `422` with the FastAPI/Pydantic validation detail.
+  - Pydantic models use strict typing and live outside `main.py` (schemas module).
+  - **Verification:** tests with `TestClient` for the valid case (valid UUID4 in `id`) and for invalid cases (missing field, `severity` outside the set, empty text).
+  - **Note:** in this US there is no persistence; the ticket is returned without being saved to a database.
+
+- [x] **AC-3: WebSocket endpoint for Streaming**
+  - WebSocket route `/ws/stream`.
+  - A `ConnectionManager` class is implemented that:
+    - Manages the list of active connections (`connect`, `disconnect`).
+    - Allows sending a message to a specific connection and broadcasting to all.
+    - Handles `WebSocketDisconnect` by removing the connection cleanly, leaving no orphaned connections and not propagating the exception.
+  - On connecting, the client receives a confirmation message; the endpoint echoes received messages as the minimum verifiable behavior.
+  - Connection and disconnection events are recorded via logging to stdout/stderr.
+  - **Verification:** test with `TestClient.websocket_connect` covering connection, message/echo and disconnection (the manager is left with no active connections).
+
+- [x] **AC-4: Local startup script**
+  - Startup via Uvicorn reads the host and port from `.env` (`HOST`, `PORT`), with no hardcoded values; defaults are limited to a safe development fallback.
+  - The gateway can be brought up with a single documented command from the monorepo root.
+  - The new variables introduced in this US (`HOST`, `CORS_ALLOWED_ORIGINS`) are added to `.env.example`, with their section and comment.
+  - **Verification:** on startup, `GET /health` responds on the configured port and changing `PORT` in `.env` changes the listening port.
+
+---
+
+## Technical Notes
+
+- **Out of scope:** JWT authentication, persistence (SQLAlchemy/Alembic), integration with the AI engine and MCP servers; all of that belongs to other US in Epic 02 and later.
+- **Twelve-Factor:** no URL, port, host or origin is written in the code; everything comes from environment variables.
+- **Logging:** stdout/stderr only; no handlers that write or rotate files.
+- **Imports:** the package is `apps.api_gateway` (underscore), reference command: `uvicorn apps.api_gateway.main:app`.
+- **Conventions:** files and functions in `snake_case`, classes (`TicketCreate`, `ConnectionManager`) in `PascalCase`, REST routes in `kebab-case`.
+- **Tests:** located in `tests/` and runnable with `pytest tests/ -v`.

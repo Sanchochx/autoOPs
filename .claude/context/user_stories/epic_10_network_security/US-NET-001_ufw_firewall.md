@@ -1,44 +1,44 @@
-# US-NET-001: Firewall UFW con Política Deny-by-Default
+# US-NET-001: UFW Firewall with Deny-by-Default Policy
 
-**Épica:** 10 — Network Security
-**Prioridad:** CRÍTICA
-**Estimación:** 5 pts
-**Dependencias:** US-HOST-002
-**Estado:** Completada
-
----
-
-## Historia de Usuario
-
-**Como** administrador del servidor,
-**necesito** un firewall de host que niegue todo el tráfico entrante salvo lo explícitamente autorizado,
-**para** exponer únicamente SSH y los puertos web previstos y que cualquier otro servicio quede inaccesible desde la red.
+**Epic:** 10 — Network Security
+**Priority:** CRITICAL
+**Estimate:** 5 pts
+**Dependencies:** US-HOST-002
+**Status:** Completed
 
 ---
 
-## Criterios de Aceptación
+## User Story
 
-> Trabajar UNO A LA VEZ, en orden. Marcar `[x]` al terminar cada uno y hacer pausa en el checkpoint final antes de cerrar la US.
-
-- [x] **CA-1: Política por Defecto y Acceso SSH Seguro**
-  - Script idempotente `scripts/provision/40_ufw.sh`: `default deny incoming`, `default allow outgoing`, `default deny routed`.
-  - Permitir SSH con `ufw limit` (rate limiting) en el puerto leído de la misma variable usada en US-HOST-002, **antes** de habilitar el firewall.
-  - **Verificación:** con UFW activo, la sesión SSH existente se mantiene y una nueva conexión funciona; el resto de puertos entrantes está cerrado.
-
-- [x] **CA-2: Puertos Web Preparados para la Fase 5** _(apertura de 80/443 diferida a la Fase 5: hoy es opt-in con `UFW_WEB_PORTS`; `ADMIN_CIDR` implementado)_
-  - Permitir `80/tcp` y `443/tcp` (puertos configurables por variable) para el futuro reverse proxy; documentar que el resto de puertos publicados por Docker no se abren aquí.
-  - Opción para restringir el origen de SSH a un CIDR (`ADMIN_CIDR`) cuando se defina.
-  - **Verificación:** `ufw status verbose` muestra únicamente las reglas esperadas.
-
-- [x] **CA-3: Logging y Verificación**
-  - `ufw logging low` (los registros van a journald/kernel, sin archivos propios de la aplicación).
-  - Check `scripts/provision/checks/40_ufw.sh`: UFW activo, política por defecto y reglas exactas esperadas.
-  - **Verificación:** el check pasa; añadir una regla ajena lo hace fallar.
+**As** the server administrator,
+**I need** a host firewall that denies all incoming traffic except what is explicitly authorized,
+**so that** only SSH and the planned web ports are exposed and any other service is unreachable from the network.
 
 ---
 
-## Notas Técnicas
+## Acceptance Criteria
 
-- **Limitación conocida:** UFW **no** filtra los puertos publicados por Docker (`PORT` del Gateway y `FRONTEND_PORT` siguen alcanzables desde fuera). Se resuelve en US-NET-002; hasta entonces no se considera cerrada la exposición.
-- **Riesgo de bloqueo:** habilitar UFW siempre después de permitir SSH; mantener la consola de VirtualBox como recuperación.
-- **Fuera de alcance:** IPv6 avanzado, reglas de salida restrictivas (egress filtering), WAF.
+> Work ONE AT A TIME, in order. Mark `[x]` when each one is done and pause at the final checkpoint before closing the US.
+
+- [x] **AC-1: Default Policy and Secure SSH Access**
+  - Idempotent script `scripts/provision/40_ufw.sh`: `default deny incoming`, `default allow outgoing`, `default deny routed`.
+  - Allow SSH with `ufw limit` (rate limiting) on the port read from the same variable used in US-HOST-002, **before** enabling the firewall.
+  - **Verification:** with UFW active, the existing SSH session is kept and a new connection works; all other incoming ports are closed.
+
+- [x] **AC-2: Web Ports Prepared for Phase 5** _(opening of 80/443 deferred to Phase 5: today it is opt-in with `UFW_WEB_PORTS`; `ADMIN_CIDR` implemented)_
+  - Allow `80/tcp` and `443/tcp` (ports configurable by variable) for the future reverse proxy; document that the other ports published by Docker are not opened here.
+  - Option to restrict the SSH source to a CIDR (`ADMIN_CIDR`) when defined.
+  - **Verification:** `ufw status verbose` shows only the expected rules.
+
+- [x] **AC-3: Logging and Verification**
+  - `ufw logging low` (records go to journald/kernel, no application-owned files).
+  - Check `scripts/provision/checks/40_ufw.sh`: UFW active, default policy and exact expected rules.
+  - **Verification:** the check passes; adding a foreign rule makes it fail.
+
+---
+
+## Technical Notes
+
+- **Known limitation:** UFW does **not** filter ports published by Docker (the Gateway's `PORT` and `FRONTEND_PORT` remain reachable from outside). This is resolved in US-NET-002; until then the exposure is not considered closed.
+- **Lockout risk:** always enable UFW after allowing SSH; keep the VirtualBox console as recovery.
+- **Out of scope:** advanced IPv6, restrictive outbound rules (egress filtering), WAF.

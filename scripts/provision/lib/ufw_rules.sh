@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# Reglas UFW esperadas, compartidas por 40_ufw.sh y su check. Se carga con `source`.
-# Formato = el de `ufw show added` (lista de reglas definidas, activo o no).
+# Expected UFW rules, shared by 40_ufw.sh and its check. Loaded with `source`.
+# Format = that of `ufw show added` (list of defined rules, active or not).
 #
-# expected_ufw_rules <ssh_port> <admin_cidr|""> <web_ports...>: una regla por línea.
+# expected_ufw_rules <ssh_port> <admin_cidr|""> <web_ports...>: one rule per line.
 expected_ufw_rules() {
   local ssh_port=$1 admin_cidr=$2 port
   shift 2
@@ -14,7 +14,7 @@ expected_ufw_rules() {
   for port in "$@"; do echo "ufw allow ${port}/tcp"; done
 }
 
-# validate_ufw_inputs: valida ADMIN_CIDR y UFW_WEB_PORTS (variables ya cargadas).
+# validate_ufw_inputs: validates ADMIN_CIDR and UFW_WEB_PORTS (variables already loaded).
 validate_ufw_inputs() {
   local port
   if [[ -n ${ADMIN_CIDR:-} ]]; then
@@ -26,8 +26,8 @@ validate_ufw_inputs() {
   done
 }
 
-# added_ufw_rules: reglas definidas, normalizadas al formato de expected_ufw_rules.
-# `ufw show added` agrega el sufijo ` comment '...'` y una línea de encabezado: se descartan.
+# added_ufw_rules: defined rules, normalized to the format of expected_ufw_rules.
+# `ufw show added` appends the suffix ` comment '...'` and a header line: both are discarded.
 added_ufw_rules() {
   local added
   added="$(ufw show added)"

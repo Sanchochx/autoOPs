@@ -1,47 +1,47 @@
-# US-PROV-001: Bootstrap Idempotente y Verificación del Host
+# US-PROV-001: Idempotent Bootstrap and Host Verification
 
-**Épica:** 12 — Provisioning
-**Prioridad:** ALTA
-**Estimación:** 8 pts
-**Dependencias:** US-HOST-001, US-HOST-002, US-HOST-003, US-NET-001, US-NET-002, US-SYS-001, US-SYS-002, US-SYS-003, US-SYS-004
-**Estado:** Pendiente
-
----
-
-## Historia de Usuario
-
-**Como** ingeniero DevOps,
-**necesito** un único punto de entrada que aprovisione un Ubuntu Server limpio y otro que verifique todos los controles de seguridad,
-**para** reproducir el servidor de forma idéntica en la VM de VirtualBox y en AWS EC2 y detectar cualquier desviación.
+**Epic:** 12 — Provisioning
+**Priority:** HIGH
+**Estimate:** 8 pts
+**Dependencies:** US-HOST-001, US-HOST-002, US-HOST-003, US-NET-001, US-NET-002, US-SYS-001, US-SYS-002, US-SYS-003, US-SYS-004
+**Status:** Pending
 
 ---
 
-## Criterios de Aceptación
+## User Story
 
-> Trabajar UNO A LA VEZ, en orden. Marcar `[x]` al terminar cada uno y hacer pausa en el checkpoint final antes de cerrar la US.
-
-- [ ] **CA-1: Orquestador `bootstrap.sh`**
-  - `scripts/provision/bootstrap.sh` ejecuta en orden los scripts numerados (`10_users` → `70_systemd`, `80_backup`), con `set -euo pipefail`, validación previa de variables obligatorias (falla con mensaje claro si falta alguna), comprobación de ejecución como root/sudo y de que el SO es Ubuntu 24.04.
-  - Orden crítico: SSH con llave y UFW (permitiendo SSH) antes de cerrar accesos; `45_docker_ufw` después de Docker.
-  - **Verificación:** ejecución completa sobre la VM limpia sin errores.
-
-- [ ] **CA-2: Idempotencia y Variables Documentadas**
-  - Plantilla `scripts/provision/provision.env.example` con todas las variables (admin, llaves, CIDR, puertos, backups) y descripción; ningún secreto en el repositorio.
-  - **Verificación:** una segunda ejecución del bootstrap no produce cambios (salida "sin cambios") ni errores.
-
-- [ ] **CA-3: `verify.sh` Unificado**
-  - `scripts/provision/verify.sh` ejecuta todos los `checks/*.sh`, imprime una tabla `OK`/`FAIL` por control y devuelve código distinto de 0 si algo falla.
-  - **Verificación:** pasa en la VM aprovisionada y falla al alterar a mano un control (p. ej. `PasswordAuthentication yes` o `ufw disable`).
-
-- [ ] **CA-4: Validación en VM Limpia y Documentación**
-  - Ciclo completo documentado en `infra/README.md`: snapshot de la VM limpia de Ubuntu 24.04 → bootstrap → `verify.sh` → reinicio → stack `healthy` → flujo end-to-end desde el navegador.
-  - Actualizar `CLAUDE.md` (estructura del monorepo: `scripts/`, `infra/`) y `README.md`.
-  - **Verificación:** la prueba completa se ejecuta desde cero en una VM nueva y todos los checks pasan tras el reinicio.
+**As** a DevOps engineer,
+**I need** a single entry point that provisions a clean Ubuntu Server and another that verifies all security controls,
+**so that** I can reproduce the server identically on the VirtualBox VM and on AWS EC2 and detect any deviation.
 
 ---
 
-## Notas Técnicas
+## Acceptance Criteria
 
-- **Sin Ansible:** decisión del proyecto; Bash idempotente y verificación explícita.
-- **Entorno de prueba:** VirtualBox con Ubuntu Server 24.04 LTS; EC2 es solo el destino final y no se valida en esta fase.
-- **Fuera de alcance:** Terraform/aprovisionamiento de la instancia, TLS y reverse proxy y CI/CD (Fase 5), auditd/Lynis (excluidos).
+> Work ONE AT A TIME, in order. Mark `[x]` when each one is done and pause at the final checkpoint before closing the US.
+
+- [ ] **AC-1: `bootstrap.sh` Orchestrator**
+  - `scripts/provision/bootstrap.sh` runs the numbered scripts in order (`10_users` → `70_systemd`, `80_backup`), with `set -euo pipefail`, prior validation of required variables (fails with a clear message if any is missing), a check that it runs as root/sudo and that the OS is Ubuntu 24.04.
+  - Critical order: key-based SSH and UFW (allowing SSH) before closing off access; `45_docker_ufw` after Docker.
+  - **Verification:** full run on the clean VM without errors.
+
+- [ ] **AC-2: Idempotency and Documented Variables**
+  - Template `scripts/provision/provision.env.example` with all variables (admin, keys, CIDR, ports, backups) and a description; no secrets in the repository.
+  - **Verification:** a second bootstrap run produces no changes ("no changes" output) or errors.
+
+- [ ] **AC-3: Unified `verify.sh`**
+  - `scripts/provision/verify.sh` runs all `checks/*.sh`, prints an `OK`/`FAIL` table per control and returns a non-zero code if anything fails.
+  - **Verification:** passes on the provisioned VM and fails when a control is manually altered (e.g. `PasswordAuthentication yes` or `ufw disable`).
+
+- [ ] **AC-4: Clean VM Validation and Documentation**
+  - Full cycle documented in `infra/README.md`: clean Ubuntu 24.04 VM snapshot → bootstrap → `verify.sh` → reboot → stack `healthy` → end-to-end flow from the browser.
+  - Update `CLAUDE.md` (monorepo structure: `scripts/`, `infra/`) and `README.md`.
+  - **Verification:** the full test runs from scratch on a new VM and all checks pass after the reboot.
+
+---
+
+## Technical Notes
+
+- **No Ansible:** project decision; idempotent Bash and explicit verification.
+- **Test environment:** VirtualBox with Ubuntu Server 24.04 LTS; EC2 is only the final target and is not validated in this phase.
+- **Out of scope:** Terraform/instance provisioning, TLS and reverse proxy and CI/CD (Phase 5), auditd/Lynis (excluded).

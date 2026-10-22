@@ -1,38 +1,38 @@
-# Servidores MCP
+# MCP Servers
 
-Cada servidor MCP es la **única vía** del motor de IA hacia la infraestructura y vive en su
-propia imagen, sin LangGraph ni código del Gateway.
+Each MCP server is the AI engine's **only path** to the infrastructure and lives in its
+own image, without LangGraph or Gateway code.
 
-| Servidor | Carpeta | Puerto (env) | URL cliente (env) |
+| Server | Folder | Port (env) | Client URL (env) |
 |---|---|---|---|
-| Logs y métricas | `logs_server/` | `MCP_LOGS_PORT` | `MCP_LOGS_SERVER_URL` |
-| BD (futuro) | `db_server/` | `MCP_DB_PORT` | `MCP_DB_SERVER_URL` |
+| Logs and metrics | `logs_server/` | `MCP_LOGS_PORT` | `MCP_LOGS_SERVER_URL` |
+| DB (future) | `db_server/` | `MCP_DB_PORT` | `MCP_DB_SERVER_URL` |
 
-## Transporte: HTTP + SSE
+## Transport: HTTP + SSE
 
-Los servidores usan `mcp.run(transport="sse")` (FastMCP sobre Starlette/uvicorn):
-`GET /sse` abre el stream del servidor y los mensajes del cliente se envían por `POST /messages/`.
-Host y puerto salen del entorno (`MCP_<NOMBRE>_HOST`, `MCP_<NOMBRE>_PORT`); el puerto es obligatorio.
+Servers use `mcp.run(transport="sse")` (FastMCP on Starlette/uvicorn):
+`GET /sse` opens the server stream and client messages are sent via `POST /messages/`.
+Host and port come from the environment (`MCP_<NAME>_HOST`, `MCP_<NAME>_PORT`); the port is mandatory.
 
-## Añadir un servidor nuevo (p. ej. BD)
+## Adding a new server (e.g. DB)
 
-1. Crear `services/mcp-servers/<nombre>_server/` con `server.py`, `requirements.txt`,
-   `.dockerignore` y un `Dockerfile` copiado de `logs_server/` (solo cambia el nombre del
-   archivo/variables `MCP_<NOMBRE>_*`).
-2. Reutilizar la convención de `_configure_network()` y de logs a stderr.
-3. Declarar `MCP_<NOMBRE>_HOST`, `MCP_<NOMBRE>_PORT` y `MCP_<NOMBRE>_SERVER_URL` en `.env.example`.
-4. Si necesita credenciales (BD), se inyectan solo en su contenedor, nunca en capas de la imagen.
+1. Create `services/mcp-servers/<name>_server/` with `server.py`, `requirements.txt`,
+   `.dockerignore` and a `Dockerfile` copied from `logs_server/` (only the file name and
+   the `MCP_<NAME>_*` variables change).
+2. Reuse the `_configure_network()` convention and logging to stderr.
+3. Declare `MCP_<NAME>_HOST`, `MCP_<NAME>_PORT` and `MCP_<NAME>_SERVER_URL` in `.env.example`.
+4. If it needs credentials (DB), they are injected only into its container, never into image layers.
 
-## Imagen
+## Image
 
 ```bash
 docker build -t autoops-mcp-logs services/mcp-servers/logs_server
 docker run --rm -p 5001:5001 -e MCP_LOGS_PORT=5001 autoops-mcp-logs
 ```
 
-Usuario no-root `10001`, base `python:3.11-slim`, multi-stage (`builder` + `runtime`).
+Non-root user `10001`, `python:3.11-slim` base, multi-stage (`builder` + `runtime`).
 
-## Restricciones de runtime (para aplicar en Compose, US-DOCK-004)
+## Runtime restrictions (to apply in Compose, US-DOCK-004)
 
 ```yaml
 mcp-logs:
@@ -42,11 +42,11 @@ mcp-logs:
   security_opt: ["no-new-privileges:true"]
   environment:
     MCP_LOGS_PORT: ${MCP_LOGS_PORT}
-  expose: ["${MCP_LOGS_PORT}"]   # sin `ports:` → no se publica al host
-  networks: [mcp_net]            # red interna compartida solo con el cliente MCP
+  expose: ["${MCP_LOGS_PORT}"]   # no `ports:` → not published to the host
+  networks: [mcp_net]            # internal network shared only with the MCP client
 networks:
   mcp_net:
     internal: true
 ```
 
-Verificado: la imagen arranca con `--read-only --cap-drop ALL --security-opt no-new-privileges`.
+Verified: the image starts with `--read-only --cap-drop ALL --security-opt no-new-privileges`.

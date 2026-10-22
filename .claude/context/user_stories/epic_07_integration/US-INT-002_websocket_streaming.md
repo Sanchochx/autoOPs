@@ -1,51 +1,51 @@
-# US-INT-002: Streaming de Razonamiento IA vía WebSockets
+# US-INT-002: AI Reasoning Streaming via WebSockets
 
-**Épica:** 07 — AI Integration
-**Prioridad:** ALTA
-**Estimación:** 5 pts
-**Dependencias:** US-INT-001, US-GATE-002 (WebSocket y `ConnectionManager`)
-**Estado:** Completada
-
----
-
-## Historia de Usuario
-
-**Como** usuario del dashboard,
-**necesito** ver en tiempo real lo que la IA está pensando y haciendo mientras procesa un ticket,
-**para** entender el razonamiento del agente a medida que ocurre, enviando los eventos de LangGraph a través del WebSocket del API Gateway.
+**Epic:** 07 — AI Integration
+**Priority:** HIGH
+**Estimate:** 5 pts
+**Dependencies:** US-INT-001, US-GATE-002 (WebSocket and `ConnectionManager`)
+**Status:** Completed
 
 ---
 
-## Criterios de Aceptación
+## User Story
 
-> Trabajar UNO A LA VEZ, en orden. Marcar `[x]` al terminar cada uno y hacer pausa en el checkpoint final antes de cerrar la US.
-
-- [x] **CA-1: Captura de Eventos de LangGraph**
-  - Modificar `process_ticket_with_ai` en `apps/api_gateway/services/ai_service.py` para usar el modo de streaming de LangGraph (`.astream_events()` o `.astream()`) en lugar de la invocación bloqueante única (`invoke()`).
-  - Conservar el comportamiento de US-INT-001: el estado final alimenta la actualización de `severity` y `status`, y los fallos dejan el ticket en `medium`/`open`.
-  - **Verificación:** con un grafo simulado que emite varios eventos, el servicio los consume todos en orden y obtiene el mismo estado final que con `invoke()`.
-
-- [x] **CA-2: Emisión al WebSocket**
-  - Conectar el generador de eventos asíncronos de la IA con el `ConnectionManager` de WebSockets creado en la Fase 1.
-  - Enviar mensajes JSON al frontend por cada paso significativo del agente (p. ej. "Iniciando triaje", "Evaluando severidad...", "Actualizando base de datos").
-  - **Verificación:** con clientes WebSocket conectados, cada paso significativo produce un mensaje JSON válido con el `ticket_id` y la descripción del paso; sin clientes conectados no se produce error.
-
-- [x] **CA-3: No Bloqueo del Gateway**
-  - Garantizar que la emisión de eventos por WebSocket se mantenga dentro de la `BackgroundTask` sin interrumpir la experiencia asíncrona.
-  - **Verificación:** la respuesta `201` de `POST /api/v1/tickets` sigue sin esperar al grafo; un cliente WebSocket lento o desconectado no detiene ni hace fallar el procesamiento del ticket.
+**As** a dashboard user,
+**I need** to see in real time what the AI is thinking and doing while it processes a ticket,
+**so that** I can understand the agent's reasoning as it happens, by sending LangGraph events through the API Gateway's WebSocket.
 
 ---
 
-## Notas Técnicas
+## Acceptance Criteria
 
-- **Fuera de alcance:** el Agente Ejecutor y el flujo HITL, el consumo de los eventos en el frontend, reintentos, colas externas (Celery, Redis) y autenticación JWT.
-- **Dependencia GATE:** el `ConnectionManager` y el endpoint WebSocket (`apps/api_gateway/connection_manager.py`, `routers/ws.py`) provienen de US-GATE-002; no existe una US-GATE-003 en el plan.
-- **Decisiones cerradas:**
-  - **Contrato del mensaje JSON:** `{"type": "ai_event", "ticket_id": "<uuid>", "node": "<nombre_del_nodo>", "message": "<descripción de la acción>"}`.
-  - **Estrategia de conexión:** broadcast global con el `ConnectionManager` existente; el frontend filtra por `ticket_id`.
-  - **Método de streaming:** `compiled_graph.astream(..., stream_mode="updates")`; por cada nodo que termina se emite un evento.
-- **Aislamiento MCP:** el motor de IA nunca se conecta directamente a PostgreSQL; el Gateway lee y escribe el ticket y solo pasa datos al grafo.
-- **Pruebas:** mantener `dependency_overrides` y mocks; simular el grafo con un generador asíncrono de eventos y el `ConnectionManager` con un mock; no se invoca un LLM real en los tests.
-- **Logging:** los errores se emiten a stdout/stderr, sin archivos locales.
-- **Doce factores:** sin claves de API ni URLs en el código; todo desde variables de entorno.
-- **Convenciones:** archivos y funciones en `snake_case`, clases en `PascalCase`.
+> Work ONE AT A TIME, in order. Mark `[x]` when each is finished and pause at the final checkpoint before closing the US.
+
+- [x] **AC-1: LangGraph Event Capture**
+  - Modify `process_ticket_with_ai` in `apps/api_gateway/services/ai_service.py` to use LangGraph's streaming mode (`.astream_events()` or `.astream()`) instead of the single blocking invocation (`invoke()`).
+  - Preserve the behavior of US-INT-001: the final state feeds the `severity` and `status` update, and failures leave the ticket at `medium`/`open`.
+  - **Verification:** with a simulated graph that emits several events, the service consumes them all in order and obtains the same final state as with `invoke()`.
+
+- [x] **AC-2: WebSocket Emission**
+  - Connect the AI's async event generator to the WebSocket `ConnectionManager` created in Phase 1.
+  - Send JSON messages to the frontend for each significant agent step (e.g. "Starting triage", "Evaluating severity...", "Updating database").
+  - **Verification:** with WebSocket clients connected, each significant step produces a valid JSON message with the `ticket_id` and the step description; with no clients connected, no error occurs.
+
+- [x] **AC-3: Gateway Non-Blocking**
+  - Ensure that WebSocket event emission stays inside the `BackgroundTask` without interrupting the async experience.
+  - **Verification:** the `201` response of `POST /api/v1/tickets` still does not wait for the graph; a slow or disconnected WebSocket client neither stops nor causes the ticket processing to fail.
+
+---
+
+## Technical Notes
+
+- **Out of scope:** the Executor Agent and the HITL flow, consumption of the events in the frontend, retries, external queues (Celery, Redis) and JWT authentication.
+- **GATE dependency:** the `ConnectionManager` and the WebSocket endpoint (`apps/api_gateway/connection_manager.py`, `routers/ws.py`) come from US-GATE-002; there is no US-GATE-003 in the plan.
+- **Closed decisions:**
+  - **JSON message contract:** `{"type": "ai_event", "ticket_id": "<uuid>", "node": "<node_name>", "message": "<action description>"}`.
+  - **Connection strategy:** global broadcast with the existing `ConnectionManager`; the frontend filters by `ticket_id`.
+  - **Streaming method:** `compiled_graph.astream(..., stream_mode="updates")`; an event is emitted for each node that finishes.
+- **MCP isolation:** the AI engine never connects directly to PostgreSQL; the Gateway reads and writes the ticket and only passes data to the graph.
+- **Tests:** keep `dependency_overrides` and mocks; simulate the graph with an async event generator and the `ConnectionManager` with a mock; no real LLM is invoked in the tests.
+- **Logging:** errors are emitted to stdout/stderr, with no local files.
+- **Twelve-Factor:** no API keys or URLs in the code; everything from environment variables.
+- **Conventions:** files and functions in `snake_case`, classes in `PascalCase`.

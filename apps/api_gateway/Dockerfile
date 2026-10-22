@@ -1,10 +1,10 @@
 # syntax=docker/dockerfile:1
-# API Gateway (FastAPI). El motor de IA (`ai_engine`) se importa en proceso, por
-# lo que la imagen incluye también sus dependencias (decisión A de US-DOCK-001).
-# Contexto de build: raíz del monorepo.
+# API Gateway (FastAPI). The AI engine (`ai_engine`) is imported in-process, so
+# the image also includes its dependencies (decision A of US-DOCK-001).
+# Build context: monorepo root.
 #   docker build -f apps/api_gateway/Dockerfile -t autoops-api-gateway .
 
-# ── Etapa 1: dependencias ───────────────────────────────────────
+# ── Stage 1: dependencies ───────────────────────────────────────
 FROM python:3.11-slim AS builder
 
 ENV PIP_NO_CACHE_DIR=1 \
@@ -13,15 +13,15 @@ ENV PIP_NO_CACHE_DIR=1 \
 RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
-# Solo los requirements: la capa se cachea mientras no cambien las dependencias.
+# Only the requirements: the layer stays cached while dependencies do not change.
 COPY apps/api_gateway/requirements.txt /tmp/gateway-requirements.txt
 COPY services/ai-engine/requirements.txt /tmp/ai-engine-requirements.txt
 RUN pip install -r /tmp/gateway-requirements.txt -r /tmp/ai-engine-requirements.txt
 
-# ── Etapa 2: runtime mínimo ─────────────────────────────────────
+# ── Stage 2: minimal runtime ─────────────────────────────────────
 FROM python:3.11-slim AS runtime
 
-# Usuario sin privilegios y sin shell de login.
+# Unprivileged user with no login shell.
 RUN groupadd --system --gid 10001 autoops \
     && useradd --system --uid 10001 --gid autoops --no-create-home \
         --shell /usr/sbin/nologin autoops
@@ -33,8 +33,8 @@ COPY --chown=autoops:autoops apps/__init__.py ./apps/__init__.py
 COPY --chown=autoops:autoops apps/api_gateway ./apps/api_gateway
 COPY --chown=autoops:autoops services/ai-engine/ai_engine ./services/ai-engine/ai_engine
 
-# PYTHONUNBUFFERED: logs inmediatos a stdout/stderr. HOST/PORT son valores por
-# defecto del contenedor; en ejecución se sobrescriben desde el entorno.
+# PYTHONUNBUFFERED: immediate logs to stdout/stderr. HOST/PORT are container
+# defaults; at runtime they are overridden from the environment.
 ENV PATH="/opt/venv/bin:$PATH" \
     PYTHONPATH=/app:/app/services/ai-engine \
     PYTHONUNBUFFERED=1 \
@@ -49,5 +49,5 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
     CMD ["python", "-c", "import os, urllib.request; urllib.request.urlopen(f'http://127.0.0.1:{os.environ[\"PORT\"]}/health', timeout=4)"]
 
-# Forma shell + exec: expande HOST/PORT del entorno y deja a uvicorn como PID 1.
+# Shell + exec form: expands HOST/PORT from the environment and leaves uvicorn as PID 1.
 CMD ["sh", "-c", "exec uvicorn apps.api_gateway.main:app --host \"$HOST\" --port \"$PORT\""]

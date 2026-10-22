@@ -1,98 +1,98 @@
 # Skill: Audit
 
-## Objetivo
-Generar un reporte completo del estado del proyecto antes de hacer cualquier
-limpieza. No modifica nada — solo analiza y reporta. Siempre corre este
-skill antes de usar dead-code o cleanup.
+## Purpose
+Generate a complete report on the state of the project before doing any
+cleanup. It modifies nothing — it only analyzes and reports. Always run this
+skill before using dead-code or cleanup.
 
-## Cómo activar
+## How to trigger
 ```
-Usa el skill audit en el proyecto completo
-Usa el skill audit en src/
+Use the audit skill on the whole project
+Use the audit skill on src/
 ```
 
-## Qué analiza
+## What it analyzes
 
-### Código
-- Funciones y métodos declarados pero nunca llamados
-- Variables declaradas pero nunca usadas
-- Imports / requires que no se usan en el archivo
-- Parámetros de funciones que nunca se leen
-- Bloques comentados de más de 3 líneas (posible código muerto)
-- `console.log`, `print`, `debugger` de debug olvidados
+### Code
+- Functions and methods declared but never called
+- Variables declared but never used
+- Imports / requires that are not used in the file
+- Function parameters that are never read
+- Commented-out blocks longer than 3 lines (possible dead code)
+- Forgotten debug `console.log`, `print`, `debugger`
 
-### Archivos
-- Archivos sin ninguna referencia desde el resto del proyecto
-- Archivos con nombres como `_old`, `_backup`, `_copy`, `bak`, `tmp`
-- Archivos duplicados con contenido idéntico o casi idéntico
-- Carpetas vacías o con solo un `.gitkeep`
+### Files
+- Files with no reference from the rest of the project
+- Files with names like `_old`, `_backup`, `_copy`, `bak`, `tmp`
+- Duplicate files with identical or nearly identical content
+- Empty folders or folders containing only a `.gitkeep`
 
-### Dependencias
-- Paquetes en `package.json` (dependencies / devDependencies) no importados en ningún archivo
-- Librerías en `requirements.txt` no importadas en ningún archivo `.py`
-- Dependencias instaladas pero no listadas en el manifest
+### Dependencies
+- Packages in `package.json` (dependencies / devDependencies) not imported in any file
+- Libraries in `requirements.txt` not imported in any `.py` file
+- Dependencies installed but not listed in the manifest
 
-### Calidad general
-- Archivos con más de 300 líneas (candidatos a dividir)
-- Funciones con más de 40 líneas (candidatos a refactorizar)
-- Archivos con TODO / FIXME sin resolver
-- Rutas de API sin tests asociados
+### General quality
+- Files longer than 300 lines (candidates to split)
+- Functions longer than 40 lines (candidates to refactor)
+- Files with unresolved TODO / FIXME
+- API routes without associated tests
 
-## Formato de respuesta
+## Response format
 
 ```
-# Reporte de Audit — [Nombre del proyecto]
-Fecha: [fecha]
-Archivos analizados: [N]
+# Audit Report — [Project name]
+Date: [date]
+Files analyzed: [N]
 
 ---
 
-## CÓDIGO MUERTO
-| Tipo | Archivo | Línea | Descripción | Riesgo al eliminar |
-|------|---------|-------|-------------|-------------------|
-| Función | src/utils.py | 45 | `formatear_fecha()` sin llamadas | BAJO |
-| Import | src/api/users.js | 3 | `lodash` importado, no usado | BAJO |
-| Variable | src/models/invoice.py | 12 | `TAX_OLD = 0.16` sin uso | BAJO |
+## DEAD CODE
+| Type | File | Line | Description | Risk when removing |
+|------|------|------|-------------|--------------------|
+| Function | src/utils.py | 45 | `formatear_fecha()` with no calls | LOW |
+| Import | src/api/users.js | 3 | `lodash` imported, unused | LOW |
+| Variable | src/models/invoice.py | 12 | `TAX_OLD = 0.16` unused | LOW |
 
-## ARCHIVOS SOSPECHOSOS
-| Archivo | Razón | Acción sugerida |
-|---------|-------|-----------------|
-| src/utils_old.py | Nombre indica versión vieja | Verificar y eliminar |
-| src/temp.js | Sin referencias | Verificar y eliminar |
+## SUSPICIOUS FILES
+| File | Reason | Suggested action |
+|------|--------|------------------|
+| src/utils_old.py | Name suggests an old version | Verify and remove |
+| src/temp.js | No references | Verify and remove |
 
-## DEPENDENCIAS SIN USO
-| Paquete | Archivo | Acción sugerida |
-|---------|---------|-----------------|
-| moment | package.json | Desinstalar si no se usa |
-| requests | requirements.txt | Verificar antes de eliminar |
+## UNUSED DEPENDENCIES
+| Package | File | Suggested action |
+|---------|------|------------------|
+| moment | package.json | Uninstall if unused |
+| requests | requirements.txt | Verify before removing |
 
-## ARCHIVOS GRANDES (candidatos a dividir)
-| Archivo | Líneas | Sugerencia |
-|---------|--------|------------|
-| src/api/routes.js | 450 | Dividir por módulo |
+## LARGE FILES (candidates to split)
+| File | Lines | Suggestion |
+|------|-------|------------|
+| src/api/routes.js | 450 | Split by module |
 
-## TODOs SIN RESOLVER
-| Archivo | Línea | Comentario |
-|---------|-------|------------|
-| src/services/auth.py | 78 | TODO: implementar refresh token |
+## UNRESOLVED TODOs
+| File | Line | Comment |
+|------|------|---------|
+| src/services/auth.py | 78 | TODO: implement refresh token |
 
 ---
 
-## RESUMEN
-- Código muerto encontrado: [N items]
-- Archivos sospechosos: [N]
-- Dependencias sin uso: [N]
-- TODOs pendientes: [N]
+## SUMMARY
+- Dead code found: [N items]
+- Suspicious files: [N]
+- Unused dependencies: [N]
+- Pending TODOs: [N]
 
-## PRÓXIMOS PASOS SUGERIDOS
-1. Revisar la tabla de código muerto y confirmar cuáles eliminar
-2. Correr: `Usa el skill dead-code en src/` para eliminar lo confirmado
-3. Correr: `Usa el skill cleanup en el proyecto` para limpiar archivos y deps
+## SUGGESTED NEXT STEPS
+1. Review the dead code table and confirm which items to remove
+2. Run: `Use the dead-code skill on src/` to remove the confirmed items
+3. Run: `Use the cleanup skill on the project` to clean up files and deps
 ```
 
-## Reglas importantes
-- NO modificar ningún archivo durante el audit
-- Si una función parece sin uso pero tiene nombre genérico (ej: `handle`, `process`),
-  marcarla como riesgo MEDIO — puede estar siendo llamada dinámicamente
-- Marcar como riesgo ALTO todo lo relacionado con auth, pagos o seguridad
-- Incluir siempre el número de línea para facilitar la verificación manual
+## Important rules
+- Do NOT modify any file during the audit
+- If a function looks unused but has a generic name (e.g. `handle`, `process`),
+  mark it as MEDIUM risk — it may be called dynamically
+- Mark as HIGH risk anything related to auth, payments or security
+- Always include the line number to ease manual verification

@@ -1,11 +1,11 @@
-# Contexto de build = apps/frontend
+# Build context = apps/frontend
 node_modules/
 dist/
 .vite/
 *.tsbuildinfo
 npm-debug.log*
 
-# Secretos y control de versiones
+# Secrets and version control
 .env
 .env.*
 .git/

@@ -1,4 +1,4 @@
-"""Pruebas del servicio de triaje en segundo plano (grafo y sesión simulados)."""
+"""Tests of the background triage service (mocked graph and session)."""
 
 import asyncio
 import json
@@ -22,7 +22,7 @@ def anyio_backend() -> str:
 
 
 class FakeSessionFactory:
-    """Imita ``async_sessionmaker``: ``factory()`` es un context manager async."""
+    """Mimic ``async_sessionmaker``: ``factory()`` is an async context manager."""
 
     def __init__(self, session: AsyncMock) -> None:
         self.session = session
@@ -54,7 +54,7 @@ def ticket() -> Ticket:
 
 
 class FakeGraph:
-    """Grafo simulado: ``astream`` emite las actualizaciones por nodo indicadas."""
+    """Mock graph: ``astream`` emits the given per-node updates."""
 
     def __init__(self, updates: list[dict[str, Any]] | None = None, error: Exception | None = None):
         self.updates = updates or []

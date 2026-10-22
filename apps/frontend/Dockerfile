@@ -1,37 +1,37 @@
 # syntax=docker/dockerfile:1
-# Frontend (React + Vite). Se compila con Node y se sirve como estáticos con
-# Nginx sin privilegios. Contexto de build: apps/frontend.
+# Frontend (React + Vite). Built with Node and served as static files by
+# unprivileged Nginx. Build context: apps/frontend.
 #   docker build -t autoops-frontend \
 #     --build-arg VITE_API_BASE_URL=http://localhost:8000 \
 #     --build-arg VITE_WS_BASE_URL=ws://localhost:8000/ws \
 #     apps/frontend
 
-# ── Etapa 1: build ──────────────────────────────────────────────
+# ── Stage 1: build ──────────────────────────────────────────────
 FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Vite incrusta las VITE_* en el bundle durante el build (son públicas: sin secretos).
+# Vite embeds the VITE_* variables in the bundle at build time (they are public: no secrets).
 ARG VITE_API_BASE_URL
 ARG VITE_WS_BASE_URL
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL \
     VITE_WS_BASE_URL=$VITE_WS_BASE_URL
 
-# Solo los manifiestos: la capa de dependencias se cachea mientras no cambien.
+# Manifests only: the dependency layer stays cached as long as they do not change.
 COPY package.json package-lock.json ./
 RUN npm ci
 
 COPY . .
 RUN npm run build
 
-# ── Etapa 2: runtime ────────────────────────────────────────────
+# ── Stage 2: runtime ────────────────────────────────────────────
 FROM nginx:alpine AS runtime
 
-# Configuración completa de Nginx (reemplaza la por defecto, que exige root).
+# Full Nginx configuration (replaces the default one, which requires root).
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Escribe solo en /tmp (pid y temporales, ver nginx.conf); el contenido es de solo lectura.
+# Writes only to /tmp (pid and temp files, see nginx.conf); the content is read-only.
 USER nginx
 
 EXPOSE 8080

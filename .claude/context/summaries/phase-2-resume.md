@@ -1,55 +1,55 @@
-# Resumen de Fase 2: Integración Lógica y Persistencia
+# Phase 2 Summary: Logical Integration and Persistence
 
-**Proyecto:** AutoOps — Plataforma SRE Multi-Agente Autohospedada
-**Fecha de cierre:** 2026-10-15
-**Estado:** Completada (4/4 US)
+**Project:** AutoOps — Self-Hosted Multi-Agent SRE Platform
+**Closing date:** 2026-10-15
+**Status:** Completed (4/4 US)
 
-| US | Épica | Commit |
-|----|-------|--------|
-| US-DB-001 Configuración de ORM, modelos y migraciones | 06 | `c734e2f` |
-| US-DB-002 Persistencia real y CRUD de tickets | 06 | `fcdd971` |
-| US-INT-001 Disparador del Agente de Triaje en segundo plano | 07 | `6000403` (cierre `c5551f4`) |
-| US-INT-002 Streaming de razonamiento IA vía WebSockets | 07 | `b3750c3` |
+| US | Epic | Commit |
+|----|------|--------|
+| US-DB-001 ORM, models and migrations setup | 06 | `c734e2f` |
+| US-DB-002 Real persistence and ticket CRUD | 06 | `fcdd971` |
+| US-INT-001 Background Triage Agent trigger | 07 | `6000403` (closing `c5551f4`) |
+| US-INT-002 AI reasoning streaming via WebSockets | 07 | `b3750c3` |
 
 ---
 
 ## 📝 Changes Made
 
-- **Persistencia:** PostgreSQL asíncrono (SQLAlchemy + asyncpg), modelo `Ticket` y migración inicial con Alembic. `docker-compose.yml` levanta la base de datos local con credenciales desde el entorno.
-- **CRUD de tickets:** endpoints REST persistentes bajo `/api/v1/tickets`, probados con sesión simulada.
-- **Disparador de IA:** `POST /api/v1/tickets` guarda el ticket (`severity=medium`, `status=open`), responde `201` y encola el triaje con `BackgroundTasks`.
-- **Servicio de IA (`ai_service.py`):** `process_ticket_with_ai` abre su propia sesión, ejecuta el grafo y actualiza `severity` y `status=investigating`. Ante fallo conserva el estado previo y no propaga la excepción.
-- **Streaming:** el grafo se consume con `astream(stream_mode="updates")` y cada nodo emite un evento JSON `{"type":"ai_event","ticket_id","node","message"}` por broadcast global.
+- **Persistence:** asynchronous PostgreSQL (SQLAlchemy + asyncpg), `Ticket` model and initial Alembic migration. `docker-compose.yml` starts the local database with credentials from the environment.
+- **Ticket CRUD:** persistent REST endpoints under `/api/v1/tickets`, tested with a simulated session.
+- **AI trigger:** `POST /api/v1/tickets` saves the ticket (`severity=medium`, `status=open`), responds `201` and enqueues triage with `BackgroundTasks`.
+- **AI service (`ai_service.py`):** `process_ticket_with_ai` opens its own session, runs the graph and updates `severity` and `status=investigating`. On failure it keeps the previous state and does not propagate the exception.
+- **Streaming:** the graph is consumed with `astream(stream_mode="updates")` and each node emits a JSON event `{"type":"ai_event","ticket_id","node","message"}` via global broadcast.
 
 ## 📂 Files Modified/Created
 
-| Ruta | Propósito |
-|------|-----------|
-| `apps/api_gateway/{database,models}.py`, `alembic/` | Conexión asíncrona, modelo `Ticket` y migraciones |
-| `apps/api_gateway/routers/tickets.py` | CRUD y encolado del triaje |
-| `apps/api_gateway/services/ai_service.py` | Invocación, streaming y persistencia post-triaje |
-| `tests/test_ai_service.py`, `tests/test_rest_endpoints.py` | Pruebas con grafo, sesión y `ConnectionManager` simulados (27 tests en total) |
+| Path | Purpose |
+|------|---------|
+| `apps/api_gateway/{database,models}.py`, `alembic/` | Asynchronous connection, `Ticket` model and migrations |
+| `apps/api_gateway/routers/tickets.py` | CRUD and triage enqueueing |
+| `apps/api_gateway/services/ai_service.py` | Invocation, streaming and post-triage persistence |
+| `tests/test_ai_service.py`, `tests/test_rest_endpoints.py` | Tests with simulated graph, session and `ConnectionManager` (27 tests in total) |
 | `.env.example` | `DATABASE_URL`, `WS_BROADCAST_TIMEOUT_SECONDS`, `PYTHONPATH` |
 
 ## 🎯 Rationale
 
-- **Qué se completó y por qué:** el flujo ticket → triaje con IA → persistencia → eventos en tiempo real funciona de extremo a extremo y fue validado manualmente (BD, LangSmith y `wscat`).
-- **Decisiones de diseño:**
-  - **Sesión propia en la tarea de fondo:** la sesión de la petición ya está cerrada.
-  - **Aislamiento:** el motor de IA no toca PostgreSQL; el Gateway lee y escribe el ticket y solo pasa datos al grafo.
-  - **Emisión tolerante a fallos:** `broadcast` con timeout configurable; un cliente lento o caído no detiene el triaje.
-  - **Broadcast global:** el frontend filtra por `ticket_id`.
-  - **Dependencias inyectables** (`graph`, `session_factory`, `ws_manager`) para probar sin LLM ni red.
+- **What was completed and why:** the flow ticket → AI triage → persistence → real-time events works end to end and was validated manually (DB, LangSmith and `wscat`).
+- **Design decisions:**
+  - **Own session in the background task:** the request session is already closed.
+  - **Isolation:** the AI engine does not touch PostgreSQL; the Gateway reads and writes the ticket and only passes data to the graph.
+  - **Fault-tolerant emission:** `broadcast` with a configurable timeout; a slow or dropped client does not stop triage.
+  - **Global broadcast:** the frontend filters by `ticket_id`.
+  - **Injectable dependencies** (`graph`, `session_factory`, `ws_manager`) to test without an LLM or network.
 
-### Alcance entregado frente al objetivo original
-El objetivo mencionaba el **Agente Ejecutor con HITL**, que **no se implementó**. Tampoco están:
-- El cliente MCP real en el investigador (solo el punto de inyección `context_provider`).
-- Autenticación JWT.
-- El consumo de los eventos `ai_event` y la tabla de tickets en el frontend.
-- El AI Engine sigue siendo una librería importada en proceso por el Gateway, no un servicio.
+### Delivered scope versus the original goal
+The goal mentioned the **Executor Agent with HITL**, which was **not implemented**. Also missing are:
+- The real MCP client in the investigator (only the `context_provider` injection point).
+- JWT authentication.
+- Consumption of `ai_event` events and the ticket table in the frontend.
+- The AI Engine is still a library imported in-process by the Gateway, not a service.
 
 ## 🚀 Next Steps
 
-1. **Fase 3 (contenerización):** Epic 08, US-DOCK-001 (builds multi-stage). Decisión abierta: AI Engine como librería dentro de la imagen del Gateway (A) o como servicio independiente (B).
-2. **Pendientes de producto:** Agente Ejecutor y HITL, cliente MCP real, JWT y consumo de `ai_event` en el frontend; deben asignarse a una fase.
-3. **Migraciones:** definir cómo se ejecuta Alembic en contenedor.
+1. **Phase 3 (containerization):** Epic 08, US-DOCK-001 (multi-stage builds). Open decision: AI Engine as a library inside the Gateway image (A) or as an independent service (B).
+2. **Product backlog:** Executor Agent and HITL, real MCP client, JWT and `ai_event` consumption in the frontend; they must be assigned to a phase.
+3. **Migrations:** define how Alembic runs in a container.

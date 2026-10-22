@@ -1,52 +1,52 @@
-# Docker Engine en el host
+# Docker Engine on the host
 
-Gestionado por `scripts/provision/60_docker.sh` (verificación: `scripts/provision/checks/60_docker.sh`).
+Managed by `scripts/provision/60_docker.sh` (verification: `scripts/provision/checks/60_docker.sh`).
 
-| Archivo | Destino en el host |
+| File | Host destination |
 |---|---|
 | `daemon.json` | `/etc/docker/daemon.json` |
 
-El script también crea `/etc/apt/keyrings/docker.asc` y `/etc/apt/sources.list.d/docker.sources` (repositorio oficial, `Signed-By`).
+The script also creates `/etc/apt/keyrings/docker.asc` and `/etc/apt/sources.list.d/docker.sources` (official repository, `Signed-By`).
 
-## Variables (todas opcionales)
+## Variables (all optional)
 
-| Variable | Descripción |
+| Variable | Description |
 |---|---|
-| `DOCKER_VERSION` | Versión apt de `docker-ce` y `docker-ce-cli`; vacío = la última del repositorio |
-| `DOCKER_CONTAINERD_VERSION`, `DOCKER_COMPOSE_VERSION`, `DOCKER_BUILDX_VERSION` | Ídem para cada paquete |
-| `DOCKER_APT_SUITE` | Suite del repositorio (por defecto, `VERSION_CODENAME`); útil si Docker aún no publica tu release |
-| `DOCKER_GPG_FINGERPRINT` | Huella esperada de la llave (por defecto, la oficial de Docker) |
-| `SERVICE_USER` | Único miembro del grupo `docker` (`autoops`) |
+| `DOCKER_VERSION` | apt version of `docker-ce` and `docker-ce-cli`; empty = latest in the repository |
+| `DOCKER_CONTAINERD_VERSION`, `DOCKER_COMPOSE_VERSION`, `DOCKER_BUILDX_VERSION` | Same for each package |
+| `DOCKER_APT_SUITE` | Repository suite (defaults to `VERSION_CODENAME`); useful if Docker has not yet published your release |
+| `DOCKER_GPG_FINGERPRINT` | Expected key fingerprint (defaults to Docker's official one) |
+| `SERVICE_USER` | Sole member of the `docker` group (`autoops`) |
 
-Versiones disponibles: `apt-cache madison docker-ce`. Sin fijar versión, `apt-get upgrade` (50_os_baseline.sh) puede actualizar Docker; con `live-restore` los contenedores sobreviven al reinicio del demonio.
+Available versions: `apt-cache madison docker-ce`. Without a pinned version, `apt-get upgrade` (50_os_baseline.sh) may upgrade Docker; with `live-restore`, containers survive a daemon restart.
 
 ## `daemon.json`
 
-| Clave | Motivo |
+| Key | Reason |
 |---|---|
-| `no-new-privileges: true` | Los procesos de los contenedores no ganan privilegios vía setuid |
-| `log-driver: json-file` + `max-size 10m` / `max-file 3` | Los contenedores siguen emitiendo a stdout/stderr; la rotación evita llenar el disco |
-| `live-restore: true` | Reiniciar o actualizar el demonio no detiene los contenedores |
-| `userland-proxy: false` | Los puertos publicados usan reglas iptables en vez del proxy `docker-proxy` |
+| `no-new-privileges: true` | Container processes cannot gain privileges via setuid |
+| `log-driver: json-file` + `max-size 10m` / `max-file 3` | Containers keep emitting to stdout/stderr; rotation prevents filling the disk |
+| `live-restore: true` | Restarting or upgrading the daemon does not stop containers |
+| `userland-proxy: false` | Published ports use iptables rules instead of the `docker-proxy` process |
 
-**No** se define `"iptables": false` (rompería la salida a Internet de los contenedores y las redes `internal` del compose) ni `"hosts"` (el demonio no se expone por TCP). El filtrado de puertos publicados frente a UFW se resuelve en US-NET-002 con la cadena `DOCKER-USER`.
+`"iptables": false` is **not** set (it would break container Internet egress and the compose `internal` networks), nor is `"hosts"` (the daemon is not exposed over TCP). Filtering published ports against UFW is handled in US-NET-002 with the `DOCKER-USER` chain.
 
-## Decisión: Docker estándar, no rootless
+## Decision: standard Docker, not rootless
 
-- El reverse proxy de la Fase 5 necesita enlazar los puertos 80/443 (<1024), lo que complica el modo rootless.
-- Las redes `internal` y el modelo de red del compose se apoyan en iptables gestionado por el demonio, que rootless no ofrece igual.
-- Mitigaciones adoptadas: `no-new-privileges`, grupo `docker` restringido, sin exposición TCP, contenedores non-root (Dockerfiles de la Fase 3).
-- `userns-remap` queda como mejora futura (cambia propietarios de volúmenes y requiere probar el stack completo).
+- The Phase 5 reverse proxy needs to bind ports 80/443 (<1024), which complicates rootless mode.
+- The `internal` networks and the compose network model rely on daemon-managed iptables, which rootless does not provide equivalently.
+- Mitigations adopted: `no-new-privileges`, restricted `docker` group, no TCP exposure, non-root containers (Phase 3 Dockerfiles).
+- `userns-remap` remains a future improvement (it changes volume ownership and requires testing the full stack).
 
-## Acceso
+## Access
 
-- Pertenecer al grupo `docker` equivale a ser `root`. Solo `autoops` (ejecutado por systemd, US-SYS-003) está en el grupo; el script retira al resto. El admin usa `sudo docker`.
-- El socket `/var/run/docker.sock` mantiene `root:docker 660`.
+- Membership in the `docker` group is equivalent to being `root`. Only `autoops` (run by systemd, US-SYS-003) is in the group; the script removes everyone else. The admin uses `sudo docker`.
+- The `/var/run/docker.sock` socket keeps `root:docker 660`.
 
-## Verificar el stack (CA-4)
+## Verify the stack (AC-4)
 
 ```bash
-cd /opt/autoops    # o el directorio del repositorio
+cd /opt/autoops    # or the repository directory
 sudo docker compose up -d --build
-sudo docker compose ps          # todos los servicios deben quedar healthy
+sudo docker compose ps          # all services must end up healthy
 ```

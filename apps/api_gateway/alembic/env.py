@@ -6,7 +6,7 @@ from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from alembic import context
-from apps.api_gateway import models  # noqa: F401  (registra los modelos en Base.metadata)
+from apps.api_gateway import models  # noqa: F401  (registers the models in Base.metadata)
 from apps.api_gateway.config import load_dotenv
 from apps.api_gateway.database import Base, get_database_url
 
@@ -14,7 +14,7 @@ from apps.api_gateway.database import Base, get_database_url
 # access to the values within the .ini file in use.
 config = context.config
 
-# La URL de conexión proviene del entorno (.env en la raíz del monorepo).
+# The connection URL comes from the environment (.env at the monorepo root).
 load_dotenv()
 config.set_main_option("sqlalchemy.url", get_database_url().replace("%", "%%"))
 
@@ -23,7 +23,7 @@ config.set_main_option("sqlalchemy.url", get_database_url().replace("%", "%%"))
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# MetaData de los modelos para 'autogenerate'.
+# Models' MetaData for 'autogenerate'.
 target_metadata = Base.metadata
 
 

@@ -1,4 +1,4 @@
-"""Endpoints REST de tickets con persistencia en PostgreSQL."""
+"""REST ticket endpoints backed by PostgreSQL."""
 
 from uuid import UUID
 
@@ -34,10 +34,10 @@ async def create_ticket(
     background_tasks: BackgroundTasks,
     session: AsyncSession = Depends(get_db_session),
 ) -> Ticket:
-    """Crea el ticket con severidad ``medium`` y encola el triaje con IA.
+    """Create the ticket with ``medium`` severity and enqueue AI triage.
 
-    La severidad real la asigna el Agente de Triaje en segundo plano; la
-    respuesta no espera al grafo.
+    The real severity is assigned by the Triage Agent in the background; the
+    response does not wait for the graph.
     """
     data = payload.model_dump(exclude={"severity"})
     ticket = Ticket(**data, severity=TicketSeverity.MEDIUM)
@@ -50,7 +50,7 @@ async def create_ticket(
 
 @router.get("", response_model=list[TicketRead])
 async def list_tickets(session: AsyncSession = Depends(get_db_session)) -> list[Ticket]:
-    """Lista los tickets, los más recientes primero."""
+    """List tickets, most recent first."""
     result = await session.execute(select(Ticket).order_by(Ticket.created_at.desc()))
     return list(result.scalars().all())
 
@@ -59,7 +59,7 @@ async def list_tickets(session: AsyncSession = Depends(get_db_session)) -> list[
 async def get_ticket(
     ticket_id: UUID, session: AsyncSession = Depends(get_db_session)
 ) -> Ticket:
-    """Devuelve un ticket por ID o 404 si no existe."""
+    """Return a ticket by ID, or 404 if it does not exist."""
     return await _get_ticket_or_404(session, ticket_id)
 
 
@@ -69,7 +69,7 @@ async def update_ticket(
     payload: TicketUpdate,
     session: AsyncSession = Depends(get_db_session),
 ) -> Ticket:
-    """Actualiza parcialmente un ticket; solo cambia los campos enviados."""
+    """Partially update a ticket; only the submitted fields change."""
     ticket = await _get_ticket_or_404(session, ticket_id)
     for field, value in payload.model_dump(exclude_unset=True, exclude_none=True).items():
         setattr(ticket, field, value)

@@ -1,12 +1,12 @@
-"""Servidor MCP de inspección de logs y métricas (datos simulados).
+"""MCP server for log and metrics inspection (simulated data).
 
-Expone herramientas de solo lectura para el Agente Investigador. No accede a
-la infraestructura real: todos los datos son simulados en esta versión.
+Exposes read-only tools for the Investigator Agent. It does not access the
+real infrastructure: all data is simulated in this version.
 
-Transporte: HTTP con SSE (Server-Sent Events), alcanzable por red desde otros
-contenedores. El endpoint SSE queda en `/sse` y los mensajes del cliente se
-publican en `/messages/`. Host y puerto se leen del entorno (MCP_LOGS_HOST,
-MCP_LOGS_PORT); los logs se emiten a stderr.
+Transport: HTTP with SSE (Server-Sent Events), reachable over the network from
+other containers. The SSE endpoint is at `/sse` and client messages are
+posted to `/messages/`. Host and port are read from the environment
+(MCP_LOGS_HOST, MCP_LOGS_PORT); logs are emitted to stderr.
 """
 
 import logging
@@ -22,15 +22,15 @@ mcp = FastMCP("autoops-logs-server")
 
 
 def _configure_network() -> None:
-    """Aplica host y puerto de escucha desde el entorno (sin valores embebidos)."""
+    """Apply the listen host and port from the environment (no embedded values)."""
     port = os.environ.get("MCP_LOGS_PORT")
     if not port:
         raise RuntimeError("Falta la variable de entorno MCP_LOGS_PORT")
-    # Por defecto solo loopback; en contenedor se define MCP_LOGS_HOST=0.0.0.0.
+    # Loopback only by default; in a container MCP_LOGS_HOST=0.0.0.0 is set.
     mcp.settings.host = os.environ.get("MCP_LOGS_HOST", "127.0.0.1")
     mcp.settings.port = int(port)
 
-# Plantillas simuladas (nivel, mensaje) por servicio conocido.
+# Simulated templates (level, message) per known service.
 SIMULATED_LOGS: dict[str, list[tuple[str, str]]] = {
     "api_gateway": [
         ("INFO", "GET /health 200 3ms"),
@@ -51,10 +51,10 @@ SIMULATED_LOGS: dict[str, list[tuple[str, str]]] = {
 
 @mcp.tool()
 def get_system_logs(service_name: str) -> list[str]:
-    """Devuelve las 5 líneas de log más recientes (simuladas) de un servicio.
+    """Return the 5 most recent (simulated) log lines of a service.
 
     Args:
-        service_name: Nombre del servicio, p. ej. "api_gateway" o "database".
+        service_name: Service name, e.g. "api_gateway" o "database".
     """
     entries = SIMULATED_LOGS.get(service_name)
     if entries is None:
@@ -66,7 +66,7 @@ def get_system_logs(service_name: str) -> list[str]:
 
 @mcp.tool()
 def get_db_metrics() -> dict[str, int | float]:
-    """Devuelve métricas simuladas de salud de la base de datos."""
+    """Return simulated database health metrics."""
     logger.info("get_db_metrics")
     return {
         "active_connections": 42,

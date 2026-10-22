@@ -1,79 +1,79 @@
 # Skill: Dead Code
 
-## Objetivo
-Eliminar código que definitivamente no se usa, basándose en el reporte
-previo del skill audit. Opera solo sobre código dentro de archivos —
-no elimina archivos completos ni dependencias (eso es tarea de cleanup).
+## Purpose
+Remove code that is definitely unused, based on the previous report from
+the audit skill. It operates only on code inside files — it does not remove
+entire files or dependencies (that is the job of cleanup).
 
-## Prerequisito
-Correr primero el skill audit y revisar su reporte antes de usar este skill.
+## Prerequisite
+Run the audit skill first and review its report before using this skill.
 
-## Cómo activar
+## How to trigger
 ```
-Usa el skill dead-code en [archivo o carpeta]
-Usa el skill dead-code en src/services/users.py
-Usa el skill dead-code en src/
+Use the dead-code skill on [file or folder]
+Use the dead-code skill on src/services/users.py
+Use the dead-code skill on src/
 ```
 
-## Qué elimina (riesgo BAJO por defecto)
+## What it removes (LOW risk by default)
 
-### Siempre seguro eliminar
-- Imports / requires declarados pero no usados en ese archivo
-- Variables locales asignadas pero nunca leídas
-- Parámetros de funciones privadas nunca usados
-- Bloques de código comentado de más de 3 líneas sin explicación
-- `console.log()`, `console.debug()`, `print()`, `debugger` de debug
+### Always safe to remove
+- Imports / requires declared but not used in that file
+- Local variables assigned but never read
+- Unused parameters of private functions
+- Commented-out code blocks longer than 3 lines without explanation
+- Debug `console.log()`, `console.debug()`, `print()`, `debugger`
 
-### Eliminar con confirmación previa
-- Funciones privadas (prefijo `_` en Python, no exportadas en JS) sin llamadas detectadas
-- Constantes definidas pero sin uso
-- Clases sin instancias ni herencia detectada
+### Remove with prior confirmation
+- Private functions (`_` prefix in Python, not exported in JS) with no detected calls
+- Constants defined but unused
+- Classes with no detected instances or inheritance
 
-### Nunca eliminar sin aprobación explícita
-- Funciones exportadas / públicas (pueden usarse desde fuera del proyecto)
-- Cualquier cosa relacionada con auth, seguridad o pagos
-- Código con comentarios que expliquen por qué está ahí
-- Funciones con nombres genéricos que podrían llamarse dinámicamente
-- Anything marcado como riesgo ALTO o MEDIO en el audit
+### Never remove without explicit approval
+- Exported / public functions (they may be used from outside the project)
+- Anything related to auth, security or payments
+- Code with comments explaining why it is there
+- Functions with generic names that could be called dynamically
+- Anything marked as HIGH or MEDIUM risk in the audit
 
-## Proceso
+## Process
 
-1. Leer el reporte del audit (o hacer un análisis rápido si no existe)
-2. Listar exactamente qué va a eliminar antes de hacerlo
-3. Pedir confirmación para items de riesgo MEDIO
-4. Eliminar solo los de riesgo BAJO sin preguntar
-5. Verificar que el proyecto sigue funcionando después de cada eliminación
+1. Read the audit report (or do a quick analysis if none exists)
+2. List exactly what will be removed before doing it
+3. Ask for confirmation for MEDIUM risk items
+4. Remove only the LOW risk items without asking
+5. Verify the project still works after each removal
 
-## Formato de respuesta
+## Response format
 
 ```
-## Dead Code — Plan de eliminación
-Basado en: audit del [fecha] / análisis nuevo
+## Dead Code — Removal plan
+Based on: audit from [date] / new analysis
 
-### Eliminaré automáticamente (riesgo BAJO):
-- [ ] `src/utils.py:45` — función `formatear_fecha_old()` sin llamadas
-- [ ] `src/api/users.js:3` — import `lodash` sin uso
-- [ ] `src/models/invoice.py:78` — `console.log('debug invoice')` olvidado
+### Will remove automatically (LOW risk):
+- [ ] `src/utils.py:45` — function `formatear_fecha_old()` with no calls
+- [ ] `src/api/users.js:3` — unused `lodash` import
+- [ ] `src/models/invoice.py:78` — forgotten `console.log('debug invoice')`
 
-### Necesito confirmación (riesgo MEDIO):
-- [ ] `src/services/auth.py:102` — función `_legacy_hash()` sin llamadas detectadas
-      ¿Confirmas eliminar? Puede estar siendo llamada dinámicamente.
+### Need confirmation (MEDIUM risk):
+- [ ] `src/services/auth.py:102` — function `_legacy_hash()` with no detected calls
+      Do you confirm removal? It may be called dynamically.
 
 ---
-[después de confirmación]
+[after confirmation]
 
-### Eliminado:
-- ✓ `src/utils.py:45` — `formatear_fecha_old()` eliminada
-- ✓ `src/api/users.js:3` — import `lodash` eliminado
+### Removed:
+- ✓ `src/utils.py:45` — `formatear_fecha_old()` removed
+- ✓ `src/api/users.js:3` — `lodash` import removed
 
-### Tests después de limpieza:
-[correr tests para confirmar que nada se rompió]
+### Tests after cleanup:
+[run tests to confirm nothing broke]
 
-### Resultado: [N] items eliminados, [N] líneas menos
+### Result: [N] items removed, [N] fewer lines
 ```
 
-## Reglas
-- Siempre mostrar el plan antes de ejecutar
-- Nunca eliminar más de lo que está en el plan confirmado
-- Si los tests fallan después de eliminar algo, revertir ese cambio específico
-- Documentar en un comentario git qué se eliminó y por qué
+## Rules
+- Always show the plan before executing
+- Never remove more than what is in the confirmed plan
+- If tests fail after removing something, revert that specific change
+- Document in a git comment what was removed and why

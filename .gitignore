@@ -1,4 +1,4 @@
-# ── Secretos ────────────────────────────────────────────────
+# ── Secrets ────────────────────────────────────────────────
 .env
 .env.*
 !.env.example
@@ -25,14 +25,14 @@ dist/
 *.tsbuildinfo
 npm-debug.log*
 
-# ── Docker / datos locales ──────────────────────────────────
+# ── Docker / local data ──────────────────────────────────
 pgdata/
 docker-compose.override.yml
 
-# ── Logs (los servicios emiten a stdout/stderr) ─────────────
+# ── Logs (services emit to stdout/stderr) ─────────────
 *.log
 
-# ── IDE / SO ────────────────────────────────────────────────
+# ── IDE / OS ────────────────────────────────────────────────
 .idea/
 .vscode/
 .DS_Store

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Verifica los controles de US-NET-001 (solo lectura). Mismas variables que 40_ufw.sh:
+# Verifies the controls of US-NET-001 (read-only). Same variables as 40_ufw.sh:
 #
 #   sudo [ADMIN_CIDR=<cidr>] [UFW_WEB_PORTS="80 443"] ./scripts/provision/checks/40_ufw.sh
 set -euo pipefail
@@ -18,8 +18,8 @@ verbose_has()    { [[ "$(ufw status verbose)" == *"$1"* ]]; }
 defaults_ok()    { verbose_has 'Default: deny (incoming), allow (outgoing), deny (routed)'; }
 logging_ok()     { verbose_has 'Logging: on (low)'; }
 ssh_listening()  { [[ -n "$(ss -H -ltn "sport = :${SSH_PORT}")" ]]; }
-# Reglas definidas = exactamente las esperadas. Se toleran los bloqueos
-# `deny from <ip>` que inserta fail2ban cuando usa banaction=ufw.
+# Defined rules = exactly the expected ones. The blocks
+# `deny from <ip>` that fail2ban inserts when using banaction=ufw are tolerated.
 rules_exact() {
   local actual expected
   actual="$(added_ufw_rules | { grep -Ev '^ufw (insert [0-9]+ )?deny from ' || true; } | sort)"

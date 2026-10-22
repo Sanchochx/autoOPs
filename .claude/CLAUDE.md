@@ -1,243 +1,226 @@
-# 🚀 AutoOps - Plataforma SRE Multi-Agente Autohospedada
+# 🚀 AutoOps - Self-Hosted Multi-Agent SRE Platform
 
-## Descripción
-**AutoOps** es un sistema de soporte técnico autónomo (Tier-1) diseñado para empresas. Está estructurado en microservicios y orquestado mediante agentes de IA con LangGraph. El sistema recibe y clasifica tickets de incidentes, investiga la causa raíz consultando infraestructura, logs y bases de datos a través de servidores aislados con Model Context Protocol (MCP), y propone planes de remediación automáticos o supervisados mediante confirmación humana (Human-in-the-Loop).
+## Description
+**AutoOps** is an autonomous technical support system (Tier-1) designed for companies. It is built as microservices and orchestrated by AI agents using LangGraph. The system receives and classifies incident tickets, investigates the root cause by querying infrastructure, logs and databases through isolated Model Context Protocol (MCP) servers, and proposes automatic or human-supervised remediation plans (Human-in-the-Loop).
 
 ---
 
-## Stack Tecnológico
+## Tech Stack
 
 ### Backend & API Gateway
 - **Framework:** Python 3.11+ / FastAPI
-- **Comunicación:** WebSockets (streaming en tiempo real del razonamiento de los agentes) y REST (operaciones CRUD, tickets y autenticación)
-- **Validación de Datos:** Pydantic (tipado estricto)
+- **Communication:** WebSockets (real-time streaming of agent reasoning) and REST (CRUD operations, tickets and authentication)
+- **Data validation:** Pydantic (strict typing)
 
-### Motor de IA & Herramientas
-- **Orquestación de Agentes:** Python / LangGraph + LangChain
-- **Aislamiento de Herramientas:** Model Context Protocol (MCP SDK)
-- **Agentes:**
-  1. *Triaje:* Clasificación de severidad y enrutamiento del ticket.
-  2. *Investigador:* Inspección de logs y métricas vía herramientas MCP.
-  3. *Ejecutor:* Generación de planes de mitigación y gestión de aprobaciones HITL.
+### AI Engine & Tools
+- **Agent orchestration:** Python / LangGraph + LangChain
+- **Tool isolation:** Model Context Protocol (MCP SDK)
+- **Agents:**
+  1. *Triage:* severity classification and ticket routing.
+  2. *Investigator:* log and metric inspection via MCP tools.
+  3. *Executor:* mitigation plan generation and HITL approval management.
 
-### Base de Datos & Persistencia
-- **Base de Datos:** PostgreSQL
-- **ORM / Migraciones:** SQLAlchemy / Alembic
+### Database & Persistence
+- **Database:** PostgreSQL
+- **ORM / Migrations:** SQLAlchemy / Alembic
 
 ### Frontend
 - **Framework:** React + Vite + TypeScript
-- **Estilos:** TailwindCSS
-- **Manejo de Estado:** Zustand / React Context (WebSockets y estado de UI)
+- **Styling:** TailwindCSS
+- **State management:** Zustand / React Context (WebSockets and UI state)
 
-### Infraestructura & DevOps
-- **Contenedores:** Docker & Docker Compose
-- **Reverse Proxy:** Traefik / Nginx con terminación SSL (Let's Encrypt)
-- **SO de Despliegue:** Ubuntu Server (AWS EC2 / VM Local en VirtualBox)
-- **CI/CD:** GitHub Actions (Despliegue automático por SSH)
+### Infrastructure & DevOps
+- **Containers:** Docker & Docker Compose
+- **Reverse proxy:** Traefik / Nginx with SSL termination (Let's Encrypt)
+- **Deployment OS:** Ubuntu Server (AWS EC2 / local VirtualBox VM)
+- **CI/CD:** GitHub Actions (automatic deployment over SSH)
 
 ---
 
-## Comandos Clave
+## Key Commands
 
-### Backend & Motor de IA (Python / FastAPI)
+### Backend & AI Engine (Python / FastAPI)
 ```bash
-# Activar entorno virtual
+# Activate virtual environment
 source venv/bin/activate        # Linux/Mac
 venv\Scripts\activate           # Windows
 
-# Instalar dependencias
+# Install dependencies
 pip install -r requirements.txt
 
-# Ejecutar API Gateway en desarrollo
+# Run the API Gateway in development
 uvicorn apps.api_gateway.main:app --reload --port 8000
 
-# Ejecutar pruebas unitarias e integración
+# Run unit and integration tests
 pytest tests/ -v
 pytest tests/ -v --cov=services
+```
 
-Frontend (React / Vite)
-
-# Cambiar al directorio del frontend
+### Frontend (React / Vite)
+```bash
+# Change to the frontend directory
 cd apps/frontend
 
-# Instalar dependencias
+# Install dependencies
 npm install
 
-# Correr en desarrollo
+# Run in development
 npm run dev
 
-# Compilar para producción
+# Build for production
 npm run build
+```
 
-Orquestación Docker (Fase 2+)
-
-# Levantar todos los servicios en segundo plano
+### Docker Orchestration (Phase 2+)
+```bash
+# Start all services in the background
 docker compose up -d --build
 
-# Monitorear logs unificados
+# Follow unified logs
 docker compose logs -f
 
-# Detener el ecosistema de contenedores
+# Stop the container ecosystem
 docker compose down
+```
 
-Estructura del Monorepo
+---
 
+## Monorepo Structure
+
+```
 autoops/
 ├── apps/
-│   ├── frontend/             # React + Vite + TypeScript + TailwindCSS (Dashboard Admin)
-│   └── api_gateway/          # FastAPI (REST, WebSockets, Auth) — guion bajo para imports de Python
+│   ├── frontend/             # React + Vite + TypeScript + TailwindCSS (Admin dashboard)
+│   └── api_gateway/          # FastAPI (REST, WebSockets, Auth) — underscore for Python imports
 ├── services/
-│   ├── ai-engine/            # LangGraph (Agentes de Triaje, Investigador y Ejecutor)
-│   └── mcp-servers/          # Servidores MCP (Aislamiento de BD, logs y métricas)
+│   ├── ai-engine/            # LangGraph (Triage, Investigator and Executor agents)
+│   └── mcp-servers/          # MCP servers (DB, logs and metrics isolation)
 ├── .claude/
-│   ├── CLAUDE.md             # Este archivo (Guía de arquitectura y estándares)
-│   └── context/              # Documentación y seguimiento SDD
-│       ├── user_stories/         # Historias de usuario ordenadas por épica
-│       ├── summaries/            # Resúmenes ejecutivos al finalizar cada fase
-│       ├── IMPLEMENTATION_PLAN.md# Plan maestro de historias de usuario y progreso
-│       └── TASK_EXECUTION.md     # Manual de instrucciones para Claude Code
-├── .env.example              # Plantilla centralizada de variables de entorno
-└── docker-compose.yml        # Orquestación de contenedores y redes privadas (Fase 2)
+│   ├── CLAUDE.md             # This file (architecture and standards guide)
+│   └── context/              # SDD documentation and tracking
+│       ├── user_stories/         # User stories ordered by epic
+│       ├── summaries/            # Executive summaries at the end of each phase
+│       ├── IMPLEMENTATION_PLAN.md# Master plan of user stories and progress
+│       └── TASK_EXECUTION.md     # Instruction manual for Claude Code
+├── .env.example              # Centralized environment variable template
+└── docker-compose.yml        # Container orchestration and private networks (Phase 2)
+```
 
-Convenciones de Código
-Nombres
+---
 
--Python: snake_case para funciones, métodos, variables y archivos (ticket_service.py).
+## Code Conventions
 
--TypeScript / React: camelCase para variables y funciones; PascalCase para Componentes e Interfaces (TicketCard.tsx).
+### Language
+- **All documentation, comments, docstrings and identifiers are written in English** (README, CLAUDE.md, user stories, plans, summaries, skills).
 
--Clases: PascalCase en ambos lenguajes.
+### Naming
+- Python: `snake_case` for functions, methods, variables and files (`ticket_service.py`).
+- TypeScript / React: `camelCase` for variables and functions; `PascalCase` for Components and Interfaces (`TicketCard.tsx`).
+- Classes: `PascalCase` in both languages.
+- Constants: `UPPER_SNAKE_CASE`.
+- REST API routes: `/kebab-case` (e.g. `/api/v1/tickets/active-alerts`).
 
--Constantes: UPPER_SNAKE_CASE.
+### Branches
+- `main` → Production / deployment-ready code
+- `develop` → Feature integration
+- `feature/descriptive-name`
+- `fix/bug-name`
 
--Rutas de API REST: /kebab-case (ej. /api/v1/tickets/active-alerts).
+---
 
-Ramas
+## Important Rules and DevOps Principles
 
-    main → Producción / Código listo para despliegue en servidor
+1. **The Twelve-Factor App (zero hardcoding):**
+   - NEVER write credentials, API keys, URLs or ports directly in code.
+   - Every configurable parameter is read from environment variables (`.env`).
 
-    develop → Integración de características
+2. **Strict isolation through MCP (sandboxing):**
+   - The AI engine (LangGraph) NEVER connects directly to PostgreSQL nor runs operating system commands.
+   - All infrastructure interaction must go through the authorized MCP servers.
 
-    feature/nombre-descriptivo
+3. **Cloud-native logging strategy:**
+   - All microservices must emit their logs to stdout and stderr.
+   - Do not use libraries that write or rotate local text files inside the application.
 
-    fix/nombre-del-bug
-    
-Reglas Importantes y Principios DevOps
+4. **Spec-Driven Development (SDD):**
+   - Claude Code must strictly follow the workflow described in @context/TASK_EXECUTION.md.
+   - Develop the Acceptance Criteria ONE AT A TIME.
+   - Make a mandatory pause at Checkpoints before marking a User Story as completed.
 
-    The Twelve-Factor App (Cero Hardcoding):
+---
 
-        NUNCA escribir credenciales, claves de API, URLs o puertos directamente en el código.
+## Required Environment Variables (.env)
 
-        Todo parámetro configurable se lee desde variables de entorno (.env).
-
-    Aislamiento Estricto mediante MCP (Sandboxing):
-
-        El motor de IA (LangGraph) NUNCA se conecta directamente a PostgreSQL ni ejecuta comandos del sistema operativo.
-
-        Toda interacción con la infraestructura debe realizarse a través de los servidores MCP autorizados.
-
-    Estrategia de Logging Cloud-Native:
-
-        Todos los microservicios deben emitir sus logs a stdout y stderr.
-
-        No usar librerías que escriban o roten archivos de texto locales dentro de la aplicación.
-
-    Operación mediante Spec-Driven Development (SDD):
-
-        Claude Code debe acatarse estrictamente al flujo descrito en @context/TASK_EXECUTION.md.
-
-        Desarrollar los Criterios de Aceptación UNO A LA VEZ.
-
-        Hacer pausa obligatoria en los Checkpoints antes de marcar la Historia de Usuario como completada.
-        
-
-Variables de Entorno Necesarias (.env)
-
-# Servidor & Gateway
+```bash
+# Server & Gateway
 PORT=8000
 DEBUG=True
 ENVIRONMENT=development
-SECRET_KEY=clave_secreta_jwt_autoops
+SECRET_KEY=autoops_jwt_secret_key
 
-# Base de Datos PostgreSQL
+# PostgreSQL Database
 DB_HOST=localhost
 DB_PORT=5432
 DB_NAME=autoops_db
 DB_USER=autoops_user
 DB_PASSWORD=autoops_password
 
-# Modelos de IA & Telemetría
-OPENAI_API_KEY=tu_clave_openai
-ANTHROPIC_API_KEY=tu_clave_anthropic
+# AI Models & Telemetry
+OPENAI_API_KEY=your_openai_key
+ANTHROPIC_API_KEY=your_anthropic_key
 LANGCHAIN_TRACING_V2=true
-LANGCHAIN_API_KEY=tu_clave_langsmith
+LANGCHAIN_API_KEY=your_langsmith_key
 
-# Servidores MCP
+# MCP Servers
 MCP_LOGS_SERVER_URL=http://localhost:5001
 MCP_DB_SERVER_URL=http://localhost:5002
 
 # Frontend (Vite)
 VITE_API_BASE_URL=http://localhost:8000
 VITE_WS_BASE_URL=ws://localhost:8000/ws
+```
 
-stándares de Frontend
-Filosofía
+---
 
-Cada UI debe ser de nivel producción: accesible, performante, mantenible e intencional. El código debe poder superar una revisión de código estricta.
-Arquitectura de Componentes
+## Frontend Standards
 
-    Separación de responsabilidades: La lógica de negocio vive fuera del componente de UI.
+### Philosophy
+Every UI must be production-grade: accessible, performant, maintainable and intentional. The code must be able to pass a strict code review.
 
-        Custom Hooks para lógica y llamadas HTTP/WebSocket; componentes dedicados únicamente al renderizado.
-
-    Componentes pequeños y enfocados: Máximo ~150 líneas por archivo, una sola responsabilidad.
-
-    Tipado estricto: TypeScript en modo strict, sin uso de any.
-
-    Estructura basada en features:
-    feature/
-  ├── components/     ← UI puro (sin llamadas a API)
-  ├── services/       ← cliente HTTP y WebSockets
-  ├── models/         ← interfaces y tipos
-  ├── hooks/          ← estado y lógica de negocio
+### Component Architecture
+- **Separation of concerns:** business logic lives outside the UI component.
+  - Custom Hooks for logic and HTTP/WebSocket calls; components dedicated solely to rendering.
+- **Small, focused components:** maximum ~150 lines per file, a single responsibility.
+- **Strict typing:** TypeScript in strict mode, no use of `any`.
+- **Feature-based structure:**
+  ```
+  feature/
+  ├── components/     ← pure UI (no API calls)
+  ├── services/       ← HTTP and WebSocket client
+  ├── models/         ← interfaces and types
+  ├── hooks/          ← state and business logic
   └── index.ts        ← barrel export
-  
- TypeScript
+  ```
 
-    strict: true activado en tsconfig.json.
+### TypeScript
+- `strict: true` enabled in `tsconfig.json`.
+- Interfaces for domain objects (`Ticket`, `AgentState`), types for unions and utilities.
+- Use `unknown` + type guards instead of `any`.
+- Explicitly type function return values and event handlers.
 
-    Interfaces para objetos del dominio (Ticket, AgentState), types para uniones y utilidades.
+### Styles and Design
+- Use TailwindCSS classes, staying consistent with the dashboard design.
+- Dynamic layouts with CSS Grid for the main dashboard views and Flexbox for linear components.
+- Mobile-first approach using Tailwind breakpoints (`md:`, `lg:`).
 
-    Usar unknown + type guards en lugar de any.
+### Accessibility (a11y) — Non-negotiable
+- Interactive elements operable via keyboard (Tab, Enter, Space).
+- Explicit `<label>` for all data input fields.
+- Color contrast ratio compliant with WCAG AA (4.5:1 for normal text).
+- ARIA attributes and roles for HITL approval modals and dynamic ticket tables.
+- Clear visual styles for `:focus-visible`.
 
-    Tipar explícitamente los retornos de funciones y manejadores de eventos.
-
-Estilos y Diseño
-
-    Usar clases de TailwindCSS manteniendo coherencia con el diseño del panel de control.
-
-    Layouts dinámicos con CSS Grid para las vistas principales del dashboard y Flexbox para componentes lineales.
-
-    Enfoque Mobile-First mediante puntos de interrupción de Tailwind (md:, lg:).
-
-Accesibilidad (a11y) — No negociable
-
-    Elementos interactivos operables mediante teclado (Tab, Enter, Space).
-
-    <label> explícito para todos los campos de entrada de datos.
-
-    Relación de contraste de color alineada a norma WCAG AA (4.5:1 para texto normal).
-
-    Atributos y roles ARIA para modales de aprobación HITL y tablas dinámicas de tickets.
-
-    Estilos visuales claros para :focus-visible.
-
-Rendimiento
-
-    Carga diferida de vistas secundarias mediante React.lazy y Suspense.
-
-    Optimización de re-renders en componentes vinculados al streaming de WebSockets.
-
-    Manejo de estado predecible e inmutable usando Zustand.
-  
- 
+### Performance
+- Lazy loading of secondary views with `React.lazy` and `Suspense`.
+- Re-render optimization in components bound to WebSocket streaming.
+- Predictable, immutable state management using Zustand.

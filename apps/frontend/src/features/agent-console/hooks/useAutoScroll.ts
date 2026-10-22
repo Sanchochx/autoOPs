@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import type { RefObject } from 'react'
 
-/** Desplaza el contenedor al final cada vez que cambia `dependency`. */
+/** Scrolls the container to the bottom whenever `dependency` changes. */
 export function useAutoScroll(dependency: unknown): RefObject<HTMLDivElement | null> {
   const ref = useRef<HTMLDivElement | null>(null)
 

@@ -1,52 +1,52 @@
-# US-DOCK-001: Builds Multi-Stage para API Gateway y AI Engine
+# US-DOCK-001: Multi-Stage Builds for API Gateway and AI Engine
 
-**Épica:** 08 — Containerization & Orchestration
-**Prioridad:** ALTA
-**Estimación:** 5 pts
-**Dependencias:** US-INT-002
-**Estado:** Completada
-
----
-
-## Historia de Usuario
-
-**Como** ingeniero DevOps,
-**necesito** empaquetar el API Gateway y el AI Engine en imágenes Docker independientes, eficientes y reproducibles mediante builds multi-stage,
-**para** desplegarlos de forma aislada en cualquier host (VM local o AWS EC2) sin depender del entorno de desarrollo.
+**Epic:** 08 — Containerization & Orchestration
+**Priority:** HIGH
+**Estimate:** 5 pts
+**Dependencies:** US-INT-002
+**Status:** Completed
 
 ---
 
-## Criterios de Aceptación
+## User Story
 
-> Trabajar UNO A LA VEZ, en orden. Marcar `[x]` al terminar cada uno y hacer pausa en el checkpoint final antes de cerrar la US.
-
-- [x] **CA-1: Imagen del API Gateway**
-  - Crear `apps/api_gateway/Dockerfile` multi-stage: una etapa `builder` que instala dependencias (`requirements.txt`) y una etapa `runtime` mínima (`python:3.11-slim`) que solo copia lo necesario.
-  - El contenedor escucha en `0.0.0.0` (`HOST`), toma `PORT` y el resto de la configuración exclusivamente del entorno, y emite logs a stdout/stderr.
-  - **Verificación:** `docker build` termina sin errores; `docker run` con variables de entorno inyectadas levanta el Gateway y `GET /health` (o el endpoint de salud existente) responde `200`.
-
-- [x] **CA-2: Imagen del AI Engine**
-  - Crear `services/ai-engine/Dockerfile` multi-stage con las dependencias de `services/ai-engine/requirements.txt` únicamente, sin dependencias del Gateway.
-  - Definir y documentar cómo se ejecuta el motor en contenedor (ver decisión abierta en Notas Técnicas).
-  - **Verificación:** `docker build` termina sin errores; dentro del contenedor `ai_engine.graph` se importa y `build_graph` compila con un modelo simulado, sin red ni claves reales.
-
-- [x] **CA-3: Eficiencia y Seguridad de las Imágenes**
-  - Añadir `.dockerignore` (excluye `venv/`, `.env`, `.git/`, `tests/`, `__pycache__/`, `node_modules/`).
-  - Ejecutar ambos procesos con un usuario no-root y sin secretos incrustados en capas.
-  - **Verificación:** `docker history`/`docker run env` no muestran credenciales; `docker run --rm <imagen> id -u` devuelve un UID distinto de `0`; el tamaño final de cada imagen queda registrado en el resumen de la US.
+**As** a DevOps engineer,
+**I need** to package the API Gateway and the AI Engine into independent, efficient and reproducible Docker images using multi-stage builds,
+**so that** I can deploy them in isolation on any host (local VM or AWS EC2) without depending on the development environment.
 
 ---
 
-## Notas Técnicas
+## Acceptance Criteria
 
-- **Fuera de alcance:** `docker-compose.yml` completo con todos los servicios y redes aisladas, Dockerfile del frontend, servidores MCP, reverse proxy (Traefik/Nginx), CI/CD y publicación en registry. Se cubrirán en US posteriores de la Épica 08 y la Fase 5.
-- **Decisión abierta (cerrar antes de implementar CA-2):** hoy el AI Engine **no es un servicio**: es una librería que el Gateway importa en proceso (`ai_engine.graph.compiled_graph`, vía `PYTHONPATH=.:services/ai-engine`). Opciones:
-  - **A) Imagen del Gateway incluye `ai_engine`:** una sola imagen ejecutable; la imagen del AI Engine existe como artefacto de build/verificación y base de dependencias. No requiere cambios de código, pero no hay aislamiento de runtime.
-  - **B) AI Engine como servicio independiente:** requiere un entrypoint (p. ej. API HTTP interna) y que el Gateway lo consuma por red en lugar de importar el módulo. Da aislamiento real, pero implica una US previa de refactor (cambia el contrato de US-INT-001/002).
-  - Recomendación: A para esta US y abrir una US aparte para B si se requiere aislamiento de red.
-- **`PYTHONPATH`:** debe fijarse con `ENV` en el Dockerfile (ver `.env.example`), no depender de un `.env` copiado a la imagen.
-- **Variables de entorno:** todas inyectadas en runtime (`--env-file` o `environment:`); nunca `COPY .env`. Incluye `DATABASE_URL`, `AI_MODEL_NAME`, claves del proveedor y `WS_BROADCAST_TIMEOUT_SECONDS`.
-- **Migraciones:** Alembic no se ejecuta al arrancar la imagen en esta US; queda como paso explícito (comando aparte) para una US de orquestación.
-- **Docker/Compose:** `docker-compose.yml` solo define hoy PostgreSQL; no se modifica en esta US salvo que la decisión lo requiera.
-- **Logging:** stdout/stderr, sin archivos locales ni volúmenes de logs.
-- **Convenciones:** una sola responsabilidad por Dockerfile; etapas nombradas (`builder`, `runtime`); versiones de imagen base fijadas (sin `latest`).
+> Work ONE AT A TIME, in order. Mark `[x]` when each is finished and pause at the final checkpoint before closing the US.
+
+- [x] **AC-1: API Gateway Image**
+  - Create a multi-stage `apps/api_gateway/Dockerfile`: a `builder` stage that installs dependencies (`requirements.txt`) and a minimal `runtime` stage (`python:3.11-slim`) that copies only what is needed.
+  - The container listens on `0.0.0.0` (`HOST`), takes `PORT` and the rest of the configuration exclusively from the environment, and emits logs to stdout/stderr.
+  - **Verification:** `docker build` finishes without errors; `docker run` with injected environment variables brings up the Gateway and `GET /health` (or the existing health endpoint) responds `200`.
+
+- [x] **AC-2: AI Engine Image**
+  - Create a multi-stage `services/ai-engine/Dockerfile` with only the dependencies of `services/ai-engine/requirements.txt`, without Gateway dependencies.
+  - Define and document how the engine is run in a container (see open decision in Technical Notes).
+  - **Verification:** `docker build` finishes without errors; inside the container `ai_engine.graph` imports and `build_graph` compiles with a simulated model, with no network or real keys.
+
+- [x] **AC-3: Image Efficiency and Security**
+  - Add `.dockerignore` (excludes `venv/`, `.env`, `.git/`, `tests/`, `__pycache__/`, `node_modules/`).
+  - Run both processes as a non-root user and without secrets embedded in layers.
+  - **Verification:** `docker history`/`docker run env` show no credentials; `docker run --rm <image> id -u` returns a UID other than `0`; the final size of each image is recorded in the US summary.
+
+---
+
+## Technical Notes
+
+- **Out of scope:** full `docker-compose.yml` with all services and isolated networks, frontend Dockerfile, MCP servers, reverse proxy (Traefik/Nginx), CI/CD and registry publishing. They will be covered in later USs of Epic 08 and Phase 5.
+- **Open decision (close before implementing AC-2):** today the AI Engine **is not a service**: it is a library that the Gateway imports in-process (`ai_engine.graph.compiled_graph`, via `PYTHONPATH=.:services/ai-engine`). Options:
+  - **A) The Gateway image includes `ai_engine`:** a single runnable image; the AI Engine image exists as a build/verification artifact and dependency base. It requires no code changes, but there is no runtime isolation.
+  - **B) AI Engine as an independent service:** requires an entrypoint (e.g. internal HTTP API) and the Gateway consuming it over the network instead of importing the module. It gives real isolation, but implies a prior refactor US (changes the contract of US-INT-001/002).
+  - Recommendation: A for this US and open a separate US for B if network isolation is required.
+- **`PYTHONPATH`:** must be set with `ENV` in the Dockerfile (see `.env.example`), not depend on a `.env` copied into the image.
+- **Environment variables:** all injected at runtime (`--env-file` or `environment:`); never `COPY .env`. Includes `DATABASE_URL`, `AI_MODEL_NAME`, provider keys and `WS_BROADCAST_TIMEOUT_SECONDS`.
+- **Migrations:** Alembic is not run when the image starts in this US; it remains an explicit step (separate command) for an orchestration US.
+- **Docker/Compose:** `docker-compose.yml` currently defines only PostgreSQL; it is not modified in this US unless the decision requires it.
+- **Logging:** stdout/stderr, with no local files or log volumes.
+- **Conventions:** a single responsibility per Dockerfile; named stages (`builder`, `runtime`); pinned base image versions (no `latest`).

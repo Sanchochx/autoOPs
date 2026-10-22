@@ -1,7 +1,7 @@
-"""Arranque local del API Gateway.
+"""Local startup of the API Gateway.
 
-Uso (desde la raíz del monorepo): ``python -m apps.api_gateway.run``
-Lee ``HOST`` y ``PORT`` del entorno (cargando ``.env`` si existe).
+Usage (from the monorepo root): ``python -m apps.api_gateway.run``
+Reads ``HOST`` and ``PORT`` from the environment (loading ``.env`` if present).
 """
 
 import os
@@ -15,7 +15,7 @@ DEFAULT_PORT = 8000
 
 
 def main() -> None:
-    """Levanta Uvicorn con el host y puerto configurados por entorno."""
+    """Start Uvicorn with the host and port configured via the environment."""
     load_dotenv()
     host = os.getenv("HOST", DEFAULT_HOST)
     port = int(os.getenv("PORT", str(DEFAULT_PORT)))

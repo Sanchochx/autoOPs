@@ -1,8 +1,8 @@
-# Override OPCIONAL de desarrollo: expone Postgres solo en loopback del host
-# (p. ej. para psql/DBeaver o correr Alembic desde el host). No usar en producción.
+# OPTIONAL development override: exposes Postgres only on the host loopback
+# (e.g. for psql/DBeaver or running Alembic from the host). Do not use in production.
 #   docker compose -f docker-compose.yml -f docker-compose.dev-db.yml up -d
-# Las redes `internal` no admiten puertos publicados, por eso Postgres se une
-# además a una red bridge dedicada, usada solo para este fin.
+# `internal` networks do not allow published ports, so Postgres also joins
+# a dedicated bridge network, used only for this purpose.
 services:
   postgres:
     ports:

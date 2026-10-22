@@ -1,4 +1,4 @@
-"""Modelos ORM (SQLAlchemy 2.x) del API Gateway."""
+"""ORM models (SQLAlchemy 2.x) of the API Gateway."""
 
 import uuid
 from datetime import datetime
@@ -12,12 +12,12 @@ from apps.api_gateway.schemas import TicketSeverity, TicketStatus
 
 
 def _enum_values(enum_cls: type[Enum]) -> list[str]:
-    """Persiste el ``value`` del enum (p. ej. ``open``) y no su nombre."""
+    """Persist the enum ``value`` (e.g. ``open``) rather than its name."""
     return [member.value for member in enum_cls]
 
 
 class Ticket(Base):
-    """Ticket de incidente y su estado de resolución."""
+    """Incident ticket and its resolution state."""
 
     __tablename__ = "tickets"
 

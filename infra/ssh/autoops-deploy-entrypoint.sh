@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# Comando forzado (`command=`) de la llave de despliegue. Se instala en
+# Forced command (`command=`) of the deploy key. Installed at
 # /usr/local/sbin/autoops-deploy-entrypoint (root:root 755).
-# La llave solo puede pedir acciones de la lista blanca; cualquier otra se rechaza.
-# La acción `deploy` es un marcador: el despliegue real se implementa en la Fase 5.
+# The key can only request allowlisted actions; any other is rejected.
+# The `deploy` action is a placeholder: the real deployment is implemented in Phase 5.
 set -euo pipefail
 
 action="${SSH_ORIGINAL_COMMAND:-}"

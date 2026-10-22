@@ -1,1 +1,1 @@
-"""Motor multi-agente de AutoOps (LangGraph)."""
+"""AutoOps multi-agent engine (LangGraph)."""

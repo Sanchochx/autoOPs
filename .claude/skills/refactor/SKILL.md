@@ -1,115 +1,115 @@
-# Skill: Refactorizar Código
+# Skill: Refactor Code
 
-## Objetivo
-Mejorar la calidad del código existente sin cambiar su comportamiento.
-Aplica para Python/Flask y Node.js/Express.
+## Purpose
+Improve the quality of existing code without changing its behavior.
+Applies to Python/Flask and Node.js/Express.
 
-## Cómo activar
+## How to trigger
 ```
-Usa el skill refactor en [archivo] enfocándote en [aspecto opcional]
+Use the refactor skill on [file] focusing on [optional aspect]
 ```
-Ejemplos:
+Examples:
 ```
-Usa el skill refactor en src/api/invoices.py
-Usa el skill refactor en src/services/user_service.py enfocándote en manejo de errores
+Use the refactor skill on src/api/invoices.py
+Use the refactor skill on src/services/user_service.py focusing on error handling
 ```
 
-## Proceso
+## Process
 
-1. **Analizar** el código actual e identificar problemas
-2. **Listar** los cambios propuestos antes de hacerlos
-3. **Confirmar** que los tests siguen pasando después del refactor
-4. **Documentar** si se cambió alguna interfaz pública
+1. **Analyze** the current code and identify problems
+2. **List** the proposed changes before making them
+3. **Confirm** that the tests still pass after the refactor
+4. **Document** if any public interface was changed
 
 ---
 
-## Señales que indican necesidad de refactor
+## Signs that a refactor is needed
 
-### Funciones muy largas (+30 líneas)
+### Very long functions (30+ lines)
 ```python
-# ❌ Antes
-def procesar_pedido(data):
-    # 50 líneas mezclando validación, lógica y DB
+# ❌ Before
+def process_order(data):
+    # 50 lines mixing validation, logic and DB
 
-# ✅ Después
-def procesar_pedido(data):
-    datos_validados = _validar_pedido(data)
-    totales = _calcular_totales(datos_validados)
-    return _guardar_pedido(totales)
+# ✅ After
+def process_order(data):
+    validated_data = _validate_order(data)
+    totals = _calculate_totals(validated_data)
+    return _save_order(totals)
 ```
 
-### Lógica duplicada
+### Duplicated logic
 ```python
-# ❌ Antes: misma validación en 3 rutas distintas
+# ❌ Before: same validation in 3 different routes
 if not data.get('email') or '@' not in data['email']:
-    return jsonify({'error': 'Email inválido'}), 400
+    return jsonify({'error': 'Invalid email'}), 400
 
-# ✅ Después: extraer a util
-from src.utils.validators import validar_email
+# ✅ After: extract to a util
+from src.utils.validators import validate_email
 ```
 
-### Manejo de errores inconsistente
+### Inconsistent error handling
 ```python
-# ❌ Antes
+# ❌ Before
 try:
-    resultado = servicio.crear(data)
-except:          # captura todo, oculta bugs
+    result = service.create(data)
+except:          # catches everything, hides bugs
     pass
 
-# ✅ Después
+# ✅ After
 try:
-    resultado = servicio.crear(data)
+    result = service.create(data)
 except ValueError as e:
     return jsonify({'error': str(e)}), 400
 except Exception as e:
-    logger.error(f"Error inesperado: {e}")
-    return jsonify({'error': 'Error interno'}), 500
+    logger.error(f"Unexpected error: {e}")
+    return jsonify({'error': 'Internal error'}), 500
 ```
 
-### Magic numbers y strings
+### Magic numbers and strings
 ```python
-# ❌ Antes
+# ❌ Before
 if user.role == 3:
     ...
 if len(password) < 8:
     ...
 
-# ✅ Después
+# ✅ After
 ROLE_ADMIN = 3
 MIN_PASSWORD_LENGTH = 8
 ```
 
-### Queries N+1
+### N+1 queries
 ```python
-# ❌ Antes
-pedidos = Pedido.query.all()
-for pedido in pedidos:
-    print(pedido.cliente.nombre)  # query por cada pedido
+# ❌ Before
+orders = Order.query.all()
+for order in orders:
+    print(order.customer.item)  # one query per order
 
-# ✅ Después
-pedidos = Pedido.query.options(joinedload(Pedido.cliente)).all()
+# ✅ After
+orders = Order.query.options(joinedload(Order.customer)).all()
 ```
 
 ---
 
-## Checklist post-refactor
+## Post-refactor checklist
 
-- [ ] Los tests existentes siguen pasando
-- [ ] El comportamiento observable es idéntico
-- [ ] No se introdujeron dependencias nuevas innecesarias
-- [ ] Los nombres son más claros que antes
-- [ ] El código es más fácil de leer de arriba a abajo
+- [ ] Existing tests still pass
+- [ ] Observable behavior is identical
+- [ ] No unnecessary new dependencies were introduced
+- [ ] Names are clearer than before
+- [ ] The code is easier to read from top to bottom
 
-## Formato de respuesta
+## Response format
 
 ```
-ANÁLISIS: [descripción de los problemas encontrados]
+ANALYSIS: [description of the problems found]
 
-CAMBIOS PROPUESTOS:
-1. [cambio] — [razón]
-2. [cambio] — [razón]
+PROPOSED CHANGES:
+1. [change] — [reason]
+2. [change] — [reason]
 
-[código refactorizado]
+[refactored code]
 
-VERIFICACIÓN: [confirmar que lógica es equivalente]
+VERIFICATION: [confirm that the logic is equivalent]
 ```

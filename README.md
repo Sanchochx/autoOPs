@@ -1,96 +1,96 @@
 # AutoOps
 
-Plataforma SRE multi-agente autohospedada. Es un sistema de soporte técnico autónomo (Tier-1) que recibe y clasifica tickets de incidentes, investiga la causa raíz consultando logs, métricas y bases de datos a través de servidores aislados con Model Context Protocol (MCP), y propone planes de remediación automáticos o supervisados mediante confirmación humana (Human-in-the-Loop, HITL).
+Self-hosted multi-agent SRE platform. It is an autonomous technical support system (Tier-1) that receives and classifies incident tickets, investigates the root cause by querying logs, metrics and databases through isolated Model Context Protocol (MCP) servers, and proposes automatic or human-supervised remediation plans (Human-in-the-Loop, HITL).
 
-Tres agentes orquestados con LangGraph:
+Three agents orchestrated with LangGraph:
 
-1. **Triaje:** clasifica la severidad y enruta el ticket.
-2. **Investigador:** inspecciona logs y métricas vía herramientas MCP.
-3. **Ejecutor:** genera planes de mitigación y gestiona las aprobaciones HITL.
+1. **Triage:** classifies severity and routes the ticket.
+2. **Investigator:** inspects logs and metrics through MCP tools.
+3. **Executor:** generates mitigation plans and manages HITL approvals.
 
-## Stack tecnológico
+## Tech stack
 
-| Capa | Tecnología |
+| Layer | Technology |
 |------|------------|
 | Backend / API Gateway | Python 3.11+, FastAPI, Pydantic, WebSockets + REST |
-| Motor de IA | LangGraph + LangChain, MCP SDK |
-| Persistencia | PostgreSQL, SQLAlchemy, Alembic |
+| AI engine | LangGraph + LangChain, MCP SDK |
+| Persistence | PostgreSQL, SQLAlchemy, Alembic |
 | Frontend | React + Vite + TypeScript, TailwindCSS, Zustand |
-| Infraestructura (Fase 2) | Docker Compose, Traefik/Nginx + Let's Encrypt, GitHub Actions |
+| Infrastructure (Phase 2) | Docker Compose, Traefik/Nginx + Let's Encrypt, GitHub Actions |
 
-## Estructura del monorepo
+## Monorepo structure
 
 ```
 autoops/
 ├── apps/
-│   ├── frontend/        # Dashboard Admin (React + Vite + TypeScript + TailwindCSS)
-│   └── api_gateway/     # FastAPI: REST, WebSockets y autenticación
+│   ├── frontend/        # Admin dashboard (React + Vite + TypeScript + TailwindCSS)
+│   └── api_gateway/     # FastAPI: REST, WebSockets and authentication
 ├── services/
-│   ├── ai-engine/       # Agentes LangGraph (Triaje, Investigador, Ejecutor)
-│   └── mcp-servers/     # Servidores MCP (aislamiento de BD, logs y métricas)
+│   ├── ai-engine/       # LangGraph agents (Triage, Investigator, Executor)
+│   └── mcp-servers/     # MCP servers (DB, logs and metrics isolation)
 ├── .claude/
-│   ├── CLAUDE.md        # Arquitectura y estándares del proyecto
-│   └── context/         # Documentación SDD (plan, historias de usuario, resúmenes)
-├── .env.example         # Plantilla centralizada de variables de entorno
+│   ├── CLAUDE.md        # Project architecture and standards
+│   └── context/         # SDD documentation (plan, user stories, summaries)
+├── .env.example         # Centralized environment variable template
 ├── .gitignore
 └── README.md
 ```
 
-## Prerrequisitos
+## Prerequisites
 
 - Python 3.11+
-- Node.js (LTS) y npm
+- Node.js (LTS) and npm
 - PostgreSQL
-- Docker y Docker Compose (solo a partir de la Fase 2)
+- Docker and Docker Compose (Phase 2 onwards)
 
-## Primeros pasos
+## Getting started
 
 ```bash
-git clone <url-del-repositorio> autoops
+git clone <repository-url> autoops
 cd autoops
-cp .env.example .env    # y edita los valores
+cp .env.example .env    # and edit the values
 ```
 
-Los comandos de ejecución estarán disponibles tras las US correspondientes:
+Run commands become available after the corresponding user stories:
 
-- **Backend / API Gateway:** disponible tras US-GW-001.
-- **Frontend:** disponible tras US-FE-001.
-- **Contenedores:** disponible en la Fase 2.
+- **Backend / API Gateway:** available after US-GW-001.
+- **Frontend:** available after US-FE-001.
+- **Containers:** available in Phase 2.
 
-### Migraciones de base de datos (Alembic, desde la raíz del monorepo)
+### Database migrations (Alembic, from the monorepo root)
 
 ```bash
-alembic -c apps/api_gateway/alembic.ini upgrade head     # aplicar migraciones
-alembic -c apps/api_gateway/alembic.ini current          # revisión actual
-alembic -c apps/api_gateway/alembic.ini revision --autogenerate -m "descripcion"
+alembic -c apps/api_gateway/alembic.ini upgrade head     # apply migrations
+alembic -c apps/api_gateway/alembic.ini current          # current revision
+alembic -c apps/api_gateway/alembic.ini revision --autogenerate -m "description"
 ```
 
-Requiere `DATABASE_URL` (`postgresql+asyncpg://...`) en `.env`.
+Requires `DATABASE_URL` (`postgresql+asyncpg://...`) in `.env`.
 
-Los comandos definitivos se documentan en [`.claude/CLAUDE.md`](.claude/CLAUDE.md#comandos-clave).
+The definitive commands are documented in [`.claude/CLAUDE.md`](.claude/CLAUDE.md#key-commands).
 
-## Principios clave
+## Key principles
 
-- **Twelve-Factor (cero hardcoding):** credenciales, claves, URLs y puertos se leen siempre de variables de entorno (`.env`).
-- **Aislamiento vía MCP:** el motor de IA nunca se conecta directamente a PostgreSQL ni ejecuta comandos del sistema; toda interacción con la infraestructura pasa por servidores MCP autorizados.
-- **Logging cloud-native:** todos los servicios emiten logs a stdout/stderr; no se escriben ni rotan archivos locales.
+- **Twelve-Factor (zero hardcoding):** credentials, keys, URLs and ports are always read from environment variables (`.env`).
+- **MCP isolation:** the AI engine never connects directly to PostgreSQL nor runs system commands; all infrastructure interaction goes through authorized MCP servers.
+- **Cloud-native logging:** all services emit logs to stdout/stderr; no local files are written or rotated.
 
-## Flujo de trabajo (SDD)
+## Workflow (SDD)
 
-El proyecto sigue Spec-Driven Development: una historia de usuario a la vez, criterios de aceptación uno a uno y checkpoint obligatorio antes de avanzar.
+The project follows Spec-Driven Development: one user story at a time, acceptance criteria one by one, and a mandatory checkpoint before moving on.
 
-- [Plan de implementación](.claude/context/IMPLEMENTATION_PLAN.md)
-- [Flujo de ejecución de tareas](.claude/context/TASK_EXECUTION.md)
-- [Guía de arquitectura y estándares](.claude/CLAUDE.md)
+- [Implementation plan](.claude/context/IMPLEMENTATION_PLAN.md)
+- [Task execution workflow](.claude/context/TASK_EXECUTION.md)
+- [Architecture and standards guide](.claude/CLAUDE.md)
 
-### Ramas
+### Branches
 
-| Rama | Propósito |
+| Branch | Purpose |
 |------|-----------|
-| `main` | Producción / código listo para despliegue |
-| `develop` | Integración de características |
-| `feature/nombre-descriptivo` | Nuevas funcionalidades |
-| `fix/nombre-del-bug` | Corrección de errores |
+| `main` | Production / deployment-ready code |
+| `develop` | Feature integration |
+| `feature/descriptive-name` | New features |
+| `fix/bug-name` | Bug fixes |
 
 ```text
 +============================================================================+

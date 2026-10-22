@@ -1,4 +1,4 @@
-"""Construcción y compilación del grafo: START -> triage -> investigator -> END."""
+"""Construction and compilation of the graph: START -> triage -> investigator -> END."""
 
 from typing import Any
 
@@ -11,7 +11,7 @@ from ai_engine.state import AgentState
 
 
 def build_graph(model: BaseChatModel, context_provider: ContextProvider | None = None) -> Any:
-    """Compila el grafo con las dependencias inyectadas."""
+    """Compile the graph with the injected dependencies."""
     workflow = StateGraph(AgentState)
     workflow.add_node("triage_node", make_triage_node(model))
     workflow.add_node("investigator_node", make_investigator_node(model, context_provider))
@@ -22,10 +22,10 @@ def build_graph(model: BaseChatModel, context_provider: ContextProvider | None =
 
 
 def __getattr__(name: str) -> Any:
-    """Expone ``compiled_graph`` de forma diferida.
+    """Expose ``compiled_graph`` lazily.
 
-    Se construye con el modelo del entorno al primer acceso, para que importar
-    el módulo no exija ``AI_MODEL_NAME`` ni credenciales.
+    It is built with the environment model on first access, so importing the
+    module does not require ``AI_MODEL_NAME`` or credentials.
     """
     if name == "compiled_graph":
         return build_graph(build_chat_model())

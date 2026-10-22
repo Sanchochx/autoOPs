@@ -1,46 +1,46 @@
-# US-SYS-004: Backups de PostgreSQL con systemd Timer
+# US-SYS-004: PostgreSQL Backups with systemd Timer
 
-**Épica:** 11 — OS Hardening & Runtime
-**Prioridad:** ALTA
-**Estimación:** 5 pts
-**Dependencias:** US-SYS-003
-**Estado:** Pendiente
-
----
-
-## Historia de Usuario
-
-**Como** administrador del servidor,
-**necesito** copias de seguridad automáticas, rotadas y restaurables de la base de datos,
-**para** poder recuperar los tickets ante un fallo de disco, un error humano o una migración defectuosa.
+**Epic:** 11 — OS Hardening & Runtime
+**Priority:** HIGH
+**Estimate:** 5 pts
+**Dependencies:** US-SYS-003
+**Status:** Pending
 
 ---
 
-## Criterios de Aceptación
+## User Story
 
-> Trabajar UNO A LA VEZ, en orden. Marcar `[x]` al terminar cada uno y hacer pausa en el checkpoint final antes de cerrar la US.
-
-- [ ] **CA-1: Script de Backup**
-  - `scripts/ops/backup_postgres.sh` ejecuta `pg_dump` (formato custom) mediante `docker compose exec -T postgres`, leyendo credenciales del entorno, sin imprimirlas en logs ni pasarlas por argumentos visibles.
-  - Salida en `BACKUP_DIR` (variable, fuera de `postgres_data`) con nombre fechado, modo `0600` y propietario `autoops`.
-  - **Verificación:** se genera un dump válido (`pg_restore --list`).
-
-- [ ] **CA-2: `autoops-backup.service` y `.timer`**
-  - Unidades en `infra/systemd/`: servicio oneshot y timer (`OnCalendar` por variable, `Persistent=true`, `RandomizedDelaySec`).
-  - **Verificación:** `systemctl list-timers` muestra el siguiente disparo y `systemctl start autoops-backup` crea un backup.
-
-- [ ] **CA-3: Retención y Alertas de Fallo**
-  - Rotación por antigüedad/cantidad (`BACKUP_RETENTION_DAYS`), eliminando solo archivos propios del patrón de nombre. Salida distinta de cero ante fallo para que systemd lo registre como `failed`.
-  - **Verificación:** con retención reducida, los dumps antiguos se eliminan y los recientes se conservan.
-
-- [ ] **CA-4: Restauración Probada y Documentada**
-  - Procedimiento en `infra/backup/README.md` y script `scripts/ops/restore_postgres.sh` con confirmación explícita (operación destructiva).
-  - Check `scripts/provision/checks/80_backup.sh` (timer activo, permisos del directorio).
-  - **Verificación:** restaurar un dump en una base limpia y comprobar que los tickets coinciden.
+**As** the server administrator,
+**I need** automatic, rotated and restorable database backups,
+**so that** I can recover tickets after a disk failure, a human error or a faulty migration.
 
 ---
 
-## Notas Técnicas
+## Acceptance Criteria
 
-- **Fuera de alcance:** backups remotos/S3, cifrado de los dumps, PITR/WAL archiving.
-- **Disco:** dimensionar `BACKUP_DIR` y documentar la ubicación recomendada (volumen separado en EC2).
+> Work ONE AT A TIME, in order. Mark `[x]` when each one is done and pause at the final checkpoint before closing the US.
+
+- [ ] **AC-1: Backup Script**
+  - `scripts/ops/backup_postgres.sh` runs `pg_dump` (custom format) via `docker compose exec -T postgres`, reading credentials from the environment, without printing them in logs or passing them through visible arguments.
+  - Output to `BACKUP_DIR` (variable, outside `postgres_data`) with a dated name, mode `0600` and owner `autoops`.
+  - **Verification:** a valid dump is generated (`pg_restore --list`).
+
+- [ ] **AC-2: `autoops-backup.service` and `.timer`**
+  - Units in `infra/systemd/`: oneshot service and timer (`OnCalendar` via variable, `Persistent=true`, `RandomizedDelaySec`).
+  - **Verification:** `systemctl list-timers` shows the next trigger and `systemctl start autoops-backup` creates a backup.
+
+- [ ] **AC-3: Retention and Failure Alerts**
+  - Rotation by age/count (`BACKUP_RETENTION_DAYS`), deleting only files matching the name pattern. Non-zero exit on failure so systemd records it as `failed`.
+  - **Verification:** with reduced retention, old dumps are deleted and recent ones are kept.
+
+- [ ] **AC-4: Tested and Documented Restore**
+  - Procedure in `infra/backup/README.md` and script `scripts/ops/restore_postgres.sh` with explicit confirmation (destructive operation).
+  - Check `scripts/provision/checks/80_backup.sh` (timer active, directory permissions).
+  - **Verification:** restore a dump into a clean database and verify that the tickets match.
+
+---
+
+## Technical Notes
+
+- **Out of scope:** remote/S3 backups, dump encryption, PITR/WAL archiving.
+- **Disk:** size `BACKUP_DIR` and document the recommended location (separate volume on EC2).

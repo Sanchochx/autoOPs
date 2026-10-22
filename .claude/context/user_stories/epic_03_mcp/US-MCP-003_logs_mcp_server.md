@@ -1,52 +1,52 @@
-# US-MCP-003: Servidor MCP de Inspección de Logs y Métricas Simuladas
+# US-MCP-003: MCP Server for Simulated Log and Metrics Inspection
 
-**Épica:** 03 — MCP Servers
-**Prioridad:** ALTA
-**Estimación:** 5 pts
-**Dependencias:** US-GATE-002
-**Estado:** Completada
-
----
-
-## Historia de Usuario
-
-**Como** orquestador de IA,
-**necesito** un servidor Model Context Protocol (MCP) que exponga herramientas seguras para consultar logs y métricas,
-**para** que el Agente Investigador pueda inspeccionar el estado del sistema sin tener acceso directo a la infraestructura.
+**Epic:** 03 — MCP Servers
+**Priority:** HIGH
+**Estimate:** 5 pts
+**Dependencies:** US-GATE-002
+**Status:** Completed
 
 ---
 
-## Criterios de Aceptación
+## User Story
 
-> Trabajar UNO A LA VEZ, en orden. Marcar `[x]` al terminar cada uno y hacer pausa en el checkpoint final antes de cerrar la US.
-
-- [x] **CA-1: Estructura del Servidor MCP**
-  - Se crea la carpeta `services/mcp-servers/logs_server/`.
-  - Se crea `requirements.txt` con la librería oficial `mcp` (SDK de Anthropic), usando su `FastMCP` (`mcp.server.fastmcp`) para declarar herramientas con decoradores.
-  - Se crea `server.py` que inicializa el servidor MCP, preparado para comunicación estándar vía `stdio`.
-  - **Verificación:** `server.py` importa sin errores y el servidor se instancia con un nombre identificable.
-
-- [x] **CA-2: Herramienta `get_system_logs`**
-  - Se expone una tool MCP que recibe el argumento `service_name` (ej. `"api_gateway"`, `"database"`).
-  - Retorna un array (o string) con 5 líneas de logs recientes simulados de nivel error/info para ese servicio.
-  - **Verificación:** al invocarla con un servicio válido devuelve exactamente 5 líneas que referencian dicho servicio.
-
-- [x] **CA-3: Herramienta `get_db_metrics`**
-  - Se expone una tool MCP sin argumentos.
-  - Retorna un payload JSON simulado con la salud de la base de datos: conexiones activas, uso de CPU y transacciones lentas.
-  - **Verificación:** la respuesta es JSON válido y contiene los tres campos indicados.
-
-- [x] **CA-4: Configuración de ejecución**
-  - `server.py` incluye el bloque `if __name__ == "__main__":` que arranca el servidor por `stdio`.
-  - El servidor queda listo para ser lanzado como subproceso por un cliente (por ejemplo, LangGraph).
-  - **Verificación:** `python services/mcp-servers/logs_server/server.py` arranca y queda a la espera por stdio sin errores.
+**As** an AI orchestrator,
+**I need** a Model Context Protocol (MCP) server that exposes safe tools to query logs and metrics,
+**so that** the Investigator Agent can inspect the system state without direct access to the infrastructure.
 
 ---
 
-## Notas Técnicas
+## Acceptance Criteria
 
-- **Aislamiento (MCP):** el servidor no se conecta a PostgreSQL ni ejecuta comandos del SO; los datos son simulados en esta US.
-- **Logging:** solo stdout/stderr. En transporte `stdio`, stdout es el canal del protocolo: los logs de diagnóstico deben ir a **stderr**.
-- **Doce factores:** sin credenciales, URLs ni puertos en el código; cualquier variable nueva se documenta en `.env.example`.
-- **Fuera de alcance:** conexión real a logs/métricas, integración con el motor de IA, transporte HTTP/SSE.
-- **Convenciones:** archivos y funciones en `snake_case`.
+> Work ONE AT A TIME, in order. Mark `[x]` when each one is finished and pause at the final checkpoint before closing the US.
+
+- [x] **AC-1: MCP Server structure**
+  - The folder `services/mcp-servers/logs_server/` is created.
+  - `requirements.txt` is created with the official `mcp` library (Anthropic SDK), using its `FastMCP` (`mcp.server.fastmcp`) to declare tools with decorators.
+  - `server.py` is created, initializing the MCP server, ready for standard communication via `stdio`.
+  - **Verification:** `server.py` imports without errors and the server is instantiated with an identifiable name.
+
+- [x] **AC-2: `get_system_logs` tool**
+  - An MCP tool is exposed that receives the argument `service_name` (e.g. `"api_gateway"`, `"database"`).
+  - Returns an array (or string) with 5 simulated recent error/info-level log lines for that service.
+  - **Verification:** when invoked with a valid service it returns exactly 5 lines that reference that service.
+
+- [x] **AC-3: `get_db_metrics` tool**
+  - An MCP tool with no arguments is exposed.
+  - Returns a simulated JSON payload with the database health: active connections, CPU usage and slow transactions.
+  - **Verification:** the response is valid JSON and contains the three indicated fields.
+
+- [x] **AC-4: Runtime configuration**
+  - `server.py` includes the `if __name__ == "__main__":` block that starts the server over `stdio`.
+  - The server is ready to be launched as a subprocess by a client (for example, LangGraph).
+  - **Verification:** `python services/mcp-servers/logs_server/server.py` starts and waits on stdio without errors.
+
+---
+
+## Technical Notes
+
+- **Isolation (MCP):** the server does not connect to PostgreSQL or run OS commands; data is simulated in this US.
+- **Logging:** stdout/stderr only. With the `stdio` transport, stdout is the protocol channel: diagnostic logs must go to **stderr**.
+- **Twelve-Factor:** no credentials, URLs or ports in the code; any new variable is documented in `.env.example`.
+- **Out of scope:** real connection to logs/metrics, integration with the AI engine, HTTP/SSE transport.
+- **Conventions:** files and functions in `snake_case`.

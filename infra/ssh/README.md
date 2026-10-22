@@ -1,8 +1,8 @@
-# Acceso SSH de AutoOps
+# AutoOps SSH access
 
-Configuración gestionada por `scripts/provision/20_ssh.sh` (verificación: `scripts/provision/checks/20_ssh.sh`).
+Configuration managed by `scripts/provision/20_ssh.sh` (verification: `scripts/provision/checks/20_ssh.sh`).
 
-| Archivo | Destino en el host |
+| File | Host destination |
 |---|---|
 | `10-autoops.conf.tpl` | `/etc/ssh/sshd_config.d/10-autoops.conf` |
 | `autoops-deploy-entrypoint.sh` | `/usr/local/sbin/autoops-deploy-entrypoint` |
@@ -10,44 +10,44 @@ Configuración gestionada por `scripts/provision/20_ssh.sh` (verificación: `scr
 
 ## Variables
 
-| Variable | Obligatoria | Descripción |
+| Variable | Required | Description |
 |---|---|---|
-| `ADMIN_USER` | sí | Usuario administrador (creado por `10_users.sh`) |
-| `ADMIN_SSH_PUBKEY_FILE` | sí | Ruta a la llave **pública** ed25519 del admin (una sola línea) |
-| `DEPLOY_USER` | no (`autoops-deploy`) | Cuenta de CI/CD |
-| `DEPLOY_SSH_PUBKEY_FILE` | no | Llave pública ed25519 de despliegue; si falta, no se crea la cuenta ni se permite su acceso |
-| `DEPLOY_ALLOWED_FROM` | si hay llave de despliegue | Origen permitido (`from=`): IP o CIDR, separados por comas |
-| `SSH_ROLLBACK_MINUTES` | no (`5`) | Ventana para confirmar antes del rollback automático |
+| `ADMIN_USER` | yes | Administrator user (created by `10_users.sh`) |
+| `ADMIN_SSH_PUBKEY_FILE` | yes | Path to the admin's ed25519 **public** key (single line) |
+| `DEPLOY_USER` | no (`autoops-deploy`) | CI/CD account |
+| `DEPLOY_SSH_PUBKEY_FILE` | no | Deployment ed25519 public key; if missing, the account is not created and its access is not allowed |
+| `DEPLOY_ALLOWED_FROM` | if a deploy key is set | Allowed origin (`from=`): IP or CIDR, comma-separated |
+| `SSH_ROLLBACK_MINUTES` | no (`5`) | Window to confirm before the automatic rollback |
 
-## Aplicar sin quedarse fuera
+## Apply without locking yourself out
 
-1. Snapshot de la VM y una sesión SSH/consola ya abierta que **no se cierra**.
+1. Snapshot the VM and keep an already-open SSH/console session that you **do not close**.
 2. `sudo ADMIN_USER=… ADMIN_SSH_PUBKEY_FILE=… ./scripts/provision/20_ssh.sh`.
-   Si la configuración cambia, se arma un rollback automático a los `SSH_ROLLBACK_MINUTES` minutos.
-3. Desde **otra** terminal, abre una sesión nueva con la llave (`ssh -i <llave> <admin>@<host>`).
-4. Si funciona: `sudo ADMIN_USER=… ./scripts/provision/20_ssh.sh --confirm` cancela el rollback.
-   Si no funciona, no hagas nada: pasado el plazo el cambio se revierte solo. También puedes revertir ya con `sudo /usr/local/sbin/autoops-ssh-rollback`.
+   If the configuration changes, an automatic rollback is armed for `SSH_ROLLBACK_MINUTES` minutes later.
+3. From **another** terminal, open a new session with the key (`ssh -i <key> <admin>@<host>`).
+4. If it works: `sudo ADMIN_USER=… ./scripts/provision/20_ssh.sh --confirm` cancels the rollback.
+   If it does not, do nothing: after the deadline the change is reverted automatically. You can also revert right away with `sudo /usr/local/sbin/autoops-ssh-rollback`.
 
-## Llave de despliegue (Fase 5)
+## Deploy key (Phase 5)
 
-- Se genera aparte de la del admin: `ssh-keygen -t ed25519 -f deploy_key -C autoops-deploy`.
-- La **privada** vive solo como secreto de GitHub Actions; nunca en el repositorio ni en este host.
-- La entrada en `authorized_keys` queda como `restrict,from="<CIDR>",command="/usr/local/sbin/autoops-deploy-entrypoint" <llave>`: sin PTY, sin forwarding y con un único comando permitido (`deploy`).
-- La cuenta no está en `sudo` ni en `docker`. La acción real de despliegue se define en la Fase 5.
+- Generate it separately from the admin's: `ssh-keygen -t ed25519 -f deploy_key -C autoops-deploy`.
+- The **private** key lives only as a GitHub Actions secret; never in the repository nor on this host.
+- The `authorized_keys` entry ends up as `restrict,from="<CIDR>",command="/usr/local/sbin/autoops-deploy-entrypoint" <key>`: no PTY, no forwarding and a single allowed command (`deploy`).
+- The account is not in `sudo` nor `docker`. The actual deployment action is defined in Phase 5.
 
-## Alta, rotación y revocación
+## Enrollment, rotation and revocation
 
-- **Alta del admin:** añade la `.pub` a un archivo y vuelve a ejecutar el script (añade la llave a `authorized_keys` sin borrar las existentes).
-- **Revocación del admin:** elimina la línea correspondiente de `/home/<admin>/.ssh/authorized_keys` (`sudo nano`). Efecto inmediato en nuevas conexiones; las sesiones abiertas siguen hasta cerrarse (termínalas con `sudo pkill -u <usuario> sshd` si es necesario).
-- **Rotación:** genera la nueva llave, instálala, verifica el login con ella y entonces revoca la antigua. Nunca al revés.
-- **Llave de despliegue:** `authorized_keys` de `DEPLOY_USER` se regenera por completo con cada ejecución; para rotar, cambia `DEPLOY_SSH_PUBKEY_FILE` y ejecuta de nuevo. Para revocar, borra el archivo `/home/<DEPLOY_USER>/.ssh/authorized_keys`.
+- **Admin enrollment:** add the `.pub` to a file and run the script again (it adds the key to `authorized_keys` without removing existing ones).
+- **Admin revocation:** remove the corresponding line from `/home/<admin>/.ssh/authorized_keys` (`sudo nano`). Immediate effect on new connections; open sessions persist until closed (terminate them with `sudo pkill -u <user> sshd` if needed).
+- **Rotation:** generate the new key, install it, verify login with it, and only then revoke the old one. Never the other way around.
+- **Deploy key:** `DEPLOY_USER`'s `authorized_keys` is fully regenerated on every run; to rotate, change `DEPLOY_SSH_PUBKEY_FILE` and run again. To revoke, delete the file `/home/<DEPLOY_USER>/.ssh/authorized_keys`.
 
-## Recuperación de acceso
+## Access recovery
 
-- **VirtualBox:** consola de la VM (login local con la contraseña del admin) y `sudo /usr/local/sbin/autoops-ssh-rollback`, o edita/borra `/etc/ssh/sshd_config.d/10-autoops.conf` y `sudo systemctl reload ssh`.
-- **AWS EC2:** EC2 Serial Console o Session Manager, o montar el volumen en otra instancia y corregir `authorized_keys`.
+- **VirtualBox:** VM console (local login with the admin password) and `sudo /usr/local/sbin/autoops-ssh-rollback`, or edit/delete `/etc/ssh/sshd_config.d/10-autoops.conf` and `sudo systemctl reload ssh`.
+- **AWS EC2:** EC2 Serial Console or Session Manager, or mount the volume on another instance and fix `authorized_keys`.
 
-## Notas
+## Notes
 
-- El puerto se mantiene en 22: en Ubuntu 24.04 `ssh.socket` ignora `Port` de `sshd_config`.
-- `PermitRootLogin no` y `AllowUsers` aplican a todas las cuentas; el rollback restaura el drop-in anterior, no el del sistema base.
+- The port stays at 22: on Ubuntu 24.04 `ssh.socket` ignores `Port` from `sshd_config`.
+- `PermitRootLogin no` and `AllowUsers` apply to all accounts; the rollback restores the previous drop-in, not the base system one.

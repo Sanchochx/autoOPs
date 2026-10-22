@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Verifica los controles de US-HOST-001 (solo lectura). Mismas variables que 10_users.sh:
+# Verifies the controls of US-HOST-001 (read-only). Same variables as 10_users.sh:
 #
-#   sudo ADMIN_USER=<usuario> ./scripts/provision/checks/10_users.sh
+#   sudo ADMIN_USER=<user> ./scripts/provision/checks/10_users.sh
 set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/../lib/common.sh"
 

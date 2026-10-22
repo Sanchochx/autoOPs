@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
-# US-NET-001: firewall UFW con política deny-by-default. Idempotente.
+# US-NET-001: UFW firewall with a deny-by-default policy. Idempotent.
 #
 #   sudo ./scripts/provision/40_ufw.sh
 #
-# Variables (todas opcionales):
-#   SSH_PORT       puerto SSH a permitir; por defecto, el efectivo de sshd (`sshd -T`)
-#   ADMIN_CIDR     restringe SSH a esta IP/CIDR; vacío = SSH abierto a cualquier origen (con rate limit)
-#   UFW_WEB_PORTS  puertos TCP web a abrir, separados por espacios (ej. "80 443"); por defecto, ninguno
-#   UFW_DRY_RUN=1  muestra las reglas que aplicaría y sale sin tocar el firewall
+# Variables (all optional):
+#   SSH_PORT       SSH port to allow; default: sshd's effective port (`sshd -T`)
+#   ADMIN_CIDR     restricts SSH to this IP/CIDR; empty = SSH open to any source (rate limited)
+#   UFW_WEB_PORTS  web TCP ports to open, space-separated (e.g. "80 443"); default: none
+#   UFW_DRY_RUN=1  shows the rules it would apply and exits without touching the firewall
 #
-# SEGURIDAD ANTI-BLOQUEO: la regla SSH se añade y se verifica ANTES de habilitar UFW,
-# y el script se niega a habilitarlo si sshd no escucha en el puerto indicado.
-# UFW no filtra los puertos publicados por Docker (se resuelve en US-NET-002).
+# ANTI-LOCKOUT SAFETY: the SSH rule is added and verified BEFORE enabling UFW,
+# and the script refuses to enable it if sshd is not listening on the given port.
+# UFW does not filter ports published by Docker (resolved in US-NET-002).
 set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/lib/common.sh"
 source "$(dirname "${BASH_SOURCE[0]}")/lib/ufw_rules.sh"
@@ -22,7 +22,7 @@ UFW_WEB_PORTS="${UFW_WEB_PORTS:-}"
 validate_ufw_inputs
 SSH_PORT="$(resolve_ssh_port)"
 
-# --- Guardas anti-bloqueo (antes de tocar nada) ---------------------------------
+# --- Anti-lockout guards (before touching anything) ---------------------------------
 [[ -n "$(ss -H -ltn "sport = :${SSH_PORT}")" ]] \
   || die "Nada escucha en el puerto ${SSH_PORT}: habilitar UFW cortaría el acceso. Revisa SSH_PORT."
 if [[ -n $ADMIN_CIDR && -n ${SSH_CONNECTION:-} ]]; then
@@ -41,7 +41,7 @@ if [[ ${UFW_DRY_RUN:-0} == 1 ]]; then
   exit 0
 fi
 
-# --- Instalación ------------------------------------------------------------------
+# --- Installation ------------------------------------------------------------------
 if ! command -v ufw >/dev/null 2>&1; then
   export DEBIAN_FRONTEND=noninteractive
   apt-get update -qq
@@ -53,7 +53,7 @@ was_active=0
 [[ "$(ufw status)" == "Status: active"* ]] && was_active=1
 before="$(added_ufw_rules | sort)"
 
-# --- CA-1: políticas por defecto y SSH (ANTES de habilitar) --------------------------
+# --- AC-1: default policies and SSH (BEFORE enabling) --------------------------
 ufw default deny incoming >/dev/null
 ufw default allow outgoing >/dev/null
 ufw default deny routed >/dev/null
@@ -64,15 +64,15 @@ else
   ufw limit "${SSH_PORT}/tcp" comment 'autoops: ssh' >/dev/null
 fi
 
-# --- CA-2: puertos web (opt-in; por defecto ninguno) ---------------------------------
+# --- AC-2: web ports (opt-in; none by default) ---------------------------------
 for port in $UFW_WEB_PORTS; do
   ufw allow "${port}/tcp" comment 'autoops: web' >/dev/null
 done
 
-# --- CA-3: logging a journald/kernel ----------------------------------------------------
+# --- AC-3: logging to journald/kernel ----------------------------------------------------
 ufw logging low >/dev/null
 
-# Verifica que la regla SSH existe antes de habilitar; si no, aborta.
+# Verify the SSH rule exists before enabling; otherwise abort.
 added_now="$(added_ufw_rules)"
 grep -qxF "${wanted[0]}" <<<"$added_now" \
   || die "La regla SSH '${wanted[0]}' no quedó registrada; UFW NO se habilita para no bloquearte."

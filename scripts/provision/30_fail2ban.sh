@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
-# US-HOST-003: protección contra fuerza bruta SSH con fail2ban (journald). Idempotente.
+# US-HOST-003: SSH brute-force protection with fail2ban (journald). Idempotent.
 #
-#   sudo FAIL2BAN_IGNOREIP="<IP/CIDR admin> <red local>" ./scripts/provision/30_fail2ban.sh
+#   sudo FAIL2BAN_IGNOREIP="<IP/CIDR admin> <local network>" ./scripts/provision/30_fail2ban.sh
 #
 # Variables:
-#   FAIL2BAN_IGNOREIP        obligatoria: IPs/CIDR que nunca se banean (separadas por espacios o comas)
-#   FAIL2BAN_MAXRETRY=3      intentos fallidos antes del ban
-#   FAIL2BAN_FINDTIME=10m    ventana en la que se cuentan los intentos
-#   FAIL2BAN_BANTIME=1h      duración del primer ban
-#   FAIL2BAN_BANTIME_FACTOR=2   multiplicador por reincidencia (ban progresivo)
-#   FAIL2BAN_BANTIME_MAXTIME=1w tope del ban progresivo
-#   FAIL2BAN_BANACTION       por defecto `ufw` si UFW está instalado; si no, `nftables`
-#   SSH_PORT                 por defecto, el puerto efectivo de sshd (`sshd -T`)
+#   FAIL2BAN_IGNOREIP        required: IPs/CIDRs that are never banned (separated by spaces or commas)
+#   FAIL2BAN_MAXRETRY=3      failed attempts before the ban
+#   FAIL2BAN_FINDTIME=10m    window in which attempts are counted
+#   FAIL2BAN_BANTIME=1h      duration of the first ban
+#   FAIL2BAN_BANTIME_FACTOR=2   multiplier per repeat offense (progressive ban)
+#   FAIL2BAN_BANTIME_MAXTIME=1w cap of the progressive ban
+#   FAIL2BAN_BANACTION       default `ufw` if UFW is installed; otherwise `nftables`
+#   SSH_PORT                 default: sshd's effective port (`sshd -T`)
 set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/lib/common.sh"
 
@@ -35,7 +35,7 @@ for var in FINDTIME BANTIME BANTIME_MAXTIME; do
   [[ ${!var} =~ ^[0-9]+[smhdw]?$ ]] || die "FAIL2BAN_${var} inválida (ej. 600, 10m, 1h, 1w)."
 done
 
-# ignoreip: se normaliza a espacios y siempre se incluye el loopback.
+# ignoreip: normalized to spaces and loopback is always included.
 ignoreip_in="${FAIL2BAN_IGNOREIP//,/ }"
 [[ $ignoreip_in =~ ^[0-9a-fA-F:./[:space:]]+$ ]] || die "FAIL2BAN_IGNOREIP solo admite IP/CIDR separados por espacios o comas."
 IGNOREIP="127.0.0.1/8 ::1 $(xargs <<<"$ignoreip_in")"
@@ -56,7 +56,7 @@ else
 fi
 [[ $BANACTION =~ ^[a-z0-9_-]+$ ]] || die "FAIL2BAN_BANACTION inválida."
 
-# --- CA-1: instalación ---------------------------------------------------------
+# --- AC-1: installation ---------------------------------------------------------
 if ! dpkg -s fail2ban python3-systemd >/dev/null 2>&1; then
   export DEBIAN_FRONTEND=noninteractive
   apt-get update -qq
@@ -64,9 +64,9 @@ if ! dpkg -s fail2ban python3-systemd >/dev/null 2>&1; then
   log_change "instalados fail2ban y python3-systemd"
 fi
 
-# --- CA-1 / CA-2 / CA-3: configuración con validación y vuelta atrás -----------
+# --- AC-1 / AC-2 / AC-3: configuration with validation and rollback -----------
 declare -A backup=()
-apply_conf() { # apply_conf <destino> <contenido>
+apply_conf() { # apply_conf <target> <content>
   local dest=$1 content=$2
   if [[ -f $dest && "$(cat "$dest")" == "$content" ]]; then
     log_info "${dest} ya está al día."
@@ -101,7 +101,7 @@ if ! fail2ban-client -t >/dev/null 2>&1; then
 fi
 for dest in "${!backup[@]}"; do rm -f "${dest}.autoops-prev"; done
 
-# --- Servicio -----------------------------------------------------------------
+# --- Service -----------------------------------------------------------------
 if [[ -d /run/systemd/system ]]; then
   systemctl enable fail2ban >/dev/null 2>&1
   if ! systemctl is-active --quiet fail2ban; then

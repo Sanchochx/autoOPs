@@ -1,106 +1,106 @@
 # Skill: Cleanup
 
-## Objetivo
-Limpiar el proyecto a nivel de archivos y dependencias. Complementa al
-skill dead-code que limpia dentro de archivos. Este skill elimina archivos
-completos innecesarios y dependencias no usadas.
+## Purpose
+Clean the project at the file and dependency level. It complements the
+dead-code skill, which cleans inside files. This skill removes entire
+unnecessary files and unused dependencies.
 
-## Prerequisito
-Correr primero el skill audit. No usar este skill sin haber revisado
-el reporte previo.
+## Prerequisite
+Run the audit skill first. Do not use this skill without having reviewed
+the previous report.
 
-## Cómo activar
+## How to trigger
 ```
-Usa el skill cleanup en el proyecto completo
-Usa el skill cleanup enfocándote en dependencias
-Usa el skill cleanup enfocándote en archivos
+Use the cleanup skill on the whole project
+Use the cleanup skill focusing on dependencies
+Use the cleanup skill focusing on files
 ```
 
-## Qué limpia
+## What it cleans
 
-### Archivos (con confirmación siempre)
-- Archivos con nombre `*_old.*`, `*_backup.*`, `*_copy.*`, `*.bak`, `*.tmp`
-- Archivos de configuración duplicados (ej: dos `.env.example` en distintas rutas)
-- Archivos generados automáticamente que deberían estar en `.gitignore`
+### Files (always with confirmation)
+- Files named `*_old.*`, `*_backup.*`, `*_copy.*`, `*.bak`, `*.tmp`
+- Duplicate configuration files (e.g. two `.env.example` in different paths)
+- Auto-generated files that should be in `.gitignore`
   (`__pycache__/`, `node_modules/`, `*.pyc`, `dist/`, `build/`)
-- Carpetas completamente vacías
-- Logs y archivos temporales commiteados por error
+- Completely empty folders
+- Logs and temporary files committed by mistake
 
-### Dependencias — Python
+### Dependencies — Python
 ```bash
-# Detectar dependencias sin uso
+# Detect unused dependencies
 pip install pipreqs
-pipreqs . --print   # muestra solo las realmente usadas
+pipreqs . --print   # shows only the ones actually used
 
-# Comparar con requirements.txt actual
-# Las que están en requirements.txt pero no en pipreqs → candidatas a eliminar
+# Compare with the current requirements.txt
+# Those in requirements.txt but not in pipreqs → candidates for removal
 ```
 
-### Dependencias — Node.js
+### Dependencies — Node.js
 ```bash
-# Detectar dependencias sin uso
+# Detect unused dependencies
 npx depcheck
 
-# Resultado muestra:
-# Unused dependencies: [lista]
-# Unused devDependencies: [lista]
-# Missing dependencies: [lista]
+# The result shows:
+# Unused dependencies: [list]
+# Unused devDependencies: [list]
+# Missing dependencies: [list]
 ```
 
 ### .gitignore
-- Verificar que los archivos/carpetas generadas están en `.gitignore`
-- Agregar entradas faltantes comunes según el stack detectado
+- Verify that generated files/folders are in `.gitignore`
+- Add common missing entries according to the detected stack
 
-## Proceso
+## Process
 
-1. Listar todo lo que se va a eliminar o modificar
-2. Confirmar con el usuario antes de cualquier eliminación de archivos
-3. Para dependencias: mostrar el comando a correr, ejecutarlo, mostrar resultado
-4. Actualizar `.gitignore` si es necesario
-5. Verificar que el proyecto sigue corriendo después de la limpieza
+1. List everything that will be removed or modified
+2. Confirm with the user before any file removal
+3. For dependencies: show the command to run, run it, show the result
+4. Update `.gitignore` if necessary
+5. Verify the project still runs after the cleanup
 
-## Formato de respuesta
+## Response format
 
 ```
-## Cleanup — Plan completo
+## Cleanup — Full plan
 
-### Archivos a eliminar (requieren confirmación):
-- [ ] `src/utils_old.py` — versión antigua de utils.py (127 líneas)
-- [ ] `config/database_backup.js` — backup manual del 2024-11-03
-- [ ] `notes.txt` — notas personales en la raíz del proyecto
+### Files to remove (require confirmation):
+- [ ] `src/utils_old.py` — old version of utils.py (127 lines)
+- [ ] `config/database_backup.js` — manual backup from 2024-11-03
+- [ ] `notes.txt` — personal notes in the project root
 
-### Dependencias sin uso detectadas:
+### Unused dependencies detected:
 
 Python (pipreqs):
-- [ ] `moment` en requirements.txt — no importado en ningún .py
-- [ ] `xlrd` en requirements.txt — no importado en ningún .py
+- [ ] `moment` in requirements.txt — not imported in any .py
+- [ ] `xlrd` in requirements.txt — not imported in any .py
 
 Node.js (depcheck):
-- [ ] `underscore` en dependencies — no requerido en ningún .js
-- [ ] `mocha` en devDependencies — proyecto usa Jest
+- [ ] `underscore` in dependencies — not required in any .js
+- [ ] `mocha` in devDependencies — project uses Jest
 
-### .gitignore — entradas faltantes sugeridas:
+### .gitignore — suggested missing entries:
 - `.env.local`
 - `*.log`
 - `coverage/`
 
 ---
-[después de confirmación]
+[after confirmation]
 
-### Ejecutado:
-- ✓ Archivos eliminados: [N]
-- ✓ Dependencias removidas: pip uninstall moment xlrd / npm uninstall underscore
-- ✓ .gitignore actualizado
+### Executed:
+- ✓ Files removed: [N]
+- ✓ Dependencies removed: pip uninstall moment xlrd / npm uninstall underscore
+- ✓ .gitignore updated
 
-### Estado final:
-- Archivos eliminados: [N]
-- Dependencias removidas: [N]
-- Tamaño del proyecto antes: [X MB] → después: [Y MB]
+### Final state:
+- Files removed: [N]
+- Dependencies removed: [N]
+- Project size before: [X MB] → after: [Y MB]
 ```
 
-## Reglas críticas
-- Nunca eliminar `node_modules/` o `venv/` si no están en `.gitignore` — primero agregarlos ahí
-- Nunca desinstalar dependencias de producción sin confirmar que el proyecto corre después
-- Si hay duda sobre un archivo, NO eliminarlo — marcarlo como "revisar manualmente"
-- Siempre hacer un commit limpio antes de correr cleanup para poder revertir fácilmente
-- Los archivos `.env` reales nunca se eliminan — solo los `.env.example` duplicados
+## Critical rules
+- Never remove `node_modules/` or `venv/` if they are not in `.gitignore` — add them there first
+- Never uninstall production dependencies without confirming the project runs afterwards
+- If in doubt about a file, do NOT remove it — mark it as "review manually"
+- Always make a clean commit before running cleanup so it is easy to revert
+- Real `.env` files are never removed — only duplicate `.env.example` files
