@@ -315,7 +315,7 @@
 - **Acceptance Criteria:** 3
 - **Note:** opening 80/443 (AC-2) is deferred to Phase 5; for now it is opt-in via `UFW_WEB_PORTS` (by default, no web port).
 
-#### [~] US-NET-002: Docker ↔ UFW Coherence
+#### [x] US-NET-002: Docker ↔ UFW Coherence
 - **File:** `context/user_stories/epic_10_network_security/US-NET-002_docker_ufw_coherence.md`
 - **Priority:** CRITICAL
 - **Estimate:** 5 pts
@@ -347,7 +347,7 @@
 - **Dependencies:** US-SYS-001
 - **Acceptance Criteria:** 4
 
-#### [ ] US-SYS-003: systemd Service for the AutoOps Stack
+#### [~] US-SYS-003: systemd Service for the AutoOps Stack
 - **File:** `context/user_stories/epic_11_os_runtime/US-SYS-003_systemd_service.md`
 - **Priority:** HIGH
 - **Estimate:** 8 pts

@@ -4,7 +4,7 @@
 **Priority:** HIGH
 **Estimate:** 8 pts
 **Dependencies:** US-HOST-001, US-SYS-002, US-NET-002
-**Status:** Pending
+**Status:** In progress
 
 ---
 
