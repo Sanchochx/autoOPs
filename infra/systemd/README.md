@@ -4,6 +4,7 @@
 |---|---|
 | `autoops.service` | `Type=oneshot` + `RemainAfterExit`: `docker compose up -d --wait` / `down`. Enabled at boot. |
 | `autoops-migrate.service` | Manual Alembic `upgrade head`. No `[Install]`, never enabled. |
+| `autoops-backup.service` / `.timer` | `Type=oneshot` `pg_dump` via `scripts/ops/backup_postgres.sh`; timer uses `BACKUP_SCHEDULE` from `.env` (rendered by `70_systemd.sh`), `RandomizedDelaySec=15min`, `Persistent=true`. |
 
 Install: `sudo ./scripts/provision/70_systemd.sh` (`AUTOOPS_ENABLE=1` also enables boot start).
 Check: `sudo ./scripts/provision/checks/70_systemd.sh`.

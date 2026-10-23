@@ -20,7 +20,7 @@
 
 > Work ONE AT A TIME, in order. Mark `[x]` when each one is done and pause at the final checkpoint before closing the US.
 
-- [ ] **AC-1: Backup Script**
+- [x] **AC-1: Backup Script**
   - `scripts/ops/backup_postgres.sh` runs `pg_dump` (custom format) via `docker compose exec -T postgres`, reading credentials from the environment, without printing them in logs or passing them through visible arguments.
   - Output to `BACKUP_DIR` (variable, outside `postgres_data`) with a dated name, mode `0600` and owner `autoops`.
   - **Verification:** a valid dump is generated (`pg_restore --list`).
