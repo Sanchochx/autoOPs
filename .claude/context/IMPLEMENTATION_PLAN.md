@@ -8,8 +8,8 @@
   The workflow (TASK_EXECUTION.md) updates this file when closing each US.
 -->
 
-**Last updated:** 2026-10-19
-**Version:** 2.3
+**Last updated:** 2026-10-23
+**Version:** 2.4
 
 ---
 
@@ -20,11 +20,11 @@
 │  OVERALL PROJECT PROGRESS                                   │
 ├─────────────────────────────────────────────────────────────┤
 │  Total User Stories:             23                         │
-│  ✅ Completed:                   19                         │
-│  ⏳ In Progress:                 1                          │
-│  ⏸️  Pending:                    3                          │
+│  ✅ Completed:                   21                         │
+│  ⏳ In Progress:                 0                          │
+│  ⏸️  Pending:                    2                          │
 │                                                             │
-│  Progress: [████████░░] 83% (19/23)                          │
+│  Progress: [█████████░] 91% (21/23)                          │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -53,8 +53,8 @@
 | 07 | AI Integration (Gateway ↔ LangGraph) | INT | 2 | 2 | 0 | 0 | [██████████] 100% |
 | 08 | Containerization & Orchestration | DOCK | 4 | 4 | 0 | 0 | [██████████] 100% |
 | 09 | Host Access & Identity | HOST | 3 | 3 | 0 | 0 | [██████████] 100% |
-| 10 | Network Security | NET | 2 | 1 | 1 | 0 | [█████░░░░░] 50% |
-| 11 | OS Hardening & Runtime | SYS | 4 | 2 | 0 | 2 | [█████░░░░░] 50% |
+| 10 | Network Security | NET | 2 | 2 | 0 | 0 | [██████████] 100% |
+| 11 | OS Hardening & Runtime | SYS | 4 | 3 | 0 | 1 | [███████░░░] 75% |
 | 12 | Provisioning | PROV | 1 | 0 | 0 | 1 | [░░░░░░░░░░] 0% |
 
 ---
@@ -262,7 +262,7 @@
 **Goal:** Deliver a dedicated, hardened and reproducible Ubuntu Server 24.04 LTS (validated on a clean VirtualBox VM; EC2 as the final target) that runs the Compose stack as a systemd service, ready for Phase 5.
 **Epics:** 09 Host Access & Identity, 10 Network Security, 11 OS Hardening & Runtime, 12 Provisioning
 **Total US:** 10 (54 pts)
-**Progress:** [██████░░░░] 60% (6/10)
+**Progress:** [████████░░] 80% (8/10)
 
 > Decisions: provisioning with **idempotent Bash scripts + `verify.sh`** (no Ansible); **standard Docker** with a hardened `daemon.json` (no rootless); `auditd`/Lynis **excluded**.
 > Recommended order: HOST-001 → HOST-002 → HOST-003 → NET-001 → SYS-001 → SYS-002 → NET-002 → SYS-003 → SYS-004 → PROV-001. NET-002 comes after SYS-002 because it needs Docker installed; PROV-001 integrates everything.
@@ -347,7 +347,7 @@
 - **Dependencies:** US-SYS-001
 - **Acceptance Criteria:** 4
 
-#### [~] US-SYS-003: systemd Service for the AutoOps Stack
+#### [x] US-SYS-003: systemd Service for the AutoOps Stack
 - **File:** `context/user_stories/epic_11_os_runtime/US-SYS-003_systemd_service.md`
 - **Priority:** HIGH
 - **Estimate:** 8 pts
