@@ -19,6 +19,7 @@ unit_matches()   { [[ "$(render "${REPO_ROOT}/infra/systemd/$1.service.tpl")" ==
 unit_prop()      { [[ "$(systemctl show "$1" --property="$2" --value)" == "$3" ]]; }
 unit_verifies()  { systemd-analyze verify "$1"; }
 env_file_ok()    { [[ "$(stat -c '%U:%G %a' "${APP_DIR}/.env")" == "${SERVICE_USER}:${SERVICE_USER} 600" ]]; }
+prestart_guard() { grep -q "^ExecStartPre=${APP_DIR}/scripts/ops/validate_env.sh\$" "$UNIT" && [[ -x ${APP_DIR}/scripts/ops/validate_env.sh ]]; }
 no_secrets()     { ! grep -Eqi '(password|secret|api_key|token)=' "$UNIT" "$MIGRATE"; }
 never_enabled() { [[ "$(systemctl is-enabled autoops-migrate 2>/dev/null)" == "static" ]]; }
 no_install()     { ! grep -q '^\[Install\]' "$MIGRATE"; }
@@ -47,6 +48,7 @@ check "Type=oneshot con RemainAfterExit=yes" bash -c "[[ \$(systemctl show autoo
 check "corre como ${SERVICE_USER}" unit_prop autoops User "$SERVICE_USER"
 check "ExecStop sin -v (los datos persisten)" no_volume_wipe
 check "sin secretos en las unidades" no_secrets
+check "autoops.service valida secretos por defecto antes de arrancar (ExecStartPre)" prestart_guard
 check "${APP_DIR}/.env es ${SERVICE_USER}:${SERVICE_USER} 0600" env_file_ok
 check "sandboxing activo (NoNewPrivileges, ProtectHome, PrivateTmp, ProtectSystem=full)" sandbox_on
 check "autoops.service no ejecuta migraciones" migrate_is_manual

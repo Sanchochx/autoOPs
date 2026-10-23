@@ -4,7 +4,20 @@
 !.env.example
 *.pem
 *.key
+*.p12
+*.pfx
+id_rsa*
+*.pub
+*.tfstate
+*.tfstate.*
 .claude/settings.local.json
+
+# ── Database dumps and backups ──────────────────────────────
+*.sql
+*.dump
+*.sqlite*
+*.bak
+backups/
 
 # ── Python ──────────────────────────────────────────────────
 venv/

@@ -8,6 +8,8 @@
 Install: `sudo ./scripts/provision/70_systemd.sh` (`AUTOOPS_ENABLE=1` also enables boot start).
 Check: `sudo ./scripts/provision/checks/70_systemd.sh`.
 
+`autoops.service` runs `scripts/ops/validate_env.sh` as `ExecStartPre=`: with `ENVIRONMENT=production` it refuses to start if `SECRET_KEY` or `DB_PASSWORD` is empty or a default (e.g. `cambia_esta_clave`).
+
 ## Operation
 
 ```bash

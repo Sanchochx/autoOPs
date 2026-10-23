@@ -21,8 +21,8 @@
 ├─────────────────────────────────────────────────────────────┤
 │  Total User Stories:             23                         │
 │  ✅ Completed:                   21                         │
-│  ⏳ In Progress:                 0                          │
-│  ⏸️  Pending:                    2                          │
+│  ⏳ In Progress:                 1                          │
+│  ⏸️  Pending:                    1                          │
 │                                                             │
 │  Progress: [█████████░] 91% (21/23)                          │
 └─────────────────────────────────────────────────────────────┘
@@ -54,7 +54,7 @@
 | 08 | Containerization & Orchestration | DOCK | 4 | 4 | 0 | 0 | [██████████] 100% |
 | 09 | Host Access & Identity | HOST | 3 | 3 | 0 | 0 | [██████████] 100% |
 | 10 | Network Security | NET | 2 | 2 | 0 | 0 | [██████████] 100% |
-| 11 | OS Hardening & Runtime | SYS | 4 | 3 | 0 | 1 | [███████░░░] 75% |
+| 11 | OS Hardening & Runtime | SYS | 4 | 3 | 1 | 0 | [███████░░░] 75% |
 | 12 | Provisioning | PROV | 1 | 0 | 0 | 1 | [░░░░░░░░░░] 0% |
 
 ---
@@ -354,7 +354,7 @@
 - **Dependencies:** US-HOST-001, US-SYS-002, US-NET-002
 - **Acceptance Criteria:** 4
 
-#### [ ] US-SYS-004: PostgreSQL Backups with systemd Timer
+#### [~] US-SYS-004: PostgreSQL Backups with systemd Timer
 - **File:** `context/user_stories/epic_11_os_runtime/US-SYS-004_postgres_backups_timer.md`
 - **Priority:** HIGH
 - **Estimate:** 5 pts
