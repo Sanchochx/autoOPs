@@ -25,7 +25,7 @@
   - Output to `BACKUP_DIR` (variable, outside `postgres_data`) with a dated name, mode `0600` and owner `autoops`.
   - **Verification:** a valid dump is generated (`pg_restore --list`).
 
-- [ ] **AC-2: `autoops-backup.service` and `.timer`**
+- [x] **AC-2: `autoops-backup.service` and `.timer`**
   - Units in `infra/systemd/`: oneshot service and timer (`OnCalendar` via variable, `Persistent=true`, `RandomizedDelaySec`).
   - **Verification:** `systemctl list-timers` shows the next trigger and `systemctl start autoops-backup` creates a backup.
 
